@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TownManager.Api/TownManager.Api.csproj" />
+  <Project Path="TownManager.Application/TownManager.Application.csproj" />
+  <Project Path="TownManager.Domain/TownManager.Domain.csproj" />
+  <Project Path="TownManager.Infrastructure/TownManager.Infrastructure.csproj" />
+</Solution>
