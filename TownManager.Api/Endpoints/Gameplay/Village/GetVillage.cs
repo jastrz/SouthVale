@@ -13,7 +13,7 @@ public class GetVillage : IEndpoint
             CancellationToken ct
         ) =>
         {
-            var result = await sender.Send(new GetVillageQuery(id), ct);
+            var result = await sender.Send(new GetVillageCommand(id), ct);
             return Results.Ok(result);
         });
     }

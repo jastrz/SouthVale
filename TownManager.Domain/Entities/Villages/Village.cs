@@ -1,3 +1,4 @@
+using TownManager.Domain.Config;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Domain.Entities.Villages;
@@ -38,6 +39,15 @@ public class Village : Entity
             Building.Create(BuildingType.IronMine,  1),
             Building.Create(BuildingType.Warehouse,  1),
             Building.Create(BuildingType.Granary,  1),
+            Building.Create(BuildingType.WoodCutter, 1),
+            Building.Create(BuildingType.CropField, 1)
         ]
     };
+    
+    public void ApplyProduction(BuildingEffects effects)
+    {
+        var elapsed = DateTime.UtcNow - LastTickAt;
+        Resources = Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours));
+        LastTickAt = DateTime.UtcNow;
+    }
 }

@@ -5,14 +5,14 @@ namespace TownManager.Domain.Entities;
 /// </summary>
 public class Resources
 {
-    public int Wood { get; private set; }
-    public int Clay { get; private set; }
-    public int Iron { get; private set; }
-    public int Crop { get; private set; }
+    public double Wood { get; private set; }
+    public double Clay { get; private set; }
+    public double Iron { get; private set; }
+    public double Crop { get; private set; }
 
     public static Resources Zero => new();
 
-    public Resources(int wood, int clay, int iron, int crop)
+    public Resources(double wood, double clay, double iron, double crop)
     {
         Wood = wood; Clay = clay; Iron = iron; Crop = crop;
     }
@@ -25,6 +25,9 @@ public class Resources
     public Resources Subtract(Resources other) =>
         new(Wood - other.Wood, Clay - other.Clay, Iron - other.Iron, Crop - other.Crop);
 
+    public Resources Multiply(double m) =>
+        new(Wood * m, Clay * m,
+            Iron * m, Crop * m);
     public bool CanAfford(Resources cost) =>
         Wood >= cost.Wood && Clay >= cost.Clay && Iron >= cost.Iron && Crop >= cost.Crop;
 
