@@ -1,4 +1,5 @@
-using TownManager.Application.Interfaces;
+using MediatR;
+using TownManager.Application.Auth.Register;
 
 namespace TownManager.Api.Endpoints.Auth;
 
@@ -8,13 +9,14 @@ public class RegisterEndpoint : IEndpoint
     {
         app.MapPost("/auth/register", async (
                 RegisterRequest request,
-                IAuthService authService,
+                ISender sender,
                 CancellationToken ct) =>
             {
-                var result = await authService.RegisterAsync(request.Email, request.Password, request.Username, ct);
-                
+                var result = await sender.Send(
+                    new RegisterCommand(request.Email, request.Password, request.Username), ct);
+
                 return result.Succeeded
-                    ? Results.Ok()
+                    ? Results.Ok(result.Value)
                     : Results.Problem(
                         title: "Registration failed",
                         detail: string.Join(", ", result.Errors),

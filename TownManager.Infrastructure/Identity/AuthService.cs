@@ -15,7 +15,7 @@ public class AuthService(
     ITokenService tokenService,
     IMediator mediator) : IAuthService
 {
-    public async Task<Result> RegisterAsync(string email, string password, string username, CancellationToken ct)
+    public async Task<Result<string>> RegisterAsync(string email, string password, string username, CancellationToken ct)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
 
@@ -37,7 +37,7 @@ public class AuthService(
         var result = await userManager.CreateAsync(user, password);
 
         if (!result.Succeeded)
-            return Result.Failure(result.Errors.Select(e => e.Description));
+            return Result<string>.Failure(result.Errors.Select(e => e.Description));
 
         await transaction.CommitAsync(ct);
 

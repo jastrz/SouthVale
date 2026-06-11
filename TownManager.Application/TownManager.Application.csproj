@@ -17,7 +17,7 @@
       <HintPath>..\..\..\.nuget\packages\microsoft.entityframeworkcore\10.0.8\lib\net10.0\Microsoft.EntityFrameworkCore.dll</HintPath>
     </Reference>
   </ItemGroup>
-
+  
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

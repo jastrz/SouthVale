@@ -1,5 +1,4 @@
 using MediatR;
-using TownManager.Application.Interfaces;
 using TownManager.Application.Villages.Queries;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
@@ -14,7 +13,7 @@ public class GetVillage : IEndpoint
             CancellationToken ct
         ) =>
         {
-            var result = await sender.Send(new GetVillageQuery(id));
+            var result = await sender.Send(new GetVillageQuery(id), ct);
             return Results.Ok(result);
         });
     }
