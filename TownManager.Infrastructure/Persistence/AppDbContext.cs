@@ -19,4 +19,23 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<Applicat
         
         builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
+    
+    public override Task<int> SaveChangesAsync(CancellationToken ct = default)
+    {
+        var entries = ChangeTracker.Entries<Entity>();
+        foreach (var entry in entries)
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    break;
+                case EntityState.Modified:
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    break;
+            }
+        }
+        return base.SaveChangesAsync(ct);
+    }
 }

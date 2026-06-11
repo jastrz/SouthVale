@@ -5,8 +5,8 @@ using TownManager.Application.Interfaces;
 namespace TownManager.Application.Auth.Login;
 
 public sealed class LoginCommandHandler(
-    IAuthService authService,
-    ITokenService tokenService) 
+    IAuthService authService
+    ) 
     : IRequestHandler<LoginCommand, Result<LoginResponse>>
 {
     public async Task<Result<LoginResponse>> Handle(

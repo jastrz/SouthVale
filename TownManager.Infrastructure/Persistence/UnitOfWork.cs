@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using TownManager.Application.Interfaces;
 
@@ -10,4 +11,7 @@ public class UnitOfWork(AppDbContext db) : IUnitOfWork
 
     public Task SaveChangesAsync(CancellationToken ct = default)
         => db.SaveChangesAsync(ct);
+    
+    public void MarkAsAdded<T>(T entity) where T : class =>
+        db.Entry(entity).State = EntityState.Added;
 }

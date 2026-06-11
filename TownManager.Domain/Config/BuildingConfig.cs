@@ -48,7 +48,7 @@ public static class BuildingConfig
         [BuildingType.ClayPit] =
         [
             new(1, new Resources(80,   40,  50,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 500,  0, 0))),
-            new(2, new Resources(160,  80,  100, 120), TimeSpan.FromMinutes(5),   new BuildingEffects(new Resources(0, 9,  0, 0))),
+            new(2, new Resources(160,  80,  100, 120), TimeSpan.FromMinutes(1),   new BuildingEffects(new Resources(0, 9,  0, 0))),
             new(3, new Resources(320,  160, 200, 240), TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(0, 15, 0, 0))),
             new(4, new Resources(640,  320, 400, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 22, 0, 0))),
             new(5, new Resources(1280, 640, 800, 960), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(0, 33, 0, 0))),

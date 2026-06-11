@@ -6,7 +6,7 @@ namespace TownManager.Domain.Entities;
 public abstract class Entity<TId>
 {
     public TId Id { get; set; } = default!;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }
 

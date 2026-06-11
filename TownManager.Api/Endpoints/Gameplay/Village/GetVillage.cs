@@ -15,6 +15,9 @@ public class GetVillage : IEndpoint
         {
             var result = await sender.Send(new GetVillageCommand(id), ct);
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetVillage")
+        .WithTags("Gameplay")
+        .AllowAnonymous();
     }
 }

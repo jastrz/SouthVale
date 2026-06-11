@@ -18,7 +18,10 @@ public class LoginEndpoint : IEndpoint
             return result.Succeeded
                 ? Results.Ok(result.Value)
                 : Results.Unauthorized();
-        });
+        })
+        .WithName("Login")
+        .WithTags("Auth")
+        .AllowAnonymous();
     }
 }
 

@@ -7,11 +7,19 @@ namespace TownManager.Domain.Entities.Villages;
 /// </summary>
 public class BuildOrder : Entity
 {
-    public BuildingType Type { get; set; }
-    public int TargetLevel { get; set; }
-    public DateTime StartedAt { get; set; }
-    public DateTime CompletesAt { get; set; }
-
     public Guid VillageId { get; set; }
     public Village Village { get; set; } = null!;
+    public BuildingType BuildingType { get; set; }
+    public int TargetLevel { get; set; }
+    public DateTime StartsAt { get; set; }
+    public DateTime CompletesAt { get; set; }
+    public string? HangfireJobId { get; set; }
+
+    public static BuildOrder Create(BuildingType type, int targetLevel, TimeSpan duration) => new()
+    {
+        BuildingType = type,
+        TargetLevel = targetLevel,
+        StartsAt = DateTime.UtcNow,
+        CompletesAt = DateTime.UtcNow.Add(duration)
+    };
 }

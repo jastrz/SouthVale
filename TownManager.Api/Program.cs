@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using Hangfire;
 using Scalar.AspNetCore;
 using TownManager.Api.Configuration;
 using TownManager.Api.Endpoints;
@@ -13,6 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddOptions<CorsOptions>()
     .Bind(builder.Configuration.GetSection(CorsOptions.SectionName));
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // ---------- Application & Infrastructure ----------
 builder.Services.AddApplication();
@@ -69,8 +76,10 @@ app.MapGet("/", () => Results.Ok(new { name = "TownManager.Api", status = "ok" }
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
    .WithName("Health");
 
-app.MapGroup("/identity")
-    .MapIdentityApi<ApplicationUser>();
+// app.MapGroup("/identity")
+//     .MapIdentityApi<ApplicationUser>();
+
+app.UseHangfireDashboard("/hangfire");
 
 app.MapEndpoints();
 

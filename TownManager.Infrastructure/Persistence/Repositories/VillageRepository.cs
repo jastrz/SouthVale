@@ -20,7 +20,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
         db.Villages
             .Include(v => v.BuildOrders)
             .Include(v => v.TrainOrders)
-            .AsSplitQuery()
+            .Include(v => v.Buildings)
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
     public Task<Village?> GetForCombatAsync(Guid id, CancellationToken ct = default) =>
@@ -29,21 +29,19 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
+    public Task<Village?> GetWithBuildingsAndOrdersAsync(Guid orderId, CancellationToken ct = default) =>
+        db.Villages
+            .Include(v => v.Buildings)
+            .Include(v => v.BuildOrders)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(v => v.BuildOrders.Any(o => o.Id == orderId), ct);
+
     public async Task<IReadOnlyList<Village>> GetByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
         await db.Villages
             .AsNoTracking()
             .Where(v => v.PlayerId == playerId)
             .ToListAsync(ct);
-
-    public async Task<IReadOnlyList<Village>> GetVillagesCompletingBeforeAsync(DateTime cutoff, CancellationToken ct = default) =>
-        await db.Villages
-            .Include(v => v.BuildOrders.Where(o => o.CompletesAt <= cutoff))
-            .Include(v => v.TrainOrders.Where(o => o.CompletesAt <= cutoff))
-            .AsSplitQuery()
-            .AsNoTracking()
-            .Where(v => v.BuildOrders.Any(o => o.CompletesAt <= cutoff)
-                     || v.TrainOrders.Any(o => o.CompletesAt <= cutoff))
-            .ToListAsync(ct);
+    
 
     public void Add(Village village) => db.Villages.Add(village);
 }

@@ -1,8 +1,11 @@
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TownManager.Application.Interfaces;
 using TownManager.Infrastructure.Identity;
+using TownManager.Infrastructure.Jobs;
 using TownManager.Infrastructure.Persistence;
 using TownManager.Infrastructure.Persistence.Repositories;
 
@@ -29,6 +32,30 @@ public static class DependencyInjection
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IPlayerRepository, PlayerRepository>();
         services.AddScoped<IVillageRepository, VillageRepository>();
+        services.AddScoped<IJobScheduler, HangfireJobScheduler>();
+        
+        // Hangfire Configuration
+        
+        var storageOptions = new PostgreSqlStorageOptions
+        {
+            PrepareSchemaIfNecessary = true,
+            StartupConnectionMaxRetries = 0,
+            AllowDegradedModeWithoutStorage = false, 
+        };
+        
+        services.AddHangfire(cfg => cfg
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(c => 
+                c.UseNpgsqlConnection(configuration.GetConnectionString("Postgres")),
+                storageOptions));
+
+        services.AddHangfireServer(options =>
+        {
+            options.HeartbeatInterval = TimeSpan.FromSeconds(15);
+            options.WorkerCount = 5;
+        });
 
         return services;
     }
