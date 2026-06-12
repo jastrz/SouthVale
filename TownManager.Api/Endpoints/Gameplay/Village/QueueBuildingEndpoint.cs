@@ -1,10 +1,10 @@
 using MediatR;
-using TownManager.Application.Villages.Queries;
+using TownManager.Application.Villages.Commands;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
 
-public class CreateBuildOrderEndpoint : IEndpoint
+public class QueueBuildingEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder app)
     {
@@ -15,7 +15,7 @@ public class CreateBuildOrderEndpoint : IEndpoint
             CancellationToken ct
         ) =>
         {
-            var result = await sender.Send(new CreateBuildOrderCommand(villageId, request.BuildingType));
+            var result = await sender.Send(new CreateBuildOrderCommand(villageId, request.BuildingType), ct);
             return result.Succeeded
                 ? Results.Ok()
                 : Results.BadRequest(result.Errors);

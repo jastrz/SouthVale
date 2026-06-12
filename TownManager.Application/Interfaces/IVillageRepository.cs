@@ -11,7 +11,9 @@ public interface IVillageRepository
     Task<Village?> GetForCombatAsync(Guid id, CancellationToken ct = default);
     
     // By Hangire orderId
+
     Task<Village?> GetWithBuildingsAndOrdersAsync(Guid orderId, CancellationToken ct);
+    Task<Village?> GetWithTrainOrdersAsync(Guid orderId, CancellationToken ct);
     
     // By playerId
     Task<IReadOnlyList<Village>> GetByPlayerAsync(Guid playerId, CancellationToken ct = default);

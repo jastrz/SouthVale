@@ -2,6 +2,9 @@ namespace TownManager.Domain.Entities;
 
 /// <summary>
 /// Mutable bundle of the four primary resources (wood, clay, iron, crop) with add/subtract helpers.
+/// 
+/// Uses double instead of int to accumulate fractional production
+/// during resource ticks without losing precision over time.
 /// </summary>
 public class Resources
 {

@@ -1,11 +1,10 @@
 using MediatR;
 using TownManager.Application.Common;
 using TownManager.Application.Interfaces;
-using TownManager.Application.Villages.Queries;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities.Villages;
 
-namespace TownManager.Application.Villages.Handlers;
+namespace TownManager.Application.Villages.Commands;
 
 public class CreateBuildOrderHandler(IVillageRepository repo, IUnitOfWork uow, IJobScheduler scheduler)
     : IRequestHandler<CreateBuildOrderCommand, Result>
@@ -13,6 +12,7 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IUnitOfWork uow, I
     public async Task<Result> Handle(CreateBuildOrderCommand cmd, CancellationToken ct)
     {
         var village = await repo.GetWithActiveOrdersAsync(cmd.VillageId, ct);
+        
         if (village is null)
             return Result.Failure(["Village not found"]);
 
@@ -21,7 +21,6 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IUnitOfWork uow, I
 
         var nextLevel = currentLevel + 1;
         var config = BuildingConfig.Get(cmd.BuildingType, nextLevel);
-
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
         village.ApplyProduction(effects);
 
@@ -35,7 +34,6 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IUnitOfWork uow, I
 
         var order = BuildOrder.Create(cmd.BuildingType, nextLevel, config.UpgradeTime);
         village.BuildOrders.Add(order);
-        // uow.MarkAsAdded(order);
 
         await uow.SaveChangesAsync(ct);
 

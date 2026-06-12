@@ -6,6 +6,7 @@ namespace TownManager.Infrastructure.Persistence.Repositories;
 
 internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
 {
+    // By villageId
     public Task<Village?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         db.Villages
             .AsNoTracking()
@@ -29,6 +30,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
+    // By Hangire orderId
     public Task<Village?> GetWithBuildingsAndOrdersAsync(Guid orderId, CancellationToken ct = default) =>
         db.Villages
             .Include(v => v.Buildings)
@@ -36,6 +38,12 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .AsSplitQuery()
             .FirstOrDefaultAsync(v => v.BuildOrders.Any(o => o.Id == orderId), ct);
 
+    public Task<Village?> GetWithTrainOrdersAsync(Guid orderId, CancellationToken ct) =>
+        db.Villages
+            .Include(v => v.TrainOrders)
+            .FirstOrDefaultAsync(v => v.TrainOrders.Any(o => o.Id == orderId), ct);
+    
+    // By playerId
     public async Task<IReadOnlyList<Village>> GetByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
         await db.Villages
             .AsNoTracking()

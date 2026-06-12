@@ -38,7 +38,7 @@ public static class BuildingConfig
     {
         [BuildingType.WoodCutter] =
         [
-            new(1, new Resources(40,   100, 50,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(500,  0, 0, 0))),
+            new(1, new Resources(40,   100, 50,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(5,  0, 0, 0))),
             new(2, new Resources(80,   200, 100, 120), TimeSpan.FromMinutes(5),   new BuildingEffects(new Resources(9,  0, 0, 0))),
             new(3, new Resources(160,  400, 200, 240), TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(15, 0, 0, 0))),
             new(4, new Resources(320,  800, 400, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(22, 0, 0, 0))),
@@ -47,7 +47,7 @@ public static class BuildingConfig
 
         [BuildingType.ClayPit] =
         [
-            new(1, new Resources(80,   40,  50,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 500,  0, 0))),
+            new(1, new Resources(80,   40,  50,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 5,  0, 0))),
             new(2, new Resources(160,  80,  100, 120), TimeSpan.FromMinutes(1),   new BuildingEffects(new Resources(0, 9,  0, 0))),
             new(3, new Resources(320,  160, 200, 240), TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(0, 15, 0, 0))),
             new(4, new Resources(640,  320, 400, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 22, 0, 0))),
@@ -56,16 +56,16 @@ public static class BuildingConfig
 
         [BuildingType.IronMine] =
         [
-            new(1, new Resources(100,  80,  30,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 0, 500,  0))),
+            new(1, new Resources(100,  80,  30,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 0, 5,  0))),
             new(2, new Resources(200,  160, 60,  120), TimeSpan.FromMinutes(5),   new BuildingEffects(new Resources(0, 0, 9,  0))),
-            new(3, new Resources(400,  320, 120, 240), TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(0, 0, 15, 0))),
+            new(3, new Resources(1,  1, 1, 1), TimeSpan.FromSeconds(15),  new BuildingEffects(new Resources(0, 0, 15, 0))),
             new(4, new Resources(800,  640, 240, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 0, 22, 0))),
             new(5, new Resources(1600, 1280, 480, 960), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(0, 0, 33, 0))),
         ],
 
         [BuildingType.CropField] =
         [
-            new(1, new Resources(70,   90,  70,  20),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 0, 0, 500))),
+            new(1, new Resources(70,   90,  70,  20),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 0, 0, 5))),
             new(2, new Resources(140,  180, 140, 40),  TimeSpan.FromMinutes(5),   new BuildingEffects(new Resources(0, 0, 0, 9))),
             new(3, new Resources(280,  360, 280, 80),  TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(0, 0, 0, 15))),
             new(4, new Resources(560,  720, 560, 160), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 0, 0, 22))),

@@ -3,7 +3,7 @@ using TownManager.Application.Common;
 
 namespace TownManager.Application.Villages.Queries;
 
-public record GetVillageCommand(Guid VillageId) : IRequest<Result<VillageDto>>;
+public record GetVillageQuery(Guid VillageId) : IRequest<Result<VillageDto>>;
 
 public record VillageDto(
     Guid Id,
