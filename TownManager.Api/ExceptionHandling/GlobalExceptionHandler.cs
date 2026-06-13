@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,24 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
+        if (exception is ValidationException validationException)
+        {
+            var validationProblemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation failed.",
+                Instance = httpContext.Request.Path
+            };
+            validationProblemDetails.Extensions["errors"] = validationException.Errors
+                .Select(e => new { e.PropertyName, e.ErrorMessage });
+
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            httpContext.Response.ContentType = "application/problem+json";
+            await httpContext.Response.WriteAsJsonAsync(validationProblemDetails, cancellationToken);
+
+            return true;
+        }
+        
         _logger.LogError(
             exception,
             "Unhandled exception while processing {Method} {Path}",
@@ -33,7 +52,6 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         {
             Status = StatusCodes.Status500InternalServerError,
             Title = "An unexpected error occurred.",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
             Detail = exception.Message,
             Instance = httpContext.Request.Path
         };
@@ -41,6 +59,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 
         httpContext.Response.StatusCode = problemDetails.Status.Value;
         httpContext.Response.ContentType = "application/problem+json";
+        
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
         return true;

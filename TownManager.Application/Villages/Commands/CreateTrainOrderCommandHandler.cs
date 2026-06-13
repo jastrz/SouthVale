@@ -12,15 +12,6 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IUnitOfWork
 {
     public async Task<Result> Handle(CreateTrainOrderCommand request, CancellationToken ct)
     {
-        if (request.Orders.Count == 0)
-            return Result.Failure(["No orders provided."]);
-
-        if (request.Orders.Any(o => o.Count <= 0))
-            return Result.Failure(["Count must be greater than 0."]);
-
-        if (request.Orders.GroupBy(o => o.TroopType).Any(g => g.Count() > 1))
-            return Result.Failure(["Duplicate troop types in order."]);
-
         var village = await repo.GetWithActiveOrdersAsync(request.VillageId, ct);
 
         if (village is null)
