@@ -1,13 +1,24 @@
 using System.Text.Json.Serialization;
 using Hangfire;
-using Scalar.AspNetCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 using TownManager.Api.Configuration;
 using TownManager.Api.Endpoints;
 using TownManager.Api.ExceptionHandling;
 using TownManager.Application;
 using TownManager.Infrastructure;
+using TownManager.Infrastructure.Data;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Persistence;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Filter.ByExcluding(e =>
+        e.Properties.TryGetValue("RequestPath", out var path) &&
+        path.ToString().Contains("/hangfire"))
+    .WriteTo.Console(outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +26,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddOptions<CorsOptions>()
     .Bind(builder.Configuration.GetSection(CorsOptions.SectionName));
+
+builder.Host.UseSerilog(); 
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -24,6 +37,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // ---------- Application & Infrastructure ----------
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+
 
 // ---------- Authentication ----------
 builder.Services.AddIdentityCore<ApplicationUser>()
@@ -59,8 +74,20 @@ app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        
+        await db.Database.EnsureCreatedAsync(); 
+        
+        if (await userManager.Users.AnyAsync() == false)
+        {
+            TestDataSeeder testDataSeeder = new(userManager, db);
+            await testDataSeeder.SeedAsync();
+            Log.Information("Db seeded.");
+        }
+    }
 }
 
 app.UseHttpsRedirection();
@@ -79,4 +106,16 @@ app.UseHangfireDashboard("/hangfire");
 
 app.MapEndpoints();
 
-app.Run();
+try
+{
+    Log.Information("Starting application...");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

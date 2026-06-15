@@ -11,6 +11,7 @@ public class Troops
 {
     public int Swordsmen { get; private set; }
     public int Archers { get; private set; }
+    public int Settlers { get; private set; }
 
     public int TotalCount => Swordsmen + Archers;
     

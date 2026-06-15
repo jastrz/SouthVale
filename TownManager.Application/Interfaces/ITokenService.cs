@@ -4,5 +4,5 @@ namespace TownManager.Application.Interfaces;
 
 public interface ITokenService
 {
-    string GenerateToken(string userId, string email, Guid playerId);
+    string GenerateToken(string userId, string email);
 }

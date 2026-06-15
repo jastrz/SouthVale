@@ -8,14 +8,15 @@ namespace TownManager.Domain.Entities;
 public class Player : Entity
 {
     public required string Username { get; init; }
-    public Guid? CurrentVillageId { get; set; }
     public ICollection<Village> Villages { get; set; } = [];
+    public required string UserId { get; init; }
     
-    public static Player Create(string username, Village starterVillage) => new()
+    public static Player Create(string username, string applicationUserId, Village starterVillage) => new()
     {
         Id = Guid.NewGuid(),
         Username = username,
-        Villages = [starterVillage]
+        Villages = [starterVillage],
+        UserId = applicationUserId
     };
 
 }

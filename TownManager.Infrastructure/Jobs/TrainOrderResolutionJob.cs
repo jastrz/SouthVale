@@ -21,7 +21,7 @@ public class TrainOrderResolutionJob(IVillageRepository repo, IUnitOfWork uow, I
 
         if (newlyCompleted > 0)
         {
-            village.Troops.Add(order.Type, newlyCompleted);
+            village.Troops = village.Troops.Add(order.Type, newlyCompleted);
             order.Completed += newlyCompleted;
         }
 

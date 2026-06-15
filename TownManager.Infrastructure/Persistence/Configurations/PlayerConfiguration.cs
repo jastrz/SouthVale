@@ -1,16 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TownManager.Infrastructure.Identity;
+using TownManager.Domain.Entities;
 
 namespace TownManager.Infrastructure.Persistence.Configurations;
 
-public class ApplicationUserConfiguration : IEntityTypeConfiguration<ApplicationUser>
+public class PlayerConfiguration : IEntityTypeConfiguration<Player>
 {
-    public void Configure(EntityTypeBuilder<ApplicationUser> builder)
+    public void Configure(EntityTypeBuilder<Player> builder)
     {
-        builder.HasOne(u => u.Player)
-            .WithOne()
-            .HasForeignKey<ApplicationUser>(u => u.PlayerId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(p => p.UserId).IsUnique();
     }
 }

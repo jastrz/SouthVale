@@ -47,6 +47,7 @@ public class VillageConfiguration : IEntityTypeConfiguration<Village>
         {
           gb.Property(p => p.Swordsmen).HasColumnName("Swordsmen");
           gb.Property(p => p.Archers).HasColumnName("Archers");
+          gb.Property(p => p.Settlers).HasColumnName("Settler");
         });
     }
 }

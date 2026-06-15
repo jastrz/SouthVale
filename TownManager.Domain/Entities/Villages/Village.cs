@@ -14,6 +14,10 @@ public class Village : Entity
     public Resources Resources { get; set; } = Resources.Zero;
     public Troops Troops { get; set; } = Troops.Zero;
     public DateTime LastTickAt { get; set; } = DateTime.UtcNow;
+    
+    // Map
+    public int MapX { get; init; }
+    public int MapY { get; init; }
 
     // Compositions
     public ICollection<Building> Buildings { get; set; } = [];
@@ -27,10 +31,10 @@ public class Village : Entity
     public Guid PlayerId { get; set; }
     public Player Player { get; set; } = null!;
     
-    public static Village CreateStarter(string username) => new()
+    public static Village CreateStarter(string villageName, (int x, int y) mapCoords) => new()
     {
         Id = Guid.NewGuid(),
-        Name = $"{username}'s village",
+        Name = villageName,
         Resources = new Resources(500, 500, 500, 500),
         Troops = Troops.Zero,
         LastTickAt = DateTime.UtcNow,
@@ -42,7 +46,9 @@ public class Village : Entity
             Building.Create(BuildingType.Granary,  1),
             Building.Create(BuildingType.WoodCutter, 1),
             Building.Create(BuildingType.CropField, 1)
-        ]
+        ],
+        MapX = mapCoords.x,
+        MapY = mapCoords.y
     };
     
     public void ApplyProduction(BuildingEffects effects)

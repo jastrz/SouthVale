@@ -9,13 +9,12 @@ namespace TownManager.Infrastructure.Identity;
 
 public class TokenService(IConfiguration configuration) : ITokenService
 {
-    public string GenerateToken(string userId, string email, Guid playerId)
+    public string GenerateToken(string userId, string email)
     {
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, userId),
             new Claim(ClaimTypes.Email, email),
-            new Claim("playerId", playerId.ToString())
         };
 
         var key = new SymmetricSecurityKey(

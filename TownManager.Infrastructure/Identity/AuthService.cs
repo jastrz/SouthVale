@@ -11,37 +11,35 @@ namespace TownManager.Infrastructure.Identity;
 public class AuthService(
     UserManager<ApplicationUser> userManager,
     AppDbContext db,
-    ITokenService tokenService,
-    IMediator mediator) : IAuthService
+    ITokenService tokenService
+    ) : IAuthService
 {
     public async Task<Result<string>> RegisterAsync(string email, string password, string username, CancellationToken ct)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
-
-        var village = Village.CreateStarter(username);
-        var player = Player.Create(username, village);
         
-        db.Players.Add(player);
-        db.Villages.Add(village);
-
-        await db.SaveChangesAsync(ct);
-
         var user = new ApplicationUser
         {
+            Id = Guid.NewGuid().ToString(),
             UserName = email,
             Email = email,
-            PlayerId = player.Id
         };
 
         var result = await userManager.CreateAsync(user, password);
-
         if (!result.Succeeded)
             return Result<string>.Failure(result.Errors.Select(e => e.Description));
 
+        var village = Village.CreateStarter($"{username}'s village", (0, 0));
+        var player = Player.Create(username, user.Id, village);
+
+        db.Players.Add(player);
+        db.Villages.Add(village);
+        
+        await db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
-
-        var token = tokenService.GenerateToken(user.Id, user.Email, user.PlayerId);
-
+    
+        var token = tokenService.GenerateToken(user.Id, user.Email);
+    
         return Result<string>.Success(token);
     }
 
@@ -55,7 +53,7 @@ public class AuthService(
         if (!valid)
             return Result<string>.Failure(["Invalid email or password"]);
         
-        var token = tokenService.GenerateToken(user.Id, user.Email!, user.PlayerId);
+        var token = tokenService.GenerateToken(user.Id, user.Email!);
         
         return Result<string>.Success(token);
     }
