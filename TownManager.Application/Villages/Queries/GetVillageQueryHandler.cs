@@ -18,7 +18,7 @@ public class GetVillageQueryHandler(IVillageRepository repo)
             village.Id,
             village.Name,
             new ResourcesDto((int)village.Resources.Wood, (int)village.Resources.Clay, (int)village.Resources.Iron, (int)village.Resources.Crop),
-            new TroopsDto(village.Troops.Swordsmen, village.Troops.Archers),
+            new TroopsDto(village.Troops.Swordsmen, village.Troops.Archers, village.Troops.Settlers),
             village.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList()
         ));
     }

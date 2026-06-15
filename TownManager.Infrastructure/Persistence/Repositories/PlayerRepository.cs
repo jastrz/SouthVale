@@ -12,6 +12,9 @@ internal sealed class PlayerRepository(AppDbContext db) : IPlayerRepository
     public Task<Player?> GetByUsernameAsync(string username, CancellationToken ct = default) =>
         db.Players.FirstOrDefaultAsync(p => p.Username == username, ct);
 
+    public Task<Player?> GetByUserIdAsync(string userId, CancellationToken ct = default) =>
+        db.Players.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId, ct);
+
     public Task<bool> ExistsAsync(string username, CancellationToken ct = default) =>
         db.Players.AnyAsync(p => p.Username == username, ct);
 

@@ -49,10 +49,17 @@ public static class TroopsConfig
         [TroopType.Archer] = new(
             TroopType.Archer,
             new Resources(1,1,1,1),
-            
+
             // new Resources(80, 60, 120, 40),
             TimeSpan.FromSeconds(10),
             new TroopStats(attack: 45, defense: 50, carryCapacity: 30, speed: 7, upkeep: 1)
+        ),
+
+        [TroopType.Settler] = new(
+            TroopType.Settler,
+            new Resources(1, 1, 1, 1),
+            TimeSpan.FromSeconds(20),
+            new TroopStats(attack: 0, defense: 0, carryCapacity: 0, speed: 5, upkeep: 0)
         ),
     };
 

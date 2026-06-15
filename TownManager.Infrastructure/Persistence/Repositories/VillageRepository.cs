@@ -56,12 +56,29 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .FirstOrDefaultAsync(v => v.TroopMovements.Any(o => o.Id == orderId), ct);
 
     // By playerId
-    public async Task<IReadOnlyList<Village>> GetByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
+
+    public async Task<IReadOnlyList<Village>> GetSummariesByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
         await db.Villages
             .AsNoTracking()
+            .Include(v => v.Troops)
             .Where(v => v.PlayerId == playerId)
             .ToListAsync(ct);
-    
+
+    public async Task<IReadOnlyList<Village>> GetFullDetailsByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
+        await db.Villages
+            .AsNoTracking()
+            .Include(v => v.Buildings)
+            .Include(v => v.Troops)
+            .Include(v => v.Resources)
+            .Where(v => v.PlayerId == playerId)
+            .ToListAsync(ct);
+
+    // By map coordinates
+    public Task<Village?> GetByCoordsAsync(int x, int y, CancellationToken ct = default) =>
+        db.Villages
+            .AsNoTracking()
+            .FirstOrDefaultAsync(v => v.MapX == x && v.MapY == y, ct);
+
 
     public void Add(Village village) => db.Villages.Add(village);
 }

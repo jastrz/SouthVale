@@ -43,7 +43,7 @@ public class TroopMovement : Entity
         };
     }
     
-    public static TroopMovement Create(Troops troops, Resources resources, Guid targetVillageId, TimeSpan travelTime, 
+    public static TroopMovement Create(Troops troops, Resources resources, Guid targetVillageId, TimeSpan travelTime,
         DateTime departureAt, MovementType movementType)
     {
         return new()
@@ -54,6 +54,21 @@ public class TroopMovement : Entity
             ArrivesAt = departureAt.Add(travelTime),
             Type = movementType,
             CarriedResources = resources,
+            Status = MovementStatus.InFlight
+        };
+    }
+
+    public static TroopMovement CreateSettle(Troops troops, int targetX, int targetY,
+        TimeSpan travelTime, DateTime departureAt)
+    {
+        return new()
+        {
+            Troops = troops,
+            TargetMapX = targetX,
+            TargetMapY = targetY,
+            DepartureAt = departureAt,
+            ArrivesAt = departureAt.Add(travelTime),
+            Type = MovementType.Settle,
             Status = MovementStatus.InFlight
         };
     }

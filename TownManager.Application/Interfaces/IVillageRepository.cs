@@ -19,7 +19,11 @@ public interface IVillageRepository
     Task<Village?> GetWithAttackOrdersAsyncByOrder(Guid orderId, CancellationToken ct = default); 
     
     // By playerId
-    Task<IReadOnlyList<Village>> GetByPlayerAsync(Guid playerId, CancellationToken ct = default);
-    
+    Task<IReadOnlyList<Village>> GetSummariesByPlayerAsync(Guid playerId, CancellationToken ct = default);
+    Task<IReadOnlyList<Village>> GetFullDetailsByPlayerAsync(Guid playerId, CancellationToken ct = default);
+
+    // By map coordinates
+    Task<Village?> GetByCoordsAsync(int x, int y, CancellationToken ct = default);
+
     void Add(Village village);
 }

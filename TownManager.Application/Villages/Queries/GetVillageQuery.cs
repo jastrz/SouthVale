@@ -14,5 +14,5 @@ public record VillageDto(
 );
 
 public record ResourcesDto(int Wood, int Clay, int Iron, int Crop);
-public record TroopsDto(int Swordsmen, int Archers);
+public record TroopsDto(int Swordsmen, int Archers, int Settlers);
 public record BuildingDto(Guid Id, string Type, int Level);

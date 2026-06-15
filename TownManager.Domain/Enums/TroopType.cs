@@ -6,5 +6,6 @@ namespace TownManager.Domain.Enums;
 public enum TroopType
 {
     Swordsman = 0,
-    Archer = 1
+    Archer = 1,
+    Settler = 2
 }

@@ -56,6 +56,7 @@ public static class DependencyInjection
         
         services.AddScoped<IMovementResolver, AttackMovementResolver>();
         services.AddScoped<IMovementResolver, ReturnMovementResolver>();
+        services.AddScoped<IMovementResolver, SettleMovementResolver>();
 
         
         // Hangfire Configuration
