@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Entities.Villages;
+using TownManager.Domain.Enums;
 
 namespace TownManager.Infrastructure.Persistence.Repositories;
 
@@ -10,4 +11,12 @@ public class MovementRepository(AppDbContext db) : IMovementRepository
         db.TroopMovements.Include(t => t.Troops)
             .Include(t => t.CarriedResources)
             .FirstOrDefaultAsync(m => m.Id == movementId, ct);
+
+    public async Task<IReadOnlyList<TroopMovement>> GetInFlightByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
+        await db.TroopMovements
+            .AsNoTracking()
+            .Include(t => t.Troops)
+            .Include(t => t.Village)
+            .Where(t => t.Status == MovementStatus.InFlight && t.Village.PlayerId == playerId)
+            .ToListAsync(ct);
 }

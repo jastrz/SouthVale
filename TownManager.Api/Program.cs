@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using Serilog;
 using TownManager.Api.Configuration;
 using TownManager.Api.Endpoints;
@@ -91,6 +92,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

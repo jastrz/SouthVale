@@ -79,6 +79,14 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(v => v.MapX == x && v.MapY == y, ct);
 
+    // Lookups
+    public async Task<IReadOnlyDictionary<Guid, string>> GetNamesByIdsAsync(
+        IReadOnlyCollection<Guid> ids, CancellationToken ct = default) =>
+        await db.Villages
+            .AsNoTracking()
+            .Where(v => ids.Contains(v.Id))
+            .ToDictionaryAsync(v => v.Id, v => v.Name, ct);
+
 
     public void Add(Village village) => db.Villages.Add(village);
 }

@@ -27,7 +27,7 @@ public class AttackMovementResolver(
  
         // TODO: proper combat model (ATK vs DEF, casualty formula, etc.)
 
-        var survivingAttackers = new Troops(movement.Troops.Swordsmen, movement.Troops.Archers);
+        var survivingAttackers = new Troops(movement.Troops.Swordsmen, movement.Troops.Archers, movement.Troops.Settlers);
         var loot = new Resources(1000, 1000, 1000, 1000);
  
         if (!survivingAttackers.IsEmpty())

@@ -25,5 +25,8 @@ public interface IVillageRepository
     // By map coordinates
     Task<Village?> GetByCoordsAsync(int x, int y, CancellationToken ct = default);
 
+    // Lookups
+    Task<IReadOnlyDictionary<Guid, string>> GetNamesByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct = default);
+
     void Add(Village village);
 }

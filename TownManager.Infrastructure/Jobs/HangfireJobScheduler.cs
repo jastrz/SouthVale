@@ -11,9 +11,6 @@ public class HangfireJobScheduler(IBackgroundJobClient client) : IJobScheduler
 
     public void ScheduleTrainOrderResolution(Guid orderId, TimeSpan trainingTime) =>
         client.Schedule<TrainOrderResolutionJob>(j => j.ResolveAsync(orderId, CancellationToken.None), trainingTime);
-
-    public void ScheduleAttackOrderResolution(Guid orderId, TimeSpan travelTime) =>
-        client.Schedule<AttackOrderResolutionJob>(j => j.ResolveAsync(orderId, CancellationToken.None), travelTime);
     
     public void ScheduleMovementResolution(Guid orderId, TimeSpan movementTime) =>
         client.Schedule<TroopMovementResolutionJob>(j => j.ResolveAsync(orderId, CancellationToken.None), movementTime);

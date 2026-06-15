@@ -9,7 +9,7 @@ public class GetVillageQueryHandler(IVillageRepository repo)
 {
     public async Task<Result<VillageDto>> Handle(GetVillageQuery q, CancellationToken ct)
     {
-        var village = await repo.GetWithBuildingsAsync(q.VillageId, ct);
+        var village = await repo.GetWithActiveOrdersAsync(q.VillageId, ct);
 
         if (village is null)
             return Result<VillageDto>.Failure(["Village not found."]);
@@ -19,7 +19,9 @@ public class GetVillageQueryHandler(IVillageRepository repo)
             village.Name,
             new ResourcesDto((int)village.Resources.Wood, (int)village.Resources.Clay, (int)village.Resources.Iron, (int)village.Resources.Crop),
             new TroopsDto(village.Troops.Swordsmen, village.Troops.Archers, village.Troops.Settlers),
-            village.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList()
+            village.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList(),
+            village.BuildOrders.Select(o => new BuildOrderDto(o.Id, o.BuildingType, o.TargetLevel, o.StartsAt, o.CompletesAt)).ToList(),
+            village.TrainOrders.Select(o => new TrainOrderDto(o.Id, o.Type, o.Amount, o.Completed, o.StartedAt, o.CompletesAt)).ToList()
         ));
     }
 }
