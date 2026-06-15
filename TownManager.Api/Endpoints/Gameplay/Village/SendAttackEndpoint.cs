@@ -1,6 +1,5 @@
 using MediatR;
 using TownManager.Application.Villages.Commands;
-using TownManager.Domain.Entities;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
 
@@ -29,6 +28,8 @@ public class SendAttackEndpoint : IEndpoint
         })
         .WithName("SendAttack")
         .WithTags("Gameplay")
+        .WithSummary("Send an attack from a village")
+        .WithDescription("Creates an attack order that dispatches the specified troops from the source village to the target village.")
         .AllowAnonymous();
     }
 

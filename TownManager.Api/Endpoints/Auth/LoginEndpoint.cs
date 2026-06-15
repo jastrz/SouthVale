@@ -21,6 +21,8 @@ public class LoginEndpoint : IEndpoint
         })
         .WithName("Login")
         .WithTags("Auth")
+        .WithSummary("Log in a user")
+        .WithDescription("Authenticates a user with email and password and returns a JWT access token.")
         .AllowAnonymous();
     }
 }

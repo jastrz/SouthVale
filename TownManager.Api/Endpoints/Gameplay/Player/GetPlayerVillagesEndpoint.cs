@@ -19,6 +19,8 @@ public class GetPlayerVillagesEndpoint : IEndpoint
         })
         .WithName("GetPlayerVillages")
         .WithTags("Gameplay")
+        .WithSummary("Get villages owned by a player")
+        .WithDescription("Returns all villages owned by the player with the given username.")
         .AllowAnonymous();
     }
 }

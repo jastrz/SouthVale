@@ -24,6 +24,8 @@ public class GetCurrentUserVillagesEndpoint : IEndpoint
         })
         .WithName("GetCurrentUserVillages")
         .WithTags("Gameplay")
+        .WithSummary("Get current user villages")
+        .WithDescription("Returns all villages owned by the authenticated player.")
         .RequireAuthorization();
     }
 }

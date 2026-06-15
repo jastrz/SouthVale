@@ -22,6 +22,8 @@ public class EnqueueBuildingEndpoint : IEndpoint
         })
         .WithName("QueueBuilding")
         .WithTags("Gameplay")
+        .WithSummary("Queue a building construction")
+        .WithDescription("Enqueues a construction order for the specified building type in the village's build queue.")
         .AllowAnonymous();
     }
 
