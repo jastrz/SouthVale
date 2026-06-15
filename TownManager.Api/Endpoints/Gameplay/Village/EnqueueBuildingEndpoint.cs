@@ -4,13 +4,13 @@ using TownManager.Domain.Enums;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
 
-public class QueueBuildingEndpoint : IEndpoint
+public class EnqueueBuildingEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost("/gameplay/village/{villageId:guid}/build", async (
             Guid villageId,
-            CreateBuildOrderRequest request,
+            EnqueueBuildingRequest request,
             ISender sender,
             CancellationToken ct
         ) =>
@@ -20,10 +20,10 @@ public class QueueBuildingEndpoint : IEndpoint
                 ? Results.Ok()
                 : Results.BadRequest(result.Errors);
         })
-        .WithName("CreateBuildOrder")
+        .WithName("QueueBuilding")
         .WithTags("Gameplay")
         .AllowAnonymous();
     }
 
-    public record CreateBuildOrderRequest(BuildingType BuildingType);
+    public record EnqueueBuildingRequest(BuildingType BuildingType);
 }

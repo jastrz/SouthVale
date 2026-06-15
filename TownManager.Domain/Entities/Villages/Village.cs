@@ -21,6 +21,7 @@ public class Village : Entity
     // Queues
     public ICollection<BuildOrder> BuildOrders { get; set; } = [];
     public ICollection<TrainOrder> TrainOrders { get; set; } = [];
+    public ICollection<TroopMovement> TroopMovements { get; set; } = [];
 
     // FK
     public Guid PlayerId { get; set; }

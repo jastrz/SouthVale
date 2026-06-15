@@ -27,7 +27,6 @@ public class TrainOrder : Entity
             StartedAt = startedAt,
             CompletesAt = startedAt + (timePerUnit * amount),
             TimePerUnit = timePerUnit
-
         };
     }
 }

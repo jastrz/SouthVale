@@ -30,6 +30,11 @@ public class VillageConfiguration : IEntityTypeConfiguration<Village>
          .HasForeignKey(x => x.VillageId)
          .OnDelete(DeleteBehavior.Cascade);
         
+        b.HasMany(v => v.TroopMovements)
+         .WithOne(x => x.Village)
+         .HasForeignKey(v => v.VillageId)
+         .OnDelete(DeleteBehavior.Cascade);
+        
         b.OwnsOne(v => v.Resources, rb =>
         {
           rb.Property(p => p.Wood).HasColumnName("Wood");

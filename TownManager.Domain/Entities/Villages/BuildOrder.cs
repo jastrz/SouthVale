@@ -13,7 +13,6 @@ public class BuildOrder : Entity
     public int TargetLevel { get; set; }
     public DateTime StartsAt { get; set; }
     public DateTime CompletesAt { get; set; }
-    public string? HangfireJobId { get; set; }
 
     public static BuildOrder Create(BuildingType type, int targetLevel, TimeSpan duration) => new()
     {

@@ -13,6 +13,7 @@ public class Troops
     public int Archers { get; private set; }
 
     public int TotalCount => Swordsmen + Archers;
+    
     public static Troops Zero => new();
 
     public Troops(int swordsmen, int archers)
@@ -40,7 +41,7 @@ public class Troops
         Swordsmen >= required.Swordsmen && Archers >= required.Archers;
 
     public bool IsEmpty() => Swordsmen == 0 && Archers == 0;
-
+    
     public Resources CalculateUpkeep() =>
         new(0, 0, 0,
             Swordsmen * TroopsConfig.Get(TroopType.Swordsman).Stats.Upkeep +

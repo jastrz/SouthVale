@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using TownManager.Application.Common;
-using TownManager.Application.Events;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
@@ -40,8 +39,6 @@ public class AuthService(
             return Result<string>.Failure(result.Errors.Select(e => e.Description));
 
         await transaction.CommitAsync(ct);
-
-        await mediator.Publish(new PlayerRegisteredEvent(player.Id, username), ct);
 
         var token = tokenService.GenerateToken(user.Id, user.Email, user.PlayerId);
 

@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<Applicat
     public DbSet<Village> Villages => Set<Village>();
     public DbSet<BuildOrder> BuildOrders => Set<BuildOrder>();
     public DbSet<TrainOrder> TrainOrders => Set<TrainOrder>();
+    public DbSet<TroopMovement> TroopMovements => Set<TroopMovement>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -4,7 +4,7 @@ using TownManager.Application.Villages.Queries;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
 
-public class GetVillage : IEndpoint
+public class GetVillageEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder app)
     {

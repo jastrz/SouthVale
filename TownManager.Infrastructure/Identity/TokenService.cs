@@ -19,11 +19,11 @@ public class TokenService(IConfiguration configuration) : ITokenService
         };
 
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(configuration["Authentication:Schemes:Bearer:SigningKey"]!));
+            Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
 
         var token = new JwtSecurityToken(
-            issuer: configuration["Authentication:Schemes:Bearer:ValidIssuer"],
-            audience: configuration["Authentication:Schemes:Bearer:ValidAudiences:0"],
+            issuer: configuration["Jwt:Issuer"],
+            audience: configuration["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)

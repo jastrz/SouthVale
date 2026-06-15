@@ -26,8 +26,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // ---------- Authentication ----------
-
-builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddAuthorization();
@@ -75,9 +74,6 @@ app.MapGet("/", () => Results.Ok(new { name = "TownManager.Api", status = "ok" }
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
    .WithName("Health");
-
-// app.MapGroup("/identity")
-//     .MapIdentityApi<ApplicationUser>();
 
 app.UseHangfireDashboard("/hangfire");
 
