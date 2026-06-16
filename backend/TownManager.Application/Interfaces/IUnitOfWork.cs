@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore.Storage;
-
 namespace TownManager.Application.Interfaces;
 
 public interface IUnitOfWork
