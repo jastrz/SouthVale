@@ -13,7 +13,9 @@ public record VillageDto(
     TroopsDto Troops,
     IReadOnlyList<BuildingDto> Buildings,
     IReadOnlyList<BuildOrderDto> BuildOrders,
-    IReadOnlyList<TrainOrderDto> TrainOrders
+    IReadOnlyList<TrainOrderDto> TrainOrders,
+    int mapX = 0,
+    int mapY = 0
 );
 
 public record ResourcesDto(int Wood, int Clay, int Iron, int Crop);

@@ -4,7 +4,7 @@ import {
   createRouter,
   redirect,
 } from "@tanstack/react-router";
-import { GameView } from "../components/GameView";
+import { GamePage } from "../pages/GamePage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { useAuthStore } from "../store/authStore";
@@ -22,7 +22,7 @@ const indexRoute = createRoute({
       throw redirect({ to: "/login" });
     }
   },
-  component: GameView,
+  component: GamePage,
 });
 
 const loginRoute = createRoute({

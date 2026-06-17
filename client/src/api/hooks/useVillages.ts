@@ -6,18 +6,21 @@ import type {
   TrainRequest,
   AttackRequest,
   SettleRequest,
+  VillageDto,
 } from "../types";
 
 export const useMyVillages = () =>
   useQuery({
     queryKey: ["villages"],
-    queryFn: () => api.get("/gameplay/me/villages").then((r) => r.data),
+    queryFn: () =>
+      api.get<VillageDto[]>("/gameplay/me/villages").then((r) => r.data),
   });
 
 export const useVillage = (id: string) =>
   useQuery({
     queryKey: ["village", id],
-    queryFn: () => api.get(`/gameplay/village/${id}`).then((r) => r.data),
+    queryFn: () =>
+      api.get<VillageDto>(`/gameplay/village/${id}`).then((r) => r.data),
     enabled: !!id,
   });
 
@@ -25,7 +28,9 @@ export const usePlayerVillages = (username: string) =>
   useQuery({
     queryKey: ["villages", username],
     queryFn: () =>
-      api.get(`/gameplay/player/${username}/villages`).then((r) => r.data),
+      api
+        .get<VillageDto[]>(`/gameplay/player/${username}/villages`)
+        .then((r) => r.data),
     enabled: !!username,
   });
 

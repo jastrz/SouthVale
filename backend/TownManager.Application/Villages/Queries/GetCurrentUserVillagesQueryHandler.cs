@@ -25,7 +25,9 @@ public class GetCurrentUserVillagesQueryHandler(
             new TroopsDto(v.Troops.Swordsmen, v.Troops.Archers, v.Troops.Settlers),
             v.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList(),
             [],
-            []
+            [],
+            v.MapX,
+            v.MapY
         )).ToList();
 
         return Result<IReadOnlyList<VillageDto>>.Success(dtos);
