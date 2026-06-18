@@ -1,6 +1,6 @@
 import { Container } from "pixi.js";
 import type { Application } from "pixi.js";
-import type { VillageDto } from "../../api/types";
+import type { MapVillage, VillageDto } from "../../api/types";
 import { tween } from "../animation/";
 import type { TweenHandle } from "../animation/";
 import { CAMERA, COLS, ROWS, TILE } from "../config";
@@ -35,11 +35,12 @@ export class MapScene {
   }
 
   setVillages(
-    villages: readonly VillageDto[],
-    activeId: string | null,
-    onSelect?: (village: VillageDto) => void,
+    villages: readonly MapVillage[],
+    activeOwnId: string | null,
+    onSelect?: (village: MapVillage) => void,
+    onHover?: (village: MapVillage | null) => void,
   ): void {
-    this.villages.setVillages(villages, activeId, onSelect);
+    this.villages.setVillages(villages, activeOwnId, onSelect, onHover);
   }
 
   /**

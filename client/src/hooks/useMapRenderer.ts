@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePixiApp } from "./usePixiApp";
 import { createApplication } from "../pixi/app";
 import { MapScene } from "../pixi/scene/MapScene";
 import { attachPan, attachZoom } from "../pixi/input";
 import { useGameStateStore } from "../store/gameStateStore";
+import { useMap } from "../api/hooks/useVillages";
+import type { MapVillage } from "../api/types";
+import { COLS, ROWS } from "../pixi/config";
 
 /**
  * React↔Pixi bridge for the world map. Owns the Application and MapScene
@@ -20,6 +23,34 @@ export function useMapRenderer(
   const villages = useGameStateStore((s) => s.villages);
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
   const setActiveVillage = useGameStateStore((s) => s.setActiveVillage);
+  const setHoveredVillage = useGameStateStore((s) => s.setHoveredVillage);
+
+  // Single fetch: pinned to the world center with a radius big enough to
+  // cover the entire grid from any point. Empty deps so the query key is
+  // stable for the lifetime of the renderer — no refetch on pan, on
+  // active-village change, or on every store update.
+  const mapRequest = useMemo(
+    () => ({
+      cords: { x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) },
+      radius: Math.max(COLS, ROWS) * 2,
+    }),
+    [],
+  );
+
+  const { data: mapVillages } = useMap(mapRequest);
+
+  // Merge the player's own villages (rich VillageDto) with the map
+  // endpoint's lightweight PlayerVillageDto list.
+  const allVillages = useMemo<MapVillage[]>(() => {
+    const ownList: MapVillage[] = Object.values(villages).map((v) => ({
+      ...v,
+      kind: "own",
+    }));
+    const enemyList: MapVillage[] = (mapVillages ?? [])
+      .filter((v) => !villages[v.id])
+      .map((v) => ({ ...v, kind: "enemy" }));
+    return [...ownList, ...enemyList];
+  }, [mapVillages, villages]);
 
   useEffect(() => {
     if (!divRef.current) return;
@@ -64,11 +95,23 @@ export function useMapRenderer(
   useEffect(() => {
     if (!pixiReady) return;
     sceneRef.current?.setVillages(
-      Object.values(villages),
+      allVillages,
       activeVillageId,
-      (v) => setActiveVillage(v.id),
+      // Only own villages can become the active selection; the
+      // discriminator lets us ignore taps on enemy markers without a
+      // second check downstream.
+      (village) => {
+        if (village.kind === "own") setActiveVillage(village.id);
+      },
+      (village) => setHoveredVillage(village),
     );
-  }, [villages, activeVillageId, pixiReady, setActiveVillage]);
+  }, [
+    allVillages,
+    activeVillageId,
+    pixiReady,
+    setActiveVillage,
+    setHoveredVillage,
+  ]);
 
   // Pan to the active village whenever it changes. The ref guard keeps
   // subsequent store updates (resource ticks, etc.) from stealing the

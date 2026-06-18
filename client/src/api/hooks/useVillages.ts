@@ -7,6 +7,8 @@ import type {
   AttackRequest,
   SettleRequest,
   VillageDto,
+  PlayerVillageDto,
+  GetMapRequest,
 } from "../types";
 
 export const useMyVillages = () =>
@@ -14,6 +16,15 @@ export const useMyVillages = () =>
     queryKey: ["villages"],
     queryFn: () =>
       api.get<VillageDto[]>("/gameplay/me/villages").then((r) => r.data),
+  });
+
+export const useMap = (request: GetMapRequest) =>
+  useQuery({
+    queryKey: ["map", request.cords.x, request.cords.y, request.radius],
+    queryFn: () =>
+      api
+        .post<PlayerVillageDto[]>("/gameplay/map", request)
+        .then((r) => r.data),
   });
 
 export const useVillage = (id: string) =>

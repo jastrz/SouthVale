@@ -5,6 +5,8 @@ namespace TownManager.Application.Interfaces;
 
 public interface IVillageRepository
 {
+    Task<IReadOnlyList<Village>> GetForMapWithinRadius(Coordinates? center, int? radius, CancellationToken ct = default);
+    
     // By villageId
     Task<Village?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<Village?> GetWithBuildingsAsync(Guid id, CancellationToken ct = default);

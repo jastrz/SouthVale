@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type {
   BuildOrderDto,
+  MapVillage,
   ResourcesDto,
   TrainOrderDto,
   VillageDto,
@@ -13,6 +14,7 @@ import type {
 export interface GameState {
   villages: Record<string, VillageDto>;
   activeVillageId: string | null;
+  hoveredVillage: MapVillage | null;
 
   // bulk hydration
   setVillages: (villages: VillageDto[]) => void;
@@ -22,6 +24,7 @@ export interface GameState {
 
   // selection
   setActiveVillage: (id: string | null) => void;
+  setHoveredVillage: (village: MapVillage | null) => void;
 
   // fine-grained patches (SignalR-friendly)
   updateResources: (villageId: string, resources: ResourcesDto) => void;
@@ -34,6 +37,7 @@ export interface GameState {
 export const useGameStateStore = create<GameState>((set) => ({
   villages: {},
   activeVillageId: null,
+  hoveredVillage: null,
 
   setVillages: (villages) =>
     set(() => ({
@@ -57,6 +61,7 @@ export const useGameStateStore = create<GameState>((set) => ({
     }),
 
   setActiveVillage: (id) => set({ activeVillageId: id }),
+  setHoveredVillage: (village) => set({ hoveredVillage: village }),
 
   updateResources: (villageId, resources) =>
     set((state) => {
@@ -130,7 +135,8 @@ export const useGameStateStore = create<GameState>((set) => ({
       };
     }),
 
-  clear: () => set({ villages: {}, activeVillageId: null }),
+  clear: () =>
+    set({ villages: {}, activeVillageId: null, hoveredVillage: null }),
 }));
 
 // Convenience selectors — keep components from re-rendering on unrelated changes.

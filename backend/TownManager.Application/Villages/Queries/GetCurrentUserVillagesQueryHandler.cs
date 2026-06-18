@@ -1,5 +1,6 @@
 using MediatR;
 using TownManager.Application.Common;
+using TownManager.Application.Dtos;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Config;
 

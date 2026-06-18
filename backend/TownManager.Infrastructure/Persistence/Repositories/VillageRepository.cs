@@ -79,7 +79,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
         db.Villages
             .AsNoTracking()
             .FirstOrDefaultAsync(v =>
-                v.Coordinates.X == coordinates.X && v.Coordinates.Y == coordinates.Y,
+                v.Coordinates.Equals(coordinates),
                 ct);
 
     // Lookups
@@ -89,6 +89,27 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .AsNoTracking()
             .Where(v => ids.Contains(v.Id))
             .ToDictionaryAsync(v => v.Id, v => v.Name, ct);
+    
+    public async Task<IReadOnlyList<Village>> GetForMapWithinRadius(
+        Coordinates? center = null,
+        int? radius = null,
+        CancellationToken ct = default)
+    {
+        var query = db.Villages.AsNoTracking();
+
+        if (center is not null && radius is not null)
+        {
+            var r = radius.Value;
+            var r2 = r * r;
+            query = query.Where(v =>
+                v.Coordinates.X >= center.X - r && v.Coordinates.X <= center.X + r &&
+                v.Coordinates.Y >= center.Y - r && v.Coordinates.Y <= center.Y + r &&
+                (v.Coordinates.X - center.X) * (v.Coordinates.X - center.X) +
+                (v.Coordinates.Y - center.Y) * (v.Coordinates.Y - center.Y) <= r2);
+        }
+
+        return await query.ToListAsync(ct);
+    }
 
 
     public void Add(Village village) => db.Villages.Add(village);

@@ -97,3 +97,26 @@ export interface VillageDto {
   buildOrders: readonly BuildOrderDto[];
   trainOrders: readonly TrainOrderDto[];
 }
+
+export interface PlayerVillageDto {
+  id: string;
+  playerId: string;
+  name: string;
+  coordinates: Coordinates;
+  population: number;
+}
+
+export interface GetMapRequest {
+  cords: Coordinates;
+  radius: number;
+}
+
+/**
+ * Discriminated union for every village the client can render on the world
+ * map. `kind` narrows the type, so callers can pull rich data from own
+ * villages and the lightweight view from enemy villages without a second
+ * fetch.
+ */
+export type MapVillage =
+  | ({ kind: "own" } & VillageDto)
+  | ({ kind: "enemy" } & PlayerVillageDto);

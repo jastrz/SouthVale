@@ -1,5 +1,6 @@
 import { MapCanvas } from "../components/MapCanvas";
 import { VillageList } from "../components/VillageList";
+import { VillageTooltip } from "../components/VillageTooltip";
 
 export function GamePage() {
   return (
@@ -8,6 +9,7 @@ export function GamePage() {
       <div className="flex flex-1 items-center">
         <MapCanvas />
       </div>
+      <VillageTooltip />
     </div>
   );
 }
