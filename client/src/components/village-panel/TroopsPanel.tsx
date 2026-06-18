@@ -1,0 +1,103 @@
+import { useState } from "react";
+import type { UseMutationResult } from "@tanstack/react-query";
+import { TROOP_LABELS } from "../../config/game";
+import type { TroopType, TrainRequest } from "../../api/types";
+
+function TroopCount({ label, count }: { label: string; count: number }) {
+  return (
+    <div className="rounded bg-slate-800/40 px-2 py-1.5 text-center">
+      <div className="font-medium text-white">{count}</div>
+      <div className="text-[10px] text-slate-400">{label}</div>
+    </div>
+  );
+}
+
+function TrainingForm({
+  mutation,
+}: {
+  mutation: UseMutationResult<unknown, Error, TrainRequest, unknown>;
+}) {
+  const [orders, setOrders] = useState<Record<string, number>>({});
+
+  const handleTrain = () => {
+    const entries = Object.entries(orders).filter(([, count]) => count > 0);
+    if (entries.length === 0) return;
+    mutation.mutate(
+      {
+        orders: entries.map(([troopType, count]) => ({
+          troopType: troopType as TroopType,
+          count,
+        })),
+      },
+      { onSuccess: () => setOrders({}) },
+    );
+  };
+
+  const hasOrders = Object.values(orders).some((c) => c > 0);
+
+  return (
+    <div>
+      <div className="mb-1.5 flex gap-1">
+        {(["Swordsman", "Archer", "Settler"] as const).map((type) => (
+          <div key={type} className="flex-1">
+            <label className="block text-[10px] text-slate-400">
+              {TROOP_LABELS[type]}
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={orders[type] ?? ""}
+              onChange={(e) =>
+                setOrders((prev) => ({
+                  ...prev,
+                  [type]: Math.max(0, Number.parseInt(e.target.value) || 0),
+                }))
+              }
+              className="w-full rounded border border-slate-600 bg-slate-900 px-1.5 py-1 text-xs text-white outline-none focus:border-blue-500"
+              placeholder="0"
+            />
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={handleTrain}
+        disabled={!hasOrders || mutation.isPending}
+        className="w-full cursor-pointer rounded bg-green-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-green-700"
+      >
+        {mutation.isPending ? "Training…" : "Train"}
+      </button>
+      {mutation.isError && (
+        <p className="mt-1 text-xs text-red-400">
+          {mutation.error instanceof Error ? mutation.error.message : "Training failed"}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function TroopsPanel({
+  swordsmen,
+  archers,
+  settlers,
+  mutation,
+}: {
+  swordsmen: number;
+  archers: number;
+  settlers: number;
+  mutation: UseMutationResult<unknown, Error, TrainRequest, unknown>;
+}) {
+  return (
+    <section className="border-b border-slate-800 px-4 py-3">
+      <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
+        Troops
+      </h3>
+      <div className="mb-2 grid grid-cols-3 gap-1 text-xs">
+        <TroopCount label="Swordsmen" count={swordsmen} />
+        <TroopCount label="Archers" count={archers} />
+        <TroopCount label="Settlers" count={settlers} />
+      </div>
+      <TrainingForm mutation={mutation} />
+    </section>
+  );
+}

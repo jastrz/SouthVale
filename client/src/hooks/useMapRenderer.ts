@@ -24,6 +24,7 @@ export function useMapRenderer(
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
   const setActiveVillage = useGameStateStore((s) => s.setActiveVillage);
   const setHoveredVillage = useGameStateStore((s) => s.setHoveredVillage);
+  const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
 
   // Single fetch: pinned to the world center with a radius big enough to
   // cover the entire grid from any point. Empty deps so the query key is
@@ -97,11 +98,14 @@ export function useMapRenderer(
     sceneRef.current?.setVillages(
       allVillages,
       activeVillageId,
-      // Only own villages can become the active selection; the
-      // discriminator lets us ignore taps on enemy markers without a
-      // second check downstream.
+      // Own villages become the active selection; enemy villages set
+      // the attack target.
       (village) => {
-        if (village.kind === "own") setActiveVillage(village.id);
+        if (village.kind === "own") {
+          setActiveVillage(village.id);
+        } else {
+          setTargetVillage(village);
+        }
       },
       (village) => setHoveredVillage(village),
     );

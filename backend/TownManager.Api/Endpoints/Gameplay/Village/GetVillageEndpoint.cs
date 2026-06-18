@@ -16,7 +16,9 @@ public class GetVillageEndpoint : IEndpoint
         {
             await sender.Send(new UpdateVillageProductionCommand(id, Guid.Empty), ct);
             var result = await sender.Send(new GetVillageQuery(id), ct);
-            return Results.Ok(result);
+            return result.Succeeded
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Errors);
         })
         .WithName("GetVillage")
         .WithTags("Gameplay")
