@@ -29,7 +29,7 @@ public class AuthService(
         if (!result.Succeeded)
             return Result<string>.Failure(result.Errors.Select(e => e.Description));
 
-        var village = Village.CreateStarter($"{username}'s village", (0, 0));
+        var village = Village.CreateStarter($"{username}'s village", new Coordinates(0, 0));
         var player = Player.Create(username, user.Id, village);
 
         db.Players.Add(player);

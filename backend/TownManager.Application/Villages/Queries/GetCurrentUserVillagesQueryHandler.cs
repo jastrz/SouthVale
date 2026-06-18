@@ -1,6 +1,7 @@
 using MediatR;
 using TownManager.Application.Common;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Config;
 
 namespace TownManager.Application.Villages.Queries;
 
@@ -18,17 +19,21 @@ public class GetCurrentUserVillagesQueryHandler(
 
         var villages = await villageRepo.GetFullDetailsByPlayerAsync(player.Id, ct);
 
-        var dtos = villages.Select(v => new VillageDto(
-            v.Id,
-            v.Name,
-            new ResourcesDto((int)v.Resources.Wood, (int)v.Resources.Clay, (int)v.Resources.Iron, (int)v.Resources.Crop),
-            new TroopsDto(v.Troops.Swordsmen, v.Troops.Archers, v.Troops.Settlers),
-            v.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList(),
-            [],
-            [],
-            v.MapX,
-            v.MapY
-        )).ToList();
+        var dtos = villages.Select(v =>
+        {
+            var effects = BuildingConfig.AggregateEffects(v.Buildings);
+            var current = v.GetCurrentResources(effects);
+            return new VillageDto(
+                v.Id,
+                v.Name,
+                new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Crop),
+                new TroopsDto(v.Troops.Swordsmen, v.Troops.Archers, v.Troops.Settlers),
+                v.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList(),
+                [],
+                [],
+                v.Coordinates
+            );
+        }).ToList();
 
         return Result<IReadOnlyList<VillageDto>>.Success(dtos);
     }

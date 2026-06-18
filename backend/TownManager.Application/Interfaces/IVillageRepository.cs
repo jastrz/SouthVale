@@ -1,3 +1,4 @@
+using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 
 namespace TownManager.Application.Interfaces;
@@ -23,7 +24,7 @@ public interface IVillageRepository
     Task<IReadOnlyList<Village>> GetFullDetailsByPlayerAsync(Guid playerId, CancellationToken ct = default);
 
     // By map coordinates
-    Task<Village?> GetByCoordsAsync(int x, int y, CancellationToken ct = default);
+    Task<Village?> GetByCoordsAsync(Coordinates coordinates, CancellationToken ct = default);
 
     // Lookups
     Task<IReadOnlyDictionary<Guid, string>> GetNamesByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct = default);

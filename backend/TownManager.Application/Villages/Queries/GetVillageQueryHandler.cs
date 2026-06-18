@@ -1,6 +1,7 @@
 using MediatR;
 using TownManager.Application.Common;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Config;
 
 namespace TownManager.Application.Villages.Queries;
 
@@ -14,14 +15,18 @@ public class GetVillageQueryHandler(IVillageRepository repo)
         if (village is null)
             return Result<VillageDto>.Failure(["Village not found."]);
 
+        var effects = BuildingConfig.AggregateEffects(village.Buildings);
+        var current = village.GetCurrentResources(effects);
+
         return Result<VillageDto>.Success(new VillageDto(
             village.Id,
             village.Name,
-            new ResourcesDto((int)village.Resources.Wood, (int)village.Resources.Clay, (int)village.Resources.Iron, (int)village.Resources.Crop),
+            new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Crop),
             new TroopsDto(village.Troops.Swordsmen, village.Troops.Archers, village.Troops.Settlers),
             village.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList(),
             village.BuildOrders.Select(o => new BuildOrderDto(o.Id, o.BuildingType, o.TargetLevel, o.StartsAt, o.CompletesAt)).ToList(),
-            village.TrainOrders.Select(o => new TrainOrderDto(o.Id, o.Type, o.Amount, o.Completed, o.StartedAt, o.CompletesAt)).ToList()
+            village.TrainOrders.Select(o => new TrainOrderDto(o.Id, o.Type, o.Amount, o.Completed, o.StartedAt, o.CompletesAt)).ToList(),
+            village.Coordinates
         ));
     }
 }

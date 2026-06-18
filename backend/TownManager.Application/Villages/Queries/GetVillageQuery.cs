@@ -1,5 +1,6 @@
 using MediatR;
 using TownManager.Application.Common;
+using TownManager.Domain.Entities;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Villages.Queries;
@@ -14,8 +15,7 @@ public record VillageDto(
     IReadOnlyList<BuildingDto> Buildings,
     IReadOnlyList<BuildOrderDto> BuildOrders,
     IReadOnlyList<TrainOrderDto> TrainOrders,
-    int mapX = 0,
-    int mapY = 0
+    Coordinates Coordinates
 );
 
 public record ResourcesDto(int Wood, int Clay, int Iron, int Crop);

@@ -1,3 +1,4 @@
+using TownManager.Domain.Entities;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Domain.Entities.Villages;
@@ -16,8 +17,7 @@ public class TroopMovement : Entity
     public Guid? TargetVillageId { get; set; }
     
     // for settle — empty tile
-    public int? TargetMapX { get; set; }
-    public int? TargetMapY { get; set; }
+    public Coordinates? TargetCoordinates { get; set; }
     
     public MovementType Type { get; set; }
     public MovementStatus Status { get; set; }
@@ -58,14 +58,13 @@ public class TroopMovement : Entity
         };
     }
 
-    public static TroopMovement CreateSettle(Troops troops, int targetX, int targetY,
+    public static TroopMovement CreateSettle(Troops troops, Coordinates target,
         TimeSpan travelTime, DateTime departureAt)
     {
         return new()
         {
             Troops = troops,
-            TargetMapX = targetX,
-            TargetMapY = targetY,
+            TargetCoordinates = target,
             DepartureAt = departureAt,
             ArrivesAt = departureAt.Add(travelTime),
             Type = MovementType.Settle,

@@ -20,7 +20,7 @@ export function VillageList() {
   }, [villages, activeVillageId, setActiveVillage]);
 
   return (
-    <aside className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950/90 font-sans text-white backdrop-blur-sm">
+    <div className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950/90 font-sans text-white backdrop-blur-sm">
       <header className="border-b border-slate-800 px-4 py-3">
         <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
           Your Villages
@@ -79,6 +79,6 @@ export function VillageList() {
           </ul>
         )}
       </div>
-    </aside>
+    </div>
   );
 }

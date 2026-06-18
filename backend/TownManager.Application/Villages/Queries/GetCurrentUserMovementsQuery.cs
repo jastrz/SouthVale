@@ -1,5 +1,6 @@
 using MediatR;
 using TownManager.Application.Common;
+using TownManager.Domain.Entities;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Villages.Queries;
@@ -19,6 +20,5 @@ public record MovementDto(
     string OriginVillageName,
     Guid? TargetVillageId,
     string? TargetVillageName,
-    int? TargetMapX,
-    int? TargetMapY
+    Coordinates? TargetCoordinates
 );

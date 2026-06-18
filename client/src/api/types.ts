@@ -33,9 +33,13 @@ export interface BuildRequest {
   buildingType: BuildingType;
 }
 
+export interface Coordinates {
+  x: number;
+  y: number;
+}
+
 export interface SettleRequest {
-  targetX: number;
-  targetY: number;
+  target: Coordinates;
 }
 
 export interface TrainRequest {
@@ -86,8 +90,7 @@ export interface TrainOrderDto {
 export interface VillageDto {
   id: string;
   name: string;
-  mapX: number;
-  mapY: number;
+  coordinates: Coordinates;
   resources: ResourcesDto;
   troops: TroopsDto;
   buildings: readonly BuildingDto[];

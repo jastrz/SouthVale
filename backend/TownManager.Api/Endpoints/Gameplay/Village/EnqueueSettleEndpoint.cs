@@ -1,5 +1,6 @@
 using MediatR;
 using TownManager.Application.Villages.Commands;
+using TownManager.Domain.Entities;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
 
@@ -14,9 +15,9 @@ public class EnqueueSettleEndpoint : IEndpoint
             CancellationToken ct) =>
         {
             var result = await sender.Send(
-                new CreateSettleOrderCommand(villageId, request.TargetX, request.TargetY),
+                new CreateSettleOrderCommand(villageId, request.Target),
                 ct);
-            
+
             return result.Succeeded
                 ? Results.Ok()
                 : Results.BadRequest(result.Errors);
@@ -28,5 +29,5 @@ public class EnqueueSettleEndpoint : IEndpoint
         .AllowAnonymous();
     }
 
-    public record EnqueueSettleRequest(int TargetX, int TargetY);
+    public record EnqueueSettleRequest(Coordinates Target);
 }

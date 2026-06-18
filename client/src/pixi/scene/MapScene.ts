@@ -71,8 +71,8 @@ export class MapScene {
     village: VillageDto,
     options: { animate?: boolean; duration?: number } = {},
   ): void {
-    const wx = village.mapX * TILE + TILE / 2;
-    const wy = village.mapY * TILE + TILE / 2;
+    const wx = village.coordinates.x * TILE + TILE / 2;
+    const wy = village.coordinates.y * TILE + TILE / 2;
     const s = this.root.scale.x;
     const targetX = this.app.screen.width / 2 - wx * s;
     const targetY = this.app.screen.height / 2 - wy * s;

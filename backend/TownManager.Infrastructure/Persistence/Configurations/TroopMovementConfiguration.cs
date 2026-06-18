@@ -10,5 +10,11 @@ public class TroopMovementConfiguration : IEntityTypeConfiguration<TroopMovement
     {
         b.OwnsOne(tm => tm.Troops, t => t.ToJson());
         b.OwnsOne(tm => tm.CarriedResources);
+
+        b.ComplexProperty(tm => tm.TargetCoordinates, cb =>
+        {
+            cb.Property(c => c.X).HasColumnName("TargetMapX");
+            cb.Property(c => c.Y).HasColumnName("TargetMapY");
+        });
     }
 }

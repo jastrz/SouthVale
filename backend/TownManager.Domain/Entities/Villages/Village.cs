@@ -16,8 +16,7 @@ public class Village : Entity
     public DateTime LastTickAt { get; set; } = DateTime.UtcNow;
     
     // Map
-    public int MapX { get; init; }
-    public int MapY { get; init; }
+    public Coordinates Coordinates { get; init; } = new(0, 0);
 
     // Compositions
     public ICollection<Building> Buildings { get; set; } = [];
@@ -31,7 +30,7 @@ public class Village : Entity
     public Guid PlayerId { get; set; }
     public Player Player { get; set; } = null!;
     
-    public static Village CreateStarter(string villageName, (int x, int y) mapCoords) => new()
+    public static Village CreateStarter(string villageName, Coordinates coordinates) => new()
     {
         Id = Guid.NewGuid(),
         Name = villageName,
@@ -47,8 +46,7 @@ public class Village : Entity
             Building.Create(BuildingType.WoodCutter, 1),
             Building.Create(BuildingType.CropField, 1)
         ],
-        MapX = mapCoords.x,
-        MapY = mapCoords.y
+        Coordinates = coordinates
     };
     
     public void ApplyProduction(BuildingEffects effects)
@@ -56,5 +54,11 @@ public class Village : Entity
         var elapsed = DateTime.UtcNow - LastTickAt;
         Resources = Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours));
         LastTickAt = DateTime.UtcNow;
+    }
+
+    public Resources GetCurrentResources(BuildingEffects effects)
+    {
+        var elapsed = DateTime.UtcNow - LastTickAt;
+        return Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours));
     }
 }

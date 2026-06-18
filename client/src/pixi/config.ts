@@ -9,9 +9,9 @@ export const ZOOM = {
 } as const;
 
 export const CAMERA = {
-  /** Base duration for a center-on-village pan, before distance scaling. */
+  // Base duration for a center-on-village pan, before distance scaling.
   centerBaseMs: 200,
-  /** Extra ms per pixel of pan distance; the pan also caps at centerMaxMs. */
+  // Extra ms per pixel of pan distance; the pan also caps at centerMaxMs.
   centerPerPxMs: 0.5,
   centerMaxMs: 800,
 } as const;

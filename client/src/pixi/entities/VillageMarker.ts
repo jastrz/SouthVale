@@ -12,8 +12,8 @@ export function createVillageMarker(
     alpha: 0.35,
   });
   g.circle(0, 0, 6).fill(isActive ? COLORS.villageActive : COLORS.village);
-  g.x = village.mapX * TILE + TILE / 2;
-  g.y = village.mapY * TILE + TILE / 2;
+  g.x = village.coordinates.x * TILE + TILE / 2;
+  g.y = village.coordinates.y * TILE + TILE / 2;
   g.eventMode = "static";
   g.cursor = "pointer";
   return g;

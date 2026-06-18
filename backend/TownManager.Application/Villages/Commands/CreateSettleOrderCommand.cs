@@ -1,9 +1,9 @@
 using MediatR;
 using TownManager.Application.Common;
+using TownManager.Domain.Entities;
 
 namespace TownManager.Application.Villages.Commands;
 
 public record CreateSettleOrderCommand(
     Guid VillageId,
-    int TargetX,
-    int TargetY) : IRequest<Result>;
+    Coordinates Target) : IRequest<Result>;

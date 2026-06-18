@@ -25,16 +25,16 @@ public class CreateSettleOrderCommandHandler(
         if (!village.Troops.HasEnough(settlersNeeded))
             return Result.Failure(["Not enough settlers in garrison."]);
 
-        if (await repo.GetByCoordsAsync(request.TargetX, request.TargetY, ct) is not null)
+        if (await repo.GetByCoordsAsync(request.Target, ct) is not null)
             return Result.Failure(["Target tile is already occupied."]);
 
         village.Troops = village.Troops.Subtract(settlersNeeded);
 
-        var distance = Math.Abs(village.MapX - request.TargetX) + Math.Abs(village.MapY - request.TargetY);
+        var distance = Math.Abs(village.Coordinates.X - request.Target.X) + Math.Abs(village.Coordinates.Y - request.Target.Y);
         var travelTime = TimeSpan.FromSeconds(distance * SecondsPerField);
 
         var movement = TroopMovement.CreateSettle(
-            settlersNeeded, request.TargetX, request.TargetY, travelTime, DateTime.UtcNow);
+            settlersNeeded, request.Target, travelTime, DateTime.UtcNow);
 
         village.TroopMovements.Add(movement);
 

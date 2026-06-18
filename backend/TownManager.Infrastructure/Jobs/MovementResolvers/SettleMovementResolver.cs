@@ -18,12 +18,12 @@ public class SettleMovementResolver(
 
     public async Task ResolveAsync(TroopMovement movement, CancellationToken ct)
     {
-        if (movement.TargetMapX is null || movement.TargetMapY is null) return;
+        if (movement.TargetCoordinates is null) return;
 
         var origin = await villageRepo.GetWithMovementOrdersAsync(movement.VillageId, ct);
         if (origin is null) return;
 
-        if (await villageRepo.GetByCoordsAsync(movement.TargetMapX.Value, movement.TargetMapY.Value, ct) is not null)
+        if (await villageRepo.GetByCoordsAsync(movement.TargetCoordinates, ct) is not null)
         {
             var returningSettlers = new Troops(0, 0, movement.Troops.Settlers);
             if (returningSettlers.IsEmpty()) return;
@@ -40,16 +40,16 @@ public class SettleMovementResolver(
             origin.TroopMovements.Add(returnMovement);
 
             await uow.SaveChangesAsync(ct);
-            
+
             scheduler.ScheduleMovementResolution(returnMovement.Id, travelTime);
-            
+
             return;
         }
 
         var newVillage = Village.CreateStarter(
             $"{origin.Name} Settlement",
-            (movement.TargetMapX.Value, movement.TargetMapY.Value));
-        
+            movement.TargetCoordinates);
+
         newVillage.PlayerId = origin.PlayerId;
 
         villageRepo.Add(newVillage);

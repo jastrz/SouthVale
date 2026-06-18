@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 
 namespace TownManager.Infrastructure.Persistence.Repositories;
@@ -74,10 +75,12 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .ToListAsync(ct);
 
     // By map coordinates
-    public Task<Village?> GetByCoordsAsync(int x, int y, CancellationToken ct = default) =>
+    public Task<Village?> GetByCoordsAsync(Coordinates coordinates, CancellationToken ct = default) =>
         db.Villages
             .AsNoTracking()
-            .FirstOrDefaultAsync(v => v.MapX == x && v.MapY == y, ct);
+            .FirstOrDefaultAsync(v =>
+                v.Coordinates.X == coordinates.X && v.Coordinates.Y == coordinates.Y,
+                ct);
 
     // Lookups
     public async Task<IReadOnlyDictionary<Guid, string>> GetNamesByIdsAsync(

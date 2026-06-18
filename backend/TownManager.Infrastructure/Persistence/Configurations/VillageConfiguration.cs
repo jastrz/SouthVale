@@ -49,5 +49,11 @@ public class VillageConfiguration : IEntityTypeConfiguration<Village>
           gb.Property(p => p.Archers).HasColumnName("Archers");
           gb.Property(p => p.Settlers).HasColumnName("Settler");
         });
+
+        b.ComplexProperty(v => v.Coordinates, cb =>
+        {
+            cb.Property(c => c.X).HasColumnName("MapX");
+            cb.Property(c => c.Y).HasColumnName("MapY");
+        });
     }
 }

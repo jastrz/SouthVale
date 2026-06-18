@@ -41,8 +41,7 @@ public class GetCurrentUserMovementsQueryHandler(
             m.Village.Name,
             m.TargetVillageId,
             m.TargetVillageId.HasValue ? targetNames.GetValueOrDefault(m.TargetVillageId.Value) : null,
-            m.TargetMapX,
-            m.TargetMapY
+            m.TargetCoordinates
         )).ToList();
 
         return Result<IReadOnlyList<MovementDto>>.Success(dtos);

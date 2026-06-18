@@ -1,5 +1,6 @@
 using MediatR;
 using TownManager.Application.Common;
+using TownManager.Domain.Entities;
 
 namespace TownManager.Application.Villages.Queries;
 
@@ -9,7 +10,6 @@ public record GetPlayerVillagesQuery(string Username)
 public record PlayerVillageDto(
     Guid Id,
     string Name,
-    int MapX,
-    int MapY,
+    Coordinates Coordinates,
     int Population
 );

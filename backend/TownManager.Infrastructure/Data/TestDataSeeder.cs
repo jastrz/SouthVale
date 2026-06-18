@@ -10,11 +10,11 @@ public class TestDataSeeder(UserManager<ApplicationUser> userManager, AppDbConte
 {
     public async Task SeedAsync()
     {
-        await SeedTestUserAsync("test1@test.com", "Test123!", "TestVillage1", (0, 0));
-        await SeedTestUserAsync("test2@test.com", "Test123!", "TestVillage2", (0, 0));
+        await SeedTestUserAsync("test1@test.com", "Test123!", "TestVillage1", new Coordinates(0, 0));
+        await SeedTestUserAsync("test2@test.com", "Test123!", "TestVillage2", new Coordinates(0, 0));
     }
 
-    private async Task SeedTestUserAsync(string email, string password, string villageName, (int X, int Y) coordinates)
+    private async Task SeedTestUserAsync(string email, string password, string villageName, Coordinates coordinates)
     {
         // 1. Create ApplicationUser
         var user = new ApplicationUser
@@ -24,7 +24,7 @@ public class TestDataSeeder(UserManager<ApplicationUser> userManager, AppDbConte
         };
 
         var result = await userManager.CreateAsync(user, password);
-        
+
         if (!result.Succeeded)
             throw new Exception($"Failed to create user {email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
 
