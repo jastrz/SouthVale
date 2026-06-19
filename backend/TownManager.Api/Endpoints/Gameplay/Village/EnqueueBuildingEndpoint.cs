@@ -22,7 +22,7 @@ public class EnqueueBuildingEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Queue a building construction")
         .WithDescription("Enqueues a construction order for the specified building type in the village's build queue.")
-        .AllowAnonymous();
+        .RequireAuthorization();
     }
 
     public record EnqueueBuildingRequest(BuildingType BuildingType);

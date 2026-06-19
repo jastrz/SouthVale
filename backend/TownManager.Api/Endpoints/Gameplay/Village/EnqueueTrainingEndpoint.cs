@@ -21,8 +21,8 @@ public class EnqueueTrainingEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Queue troop training")
         .WithDescription("Enqueues one or more troop training orders in the village's training queue.")
-        .AllowAnonymous();
+        .RequireAuthorization();
     }
-    
+
     public record EnqueueTrainingRequest(IReadOnlyList<TroopEntry> Orders);
 }

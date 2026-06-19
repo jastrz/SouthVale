@@ -10,12 +10,25 @@ public class LoginEndpoint : IEndpoint
         app.MapPost("/auth/login", async (
             LoginRequest request,
             ISender sender,
+            HttpContext httpContext,
             CancellationToken ct) =>
         {
             var result = await sender.Send(
                 new LoginCommand(request.Email, request.Password), ct);
 
-            return result.ToHttpResponse();
+            if (!result.Succeeded)
+                return result.ToHttpResponse();
+
+            httpContext.Response.Cookies.Append("refresh_token", result.Value!.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+                Secure = false,
+                Path = "/",
+            });
+
+            return Results.Ok(new { accessToken = result.Value.AccessToken });
         })
         .WithName("Login")
         .WithTags("Auth")

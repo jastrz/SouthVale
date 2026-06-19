@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 interface AuthState {
   token: string | null;
@@ -9,16 +8,11 @@ interface AuthState {
   clearAuth: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      token: null,
-      email: null,
-      username: null,
-      setAuth: (token, email, username) =>
-        set({ token, email: email ?? null, username: username ?? null }),
-      clearAuth: () => set({ token: null, email: null, username: null }),
-    }),
-    { name: "auth-storage" },
-  ),
-);
+export const useAuthStore = create<AuthState>()((set) => ({
+  token: null,
+  email: null,
+  username: null,
+  setAuth: (token, email, username) =>
+    set({ token, email: email ?? null, username: username ?? null }),
+  clearAuth: () => set({ token: null, email: null, username: null }),
+}));

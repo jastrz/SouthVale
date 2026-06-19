@@ -17,7 +17,7 @@ public class AuthService(
     public async Task<Result<string>> RegisterAsync(string email, string password, string username, CancellationToken ct)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
-        
+
         var user = new ApplicationUser
         {
             Id = Guid.NewGuid().ToString(),
@@ -34,27 +34,28 @@ public class AuthService(
 
         db.Players.Add(player);
         db.Villages.Add(village);
-        
+
         await db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
-    
-        var token = tokenService.GenerateToken(user.Id, user.Email);
-    
+
+        var token = tokenService.GenerateAccessToken(user.Id, user.Email!);
+
         return Result<string>.Success(token);
     }
 
-    public async Task<Result<string>> LoginAsync(string email, string password, CancellationToken ct)
+    public async Task<Result<LoginResult>> LoginAsync(string email, string password, CancellationToken ct)
     {
         var user = await userManager.FindByEmailAsync(email);
         if (user is null)
-            return Result<string>.Failure(["Invalid email or password"]);
+            return Result<LoginResult>.Failure(["Invalid email or password"]);
 
         var valid = await userManager.CheckPasswordAsync(user, password);
         if (!valid)
-            return Result<string>.Failure(["Invalid email or password"]);
-        
-        var token = tokenService.GenerateToken(user.Id, user.Email!);
-        
-        return Result<string>.Success(token);
+            return Result<LoginResult>.Failure(["Invalid email or password"]);
+
+        var accessToken = tokenService.GenerateAccessToken(user.Id, user.Email!);
+        var refreshToken = tokenService.GenerateRefreshToken(user.Id, user.Email!);
+
+        return Result<LoginResult>.Success(new LoginResult(accessToken, refreshToken));
     }
 }

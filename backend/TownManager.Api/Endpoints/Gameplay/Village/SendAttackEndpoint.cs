@@ -28,7 +28,7 @@ public class SendAttackEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Send an attack from a village")
         .WithDescription("Creates an attack order that dispatches the specified troops from the source village to the target village.")
-        .AllowAnonymous();
+        .RequireAuthorization();
     }
 
     public record SendAttackRequest(IReadOnlyList<TroopEntry> Troops, Guid TargetVillageId);

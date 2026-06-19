@@ -1,6 +1,7 @@
 import { useAuthStore } from "../store/authStore";
 import { useGameStateStore } from "../store/gameStateStore";
 import { useNavigate, Link } from "@tanstack/react-router";
+import { api } from "../lib/axios";
 
 export function LoginBar() {
   const token = useAuthStore((s) => s.token);
@@ -10,7 +11,8 @@ export function LoginBar() {
   const clearGameState = useGameStateStore((s) => s.clear);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await api.post("/auth/logout").catch(() => {});
     clearAuth();
     clearGameState();
     navigate({ to: "/login" });
