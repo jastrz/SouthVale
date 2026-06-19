@@ -1,5 +1,5 @@
 import { useGameStateStore, selectActiveVillage } from "../../store/gameStateStore";
-import { useVillage, useBuild, useTrain, useAttack } from "../../api/hooks/useVillages";
+import { useVillage, useBuild, useTrain, useAttack, useMovements } from "../../api/hooks/useVillages";
 import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "./PanelContainer";
 import { VillageHeader } from "./VillageHeader";
@@ -8,6 +8,7 @@ import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
 import { QueuePanel } from "./QueuePanel";
 import { AttackPanel } from "./AttackPanel";
+import { MovementsPanel } from "./MovementsPanel";
 
 export function VillagePanel() {
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
@@ -30,6 +31,7 @@ function VillagePanelInner({
   const buildMutation = useBuild(villageId);
   const trainMutation = useTrain(villageId);
   const attackMutation = useAttack(villageId);
+  const { data: movements } = useMovements();
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
 
   if (isLoading) {
@@ -79,6 +81,10 @@ function VillagePanelInner({
       <QueuePanel
         buildOrders={village.buildOrders}
         trainOrders={village.trainOrders}
+      />
+      <MovementsPanel
+        villageId={villageId}
+        movements={movements ?? []}
       />
       {targetVillage && targetVillage.kind === "enemy" && (
         <AttackPanel

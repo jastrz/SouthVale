@@ -9,6 +9,7 @@ import type {
   VillageDto,
   PlayerVillageDto,
   GetMapRequest,
+  MovementDto,
 } from "../types";
 
 export const useMyVillages = () =>
@@ -43,6 +44,14 @@ export const usePlayerVillages = (username: string) =>
         .get<VillageDto[]>(`/gameplay/player/${username}/villages`)
         .then((r) => r.data),
     enabled: !!username,
+  });
+
+export const useMovements = () =>
+  useQuery({
+    queryKey: ["movements"],
+    queryFn: () =>
+      api.get<MovementDto[]>("/gameplay/me/movements").then((r) => r.data),
+    // refetchInterval: 30_000,
   });
 
 export const useBuild = (villageId: string) =>

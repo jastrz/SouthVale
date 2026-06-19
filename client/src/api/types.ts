@@ -70,6 +70,24 @@ export interface BuildingDto {
   level: number;
 }
 
+export type MovementType = "Attack" | "Return" | "Settle" | "Transport";
+export type MovementStatus = "InFlight" | "Recalled" | "Resolved";
+
+export interface MovementDto {
+  id: string;
+  type: MovementType;
+  status: MovementStatus;
+  departureAt: string;
+  arrivesAt: string;
+  completedAt: string | null;
+  troops: TroopsDto;
+  originVillageId: string;
+  originVillageName: string;
+  targetVillageId: string | null;
+  targetVillageName: string | null;
+  targetCoordinates: Coordinates | null;
+}
+
 export interface BuildOrderDto {
   id: string;
   buildingType: BuildingType;
