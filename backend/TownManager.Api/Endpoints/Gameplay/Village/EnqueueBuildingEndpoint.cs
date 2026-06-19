@@ -16,9 +16,7 @@ public class EnqueueBuildingEndpoint : IEndpoint
         ) =>
         {
             var result = await sender.Send(new CreateBuildOrderCommand(villageId, request.BuildingType), ct);
-            return result.Succeeded
-                ? Results.Ok()
-                : Results.BadRequest(result.Errors);
+            return result.ToHttpResponse();
         })
         .WithName("QueueBuilding")
         .WithTags("Gameplay")

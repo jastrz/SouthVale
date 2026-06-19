@@ -15,9 +15,7 @@ public class LoginEndpoint : IEndpoint
             var result = await sender.Send(
                 new LoginCommand(request.Email, request.Password), ct);
 
-            return result.Succeeded
-                ? Results.Ok(result.Value)
-                : Results.Unauthorized();
+            return result.ToHttpResponse();
         })
         .WithName("Login")
         .WithTags("Auth")

@@ -15,12 +15,10 @@ public class GetCurrentUserMovementsEndpoint : IEndpoint
         {
             var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return Results.Unauthorized();
+                return Results.Problem(statusCode: 401, title: "Unauthorized");
 
             var result = await sender.Send(new GetCurrentUserMovementsQuery(userId), ct);
-            return result.Succeeded
-                ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Errors);
+            return result.ToHttpResponse();
         })
         .WithName("GetCurrentUserMovements")
         .WithTags("Gameplay")

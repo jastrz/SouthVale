@@ -113,4 +113,5 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
 
 
     public void Add(Village village) => db.Villages.Add(village);
+    public Task SaveChangesAsync(CancellationToken ct = default) => db.SaveChangesAsync(ct);
 }

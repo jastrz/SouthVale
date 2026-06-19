@@ -7,7 +7,7 @@ namespace TownManager.Application.Villages.Commands;
 
 public record UpdateVillageProductionCommand(Guid VillageId, Guid UserId) : IRequest<Result>;
 
-public class UpdateVillageProductionCommandHandler(IVillageRepository repo, IUnitOfWork uow)
+public class UpdateVillageProductionCommandHandler(IVillageRepository repo)
     : IRequestHandler<UpdateVillageProductionCommand, Result>
 {
     public async Task<Result> Handle(UpdateVillageProductionCommand cmd, CancellationToken ct)
@@ -15,7 +15,7 @@ public class UpdateVillageProductionCommandHandler(IVillageRepository repo, IUni
         var village = await repo.GetWithBuildingsAsync(cmd.VillageId, ct);
 
         if (village is null)
-            return Result.Failure(["Village not found."]);
+            return Result.Failure(["Village not found."], statusCode: 404);
 
         // if (village.PlayerId != cmd.UserId)
         //     return Result.Failure(ErrorType.Forbidden, ["Not your village."]);
@@ -23,7 +23,7 @@ public class UpdateVillageProductionCommandHandler(IVillageRepository repo, IUni
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
         village.ApplyProduction(effects);
 
-        await uow.SaveChangesAsync(ct);
+        await repo.SaveChangesAsync(ct);
         
         return Result.Success();
     }

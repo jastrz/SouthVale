@@ -22,9 +22,7 @@ public class SendAttackEndpoint : IEndpoint
 
             var result = await sender.Send(command, ct);
             
-            return result.Succeeded
-                ? Results.Ok()
-                : Results.BadRequest(result.Errors);
+            return result.ToHttpResponse();
         })
         .WithName("SendAttack")
         .WithTags("Gameplay")

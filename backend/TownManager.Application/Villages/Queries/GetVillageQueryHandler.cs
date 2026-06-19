@@ -14,7 +14,7 @@ public class GetVillageQueryHandler(IVillageRepository repo)
         var village = await repo.GetWithActiveOrdersAsync(q.VillageId, ct);
 
         if (village is null)
-            return Result<VillageDto>.Failure(["Village not found."]);
+            return Result<VillageDto>.Failure(["Village not found."], statusCode: 404);
 
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
         var current = village.GetCurrentResources(effects);

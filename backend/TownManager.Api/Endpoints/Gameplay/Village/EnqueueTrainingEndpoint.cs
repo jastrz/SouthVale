@@ -15,9 +15,7 @@ public class EnqueueTrainingEndpoint : IEndpoint
         ) =>
         {
             var result = await sender.Send(new CreateTrainOrderCommand(villageId, request.Orders), ct);
-            return result.Succeeded
-                ? Results.Ok()
-                : Results.BadRequest(result.Errors);
+            return result.ToHttpResponse();
         })
         .WithName("QueueTraining")
         .WithTags("Gameplay")

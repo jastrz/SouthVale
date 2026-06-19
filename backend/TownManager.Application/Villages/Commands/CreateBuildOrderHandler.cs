@@ -6,7 +6,7 @@ using TownManager.Domain.Entities.Villages;
 
 namespace TownManager.Application.Villages.Commands;
 
-public class CreateBuildOrderHandler(IVillageRepository repo, IUnitOfWork uow, IJobScheduler scheduler)
+public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler scheduler)
     : IRequestHandler<CreateBuildOrderCommand, Result>
 {
     public async Task<Result> Handle(CreateBuildOrderCommand cmd, CancellationToken ct)
@@ -14,7 +14,7 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IUnitOfWork uow, I
         var village = await repo.GetWithActiveOrdersAsync(cmd.VillageId, ct);
         
         if (village is null)
-            return Result.Failure(["Village not found"]);
+            return Result.Failure(["Village not found"], statusCode: 404);
 
         var currentLevel = village.Buildings
             .FirstOrDefault(b => b.Type == cmd.BuildingType)?.Level ?? 0;
@@ -35,7 +35,7 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IUnitOfWork uow, I
         var order = BuildOrder.Create(cmd.BuildingType, nextLevel, config.UpgradeTime);
         village.BuildOrders.Add(order);
 
-        await uow.SaveChangesAsync(ct);
+        await repo.SaveChangesAsync(ct);
 
         scheduler.ScheduleBuildOrderResolution(order.Id, config.UpgradeTime);
 

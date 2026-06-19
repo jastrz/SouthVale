@@ -14,9 +14,7 @@ public class GetMapEndpoint : IEndpoint
                 CancellationToken ct ) =>
             {
                 var result = await sender.Send(new GetMapQuery(request.Cords, request.Radius), ct);
-                return result.Succeeded
-                    ? Results.Ok(result.Value)
-                    : Results.BadRequest(result.Errors);
+                return result.ToHttpResponse();
             })
         .WithName("GetMap")
         .WithTags("Gameplay")

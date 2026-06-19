@@ -16,7 +16,7 @@ public class GetCurrentUserVillagesQueryHandler(
     {
         var player = await playerRepo.GetByUserIdAsync(q.UserId, ct);
         if (player is null)
-            return Result<IReadOnlyList<VillageDto>>.Failure(["Player not found."]);
+            return Result<IReadOnlyList<VillageDto>>.Failure(["Player not found."], statusCode: 404);
 
         var villages = await villageRepo.GetFullDetailsByPlayerAsync(player.Id, ct);
 

@@ -18,9 +18,7 @@ public class EnqueueSettleEndpoint : IEndpoint
                 new CreateSettleOrderCommand(villageId, request.Target),
                 ct);
 
-            return result.Succeeded
-                ? Results.Ok()
-                : Results.BadRequest(result.Errors);
+            return result.ToHttpResponse();
         })
         .WithName("QueueSettle")
         .WithTags("Gameplay")

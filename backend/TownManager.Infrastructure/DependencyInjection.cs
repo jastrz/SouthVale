@@ -46,7 +46,6 @@ public static class DependencyInjection
                 };
             });
         
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IPlayerRepository, PlayerRepository>();

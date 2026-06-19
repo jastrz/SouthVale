@@ -32,4 +32,5 @@ public interface IVillageRepository
     Task<IReadOnlyDictionary<Guid, string>> GetNamesByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct = default);
 
     void Add(Village village);
+    Task SaveChangesAsync(CancellationToken ct = default);
 }

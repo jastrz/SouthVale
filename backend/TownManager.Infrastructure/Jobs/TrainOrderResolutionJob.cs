@@ -1,19 +1,33 @@
 using Hangfire;
+using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
+using TownManager.Infrastructure.Persistence;
 
 namespace TownManager.Infrastructure.Jobs;
 
-public class TrainOrderResolutionJob(IVillageRepository repo, IUnitOfWork uow, IJobScheduler scheduler)
+public class TrainOrderResolutionJob(
+    IVillageRepository repo,
+    AppDbContext db,
+    IJobScheduler scheduler,
+    ILogger<TrainOrderResolutionJob> logger)
 {
     [AutomaticRetry(Attempts = 3)]
     [DisableConcurrentExecution(60)]
     public async Task ResolveAsync(Guid orderId, CancellationToken ct)
     {
         var village = await repo.GetWithTrainOrdersAsync(orderId, ct);
-        if (village is null) return;
+        if (village is null)
+        {
+            logger.LogWarning("Village not found for train order {OrderId}, skipping", orderId);
+            return;
+        }
 
         var order = village.TrainOrders.FirstOrDefault(o => o.Id == orderId);
-        if (order is null) return;
+        if (order is null)
+        {
+            logger.LogWarning("Train order {OrderId} not found, skipping", orderId);
+            return;
+        }
         
         var elapsed = DateTime.UtcNow - order.StartedAt;
         var shouldBeCompleted = (int)(elapsed / order.TimePerUnit);
@@ -35,6 +49,6 @@ public class TrainOrderResolutionJob(IVillageRepository repo, IUnitOfWork uow, I
             village.TrainOrders.Remove(order);
         }
         
-        await uow.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
     }
 }

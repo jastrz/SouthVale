@@ -13,9 +13,7 @@ public class GetPlayerVillagesEndpoint : IEndpoint
             CancellationToken ct) =>
         {
             var result = await sender.Send(new GetPlayerVillagesQuery(username), ct);
-            return result.Succeeded
-                ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Errors);
+            return result.ToHttpResponse();
         })
         .WithName("GetPlayerVillages")
         .WithTags("Gameplay")

@@ -15,12 +15,7 @@ public class RegisterEndpoint : IEndpoint
                 var result = await sender.Send(
                     new RegisterCommand(request.Email, request.Password, request.Username), ct);
 
-                return result.Succeeded
-                    ? Results.Ok(result.Value)
-                    : Results.Problem(
-                        title: "Registration failed",
-                        detail: string.Join(", ", result.Errors),
-                        statusCode: 400);
+                return result.ToHttpResponse();
             })
             .WithName("Register")
             .WithTags("Auth")

@@ -2,7 +2,6 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using TownManager.Application.Common;
-using TownManager.Application.Mapping;
 
 namespace TownManager.Application;
 
@@ -21,7 +20,6 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(assembly);
-        services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
         return services;
     }

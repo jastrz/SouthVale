@@ -7,7 +7,7 @@ using TownManager.Domain.Entities.Villages;
 
 namespace TownManager.Application.Villages.Commands;
 
-public class CreateTrainOrderCommandHandler(IVillageRepository repo, IUnitOfWork uow, IJobScheduler scheduler)
+public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobScheduler scheduler)
     : IRequestHandler<CreateTrainOrderCommand, Result>
 {
     public async Task<Result> Handle(CreateTrainOrderCommand request, CancellationToken ct)
@@ -15,7 +15,7 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IUnitOfWork
         var village = await repo.GetWithActiveOrdersAsync(request.VillageId, ct);
 
         if (village is null)
-            return Result.Failure(["Village not found."]);
+            return Result.Failure(["Village not found."], statusCode: 404);
 
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
         village.ApplyProduction(effects);
@@ -53,7 +53,7 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IUnitOfWork
             queueStartTime = order.CompletesAt;
         }
 
-        await uow.SaveChangesAsync(ct);
+        await repo.SaveChangesAsync(ct);
 
         foreach (var order in newOrders)
         {

@@ -8,8 +8,7 @@ using TownManager.Domain.Enums;
 namespace TownManager.Application.Villages.Commands;
 
 public class CreateAttackOrderCommandHandler(
-    IVillageRepository repo, 
-    IUnitOfWork uow, 
+    IVillageRepository repo,
     IJobScheduler scheduler
     )
     : IRequestHandler<CreateAttackOrderCommand, Result>
@@ -23,11 +22,11 @@ public class CreateAttackOrderCommandHandler(
         
         var village = await repo.GetWithMovementOrdersAsync(request.VillageId, ct);
         if (village is null)
-            return Result.Failure(["Player village not found."]);
+            return Result.Failure(["Player village not found."], statusCode: 404);
         
         var targetVillage = await repo.GetByIdAsync(request.TargetVillageId, ct);
         if (targetVillage is null)
-            return Result.Failure(["Target village not found."]);
+            return Result.Failure(["Target village not found."], statusCode: 404);
 
         // Validate troops are available in garrison
         if (!village.Troops.HasEnough(troops))
@@ -43,7 +42,7 @@ public class CreateAttackOrderCommandHandler(
         
         village.TroopMovements.Add(order);
 
-        await uow.SaveChangesAsync(ct);
+        await repo.SaveChangesAsync(ct);
 
         // Schedule resolution when attack arrives
         scheduler.ScheduleMovementResolution(order.Id, travelTime);
