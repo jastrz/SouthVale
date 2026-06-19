@@ -13,3 +13,13 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (r) => r,
+  (error) => {
+    if (error.response?.data?.detail) {
+      error.message = error.response.data.detail;
+    }
+    return Promise.reject(error);
+  },
+);

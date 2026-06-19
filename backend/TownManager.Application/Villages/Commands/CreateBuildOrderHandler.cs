@@ -16,10 +16,10 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
         if (village is null)
             return Result.Failure(["Village not found"], statusCode: 404);
 
-        var currentLevel = village.Buildings
-            .FirstOrDefault(b => b.Type == cmd.BuildingType)?.Level ?? 0;
+        var building = village.Buildings.FirstOrDefault(b => b.Type == cmd.BuildingType);
 
-        var nextLevel = currentLevel + 1;
+        var lastQueuedTarget = await repo.GetMaxBuildOrderTargetAsync(cmd.VillageId, cmd.BuildingType, ct);
+        var nextLevel = (lastQueuedTarget ?? building?.Level ?? 0) + 1;
         var config = BuildingConfig.Get(cmd.BuildingType, nextLevel);
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
         village.ApplyProduction(effects);
@@ -27,17 +27,21 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
         if (!village.Resources.CanAfford(config.UpgradeCost))
             return Result.Failure(["Not enough resources"]);
 
-        if (village.BuildOrders.Any())
-            return Result.Failure(["Build queue is full"]);
-
         village.Resources = village.Resources.Subtract(config.UpgradeCost);
 
+        var queueStartTime = village.BuildOrders.Any()
+            ? village.BuildOrders.Max(o => o.CompletesAt)
+            : DateTime.UtcNow;
+
         var order = BuildOrder.Create(cmd.BuildingType, nextLevel, config.UpgradeTime);
+        order.StartsAt = queueStartTime;
+        order.CompletesAt = queueStartTime.Add(config.UpgradeTime);
         village.BuildOrders.Add(order);
 
         await repo.SaveChangesAsync(ct);
 
-        scheduler.ScheduleBuildOrderResolution(order.Id, config.UpgradeTime);
+        var delay = order.CompletesAt - DateTime.UtcNow;
+        scheduler.ScheduleBuildOrderResolution(order.Id, delay);
 
         return Result.Success();
     }

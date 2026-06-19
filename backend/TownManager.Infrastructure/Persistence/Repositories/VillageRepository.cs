@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
+using TownManager.Domain.Enums;
 
 namespace TownManager.Infrastructure.Persistence.Repositories;
 
@@ -110,7 +111,11 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
 
         return await query.ToListAsync(ct);
     }
-
+    
+    public async Task<int?> GetMaxBuildOrderTargetAsync(Guid villageId, BuildingType type, CancellationToken ct = default) =>
+        await db.BuildOrders
+            .Where(o => o.VillageId == villageId && o.BuildingType == type)
+            .MaxAsync(o => (int?)o.TargetLevel, ct);
 
     public void Add(Village village) => db.Villages.Add(village);
     public Task SaveChangesAsync(CancellationToken ct = default) => db.SaveChangesAsync(ct);

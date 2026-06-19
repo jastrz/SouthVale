@@ -6,17 +6,19 @@ import { useTick } from "../../hooks/useTick";
 
 function BuildingCard({
   building,
+  orders,
   disabled,
-  isUpgrading,
-  timeLabel,
   onUpgrade,
 }: {
   building: { id: string; type: string; level: number };
-  disabled: boolean;
-  isUpgrading: boolean;
-  timeLabel?: string;
+  orders: readonly { completesAt: string; targetLevel: number }[];
+  disabled?: boolean;
   onUpgrade: () => void;
 }) {
+  const nextOrder = orders.length > 0
+    ? orders.reduce((a, b) => (a.completesAt < b.completesAt ? a : b))
+    : null;
+
   return (
     <div className="flex items-center justify-between rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
       <div>
@@ -24,24 +26,31 @@ function BuildingCard({
           {BUILDING_LABELS[building.type] ?? building.type}
         </span>
         <span className="ml-2 text-slate-400">Lv.{building.level}</span>
+        {nextOrder && (
+          <>
+            <span className="ml-1 text-slate-400">→ {nextOrder.targetLevel}</span>
+            <span className="ml-2 text-yellow-400">
+              {formatTime(timeRemaining(nextOrder.completesAt))}
+            </span>
+            {orders.length > 1 && (
+              <span className="ml-1 text-[10px] text-slate-500">
+                +{orders.length - 1} more
+              </span>
+            )}
+          </>
+        )}
         <div className="text-[10px] text-slate-500">
           {BUILDING_DESCRIPTIONS[building.type] ?? ""}
         </div>
       </div>
-      {isUpgrading ? (
-        <span className="whitespace-nowrap text-[11px] text-yellow-400">
-          {timeLabel ?? "…"}
-        </span>
-      ) : (
-        <button
-          type="button"
-          onClick={onUpgrade}
-          disabled={disabled}
-          className="cursor-pointer rounded bg-blue-600 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
-        >
-          Upgrade
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={onUpgrade}
+        disabled={disabled}
+        className="cursor-pointer rounded bg-blue-600 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
+      >
+        {disabled ? "..." : "Upgrade"}
+      </button>
     </div>
   );
 }
@@ -56,8 +65,6 @@ export function BuildingsPanel({
   mutation: UseMutationResult<unknown, Error, BuildRequest, unknown>;
 }) {
   useTick();
-  const hasBuildOrder = buildOrders.length > 0;
-  const activeBuildOrder = hasBuildOrder ? buildOrders[0] : null;
 
   return (
     <section className="border-b border-slate-800 px-4 py-3">
@@ -69,13 +76,8 @@ export function BuildingsPanel({
           <BuildingCard
             key={b.id}
             building={b}
-            disabled={hasBuildOrder && activeBuildOrder?.buildingType !== b.type}
-            isUpgrading={activeBuildOrder?.buildingType === b.type}
-            timeLabel={
-              activeBuildOrder?.buildingType === b.type && activeBuildOrder
-                ? formatTime(timeRemaining(activeBuildOrder.completesAt))
-                : undefined
-            }
+            orders={buildOrders.filter((o) => o.buildingType === b.type)}
+            disabled={mutation.isPending}
             onUpgrade={() => mutation.mutate({ buildingType: b.type as BuildingType })}
           />
         ))}

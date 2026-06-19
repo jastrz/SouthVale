@@ -1,5 +1,6 @@
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
+using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Interfaces;
 
@@ -30,6 +31,8 @@ public interface IVillageRepository
 
     // Lookups
     Task<IReadOnlyDictionary<Guid, string>> GetNamesByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct = default);
+
+    Task<int?> GetMaxBuildOrderTargetAsync(Guid villageId, BuildingType type, CancellationToken ct = default);
 
     void Add(Village village);
     Task SaveChangesAsync(CancellationToken ct = default);
