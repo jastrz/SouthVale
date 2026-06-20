@@ -15,7 +15,15 @@ export function VillagePanel() {
   const storeVillage = useGameStateStore(selectActiveVillage);
   const targetVillage = useGameStateStore((s) => s.targetVillage);
 
-  if (!activeVillageId || !storeVillage) return null;
+  if (!activeVillageId || !storeVillage) {
+    return (
+      <PanelContainer>
+        <div className="flex h-full items-center justify-center text-sm text-slate-500">
+          No village selected
+        </div>
+      </PanelContainer>
+    );
+  }
 
   return <VillagePanelInner villageId={activeVillageId} targetVillage={targetVillage} />;
 }

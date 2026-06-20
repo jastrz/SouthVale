@@ -20,14 +20,14 @@ export function VillageList() {
   }, [villages, activeVillageId, setActiveVillage]);
 
   return (
-    <div className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950/90 font-sans text-white backdrop-blur-sm">
+    <div className="flex-none h-screen w-72 flex-col border-r border-slate-800 bg-slate-950/90 font-sans text-white backdrop-blur-sm">
       <header className="border-b border-slate-800 px-4 py-3">
         <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
           Your Villages
         </h2>
       </header>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-scroll">
         {isLoading && (
           <p className="px-4 py-3 text-sm text-slate-400">Loading…</p>
         )}
