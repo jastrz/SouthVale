@@ -1,7 +1,16 @@
-import { useGameStateStore, selectActiveVillage } from "../../store/gameStateStore";
-import { useVillage, useBuild, useTrain, useAttack, useMovements } from "../../api/hooks/useVillages";
+import {
+  useGameStateStore,
+  selectActiveVillage,
+} from "../../store/gameStateStore";
+import {
+  useVillage,
+  useBuild,
+  useTrain,
+  useAttack,
+  useMovements,
+} from "../../api/hooks/useVillages";
 import type { MapVillage } from "../../api/types";
-import { PanelContainer } from "./PanelContainer";
+import { PanelContainer } from "../PanelContainer";
 import { VillageHeader } from "./VillageHeader";
 import { ResourceDisplay } from "./ResourceDisplay";
 import { BuildingsPanel } from "./BuildingsPanel";
@@ -25,7 +34,12 @@ export function VillagePanel() {
     );
   }
 
-  return <VillagePanelInner villageId={activeVillageId} targetVillage={targetVillage} />;
+  return (
+    <VillagePanelInner
+      villageId={activeVillageId}
+      targetVillage={targetVillage}
+    />
+  );
 }
 
 function VillagePanelInner({
@@ -56,7 +70,9 @@ function VillagePanelInner({
     return (
       <PanelContainer>
         <div className="flex h-full items-center justify-center text-sm text-red-400">
-          {isError && error instanceof Error ? error.message : "Failed to load village"}
+          {isError && error instanceof Error
+            ? error.message
+            : "Failed to load village"}
         </div>
       </PanelContainer>
     );
@@ -90,10 +106,6 @@ function VillagePanelInner({
         buildOrders={village.buildOrders}
         trainOrders={village.trainOrders}
       />
-      <MovementsPanel
-        villageId={villageId}
-        movements={movements ?? []}
-      />
       {targetVillage && targetVillage.kind === "enemy" && (
         <AttackPanel
           targetName={targetVillage.name}
@@ -107,6 +119,8 @@ function VillagePanelInner({
           onClearTarget={() => setTargetVillage(null)}
         />
       )}
+
+      <MovementsPanel villageId={villageId} movements={movements ?? []} />
     </PanelContainer>
   );
 }

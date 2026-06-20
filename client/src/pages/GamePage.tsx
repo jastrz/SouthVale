@@ -7,7 +7,7 @@ export function GamePage() {
   return (
     <div className="flex h-screen w-screen">
       <VillageList />
-      <div className="flex flex-1 items-center">
+      <div className="flex flex-1 min-w-0 items-center">
         <MapCanvas />
       </div>
       <VillagePanel />

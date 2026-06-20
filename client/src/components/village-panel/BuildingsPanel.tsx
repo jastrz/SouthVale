@@ -15,9 +15,10 @@ function BuildingCard({
   disabled?: boolean;
   onUpgrade: () => void;
 }) {
-  const nextOrder = orders.length > 0
-    ? orders.reduce((a, b) => (a.completesAt < b.completesAt ? a : b))
-    : null;
+  const nextOrder =
+    orders.length > 0
+      ? orders.reduce((a, b) => (a.completesAt < b.completesAt ? a : b))
+      : null;
 
   return (
     <div className="flex items-center justify-between rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
@@ -28,7 +29,9 @@ function BuildingCard({
         <span className="ml-2 text-slate-400">Lv.{building.level}</span>
         {nextOrder && (
           <>
-            <span className="ml-1 text-slate-400">→ {nextOrder.targetLevel}</span>
+            <span className="ml-1 text-slate-400">
+              → {nextOrder.targetLevel}
+            </span>
             <span className="ml-2 text-yellow-400">
               {formatTime(timeRemaining(nextOrder.completesAt))}
             </span>
@@ -47,7 +50,7 @@ function BuildingCard({
         type="button"
         onClick={onUpgrade}
         disabled={disabled}
-        className="cursor-pointer rounded bg-blue-600 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
+        className="cursor-pointer rounded bg-blue-600 px-2.5 p-2 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
       >
         {disabled ? "..." : "Upgrade"}
       </button>
@@ -61,7 +64,11 @@ export function BuildingsPanel({
   mutation,
 }: {
   buildings: readonly { id: string; type: string; level: number }[];
-  buildOrders: readonly { buildingType: string; targetLevel: number; completesAt: string }[];
+  buildOrders: readonly {
+    buildingType: string;
+    targetLevel: number;
+    completesAt: string;
+  }[];
   mutation: UseMutationResult<unknown, Error, BuildRequest, unknown>;
 }) {
   useTick();
@@ -78,13 +85,17 @@ export function BuildingsPanel({
             building={b}
             orders={buildOrders.filter((o) => o.buildingType === b.type)}
             disabled={mutation.isPending}
-            onUpgrade={() => mutation.mutate({ buildingType: b.type as BuildingType })}
+            onUpgrade={() =>
+              mutation.mutate({ buildingType: b.type as BuildingType })
+            }
           />
         ))}
       </div>
       {mutation.isError && (
         <p className="mt-2 text-xs text-red-400">
-          {mutation.error instanceof Error ? mutation.error.message : "Upgrade failed"}
+          {mutation.error instanceof Error
+            ? mutation.error.message
+            : "Upgrade failed"}
         </p>
       )}
     </section>

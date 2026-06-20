@@ -22,7 +22,7 @@ export const COLORS = {
   village: 0x00ff00,
   villageActive: 0xffd700,
   villageHalo: 0x00aa00,
-  villageHaloActive: 0xffd700,
+  villageHaloActive: 0xffffff,
   enemyVillage: 0xff3344,
   enemyVillageHalo: 0xaa2233,
 } as const;
