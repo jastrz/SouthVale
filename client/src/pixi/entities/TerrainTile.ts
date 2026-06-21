@@ -1,9 +1,12 @@
-import { Sprite } from "pixi.js";
+import { Sprite, Texture } from "pixi.js";
 import { TILE } from "../config";
-import { tile, ATLAS } from "../atlas";
 
-export function createTerrainTile(x: number, y: number): Sprite {
-  const sprite = new Sprite(tile(...ATLAS.GRASS_MC));
+export function createTerrainTile(
+  x: number,
+  y: number,
+  texture: Texture,
+): Sprite {
+  const sprite = new Sprite(texture);
   sprite.x = x * TILE;
   sprite.y = y * TILE;
   sprite.width = TILE;

@@ -34,16 +34,23 @@ export function tile(row: number, col: number): Texture {
 
 export const ATLAS = {
   // Grass— 3×3 autotile block (water inside enviro)
-  GRASS_TL: [3, 4] as const,
+  GRASS_TL: [3, 1] as const,
   GRASS_TC: [5, 2] as const,
-  GRASS_TR: [3, 5] as const,
+  GRASS_TR: [3, 3] as const,
   GRASS_ML: [4, 3] as const,
   GRASS_MC: [4, 2] as const, // full grass tile
   GRASS_MR: [4, 1] as const,
-  GRASS_BL: [5, 4] as const,
+  GRASS_BL: [5, 1] as const,
   GRASS_BC: [3, 2] as const,
-  GRASS_BR: [5, 5] as const,
-  WATER: [6, 3] as const,
+  GRASS_BR: [5, 3] as const,
+
+  // Inner corners — water touches the grass tile diagonally only
+  GRASS_IC_TL: [3, 4] as const, // water at NW
+  GRASS_IC_TR: [3, 5] as const, // water at NE
+  GRASS_IC_BL: [4, 4] as const, // water at SW
+  GRASS_IC_BR: [4, 5] as const, // water at SE
+
+  WATER: [3, 6] as const,
 
   // Vegetation / forest
   TREES_SMALL: [3, 0] as const,
