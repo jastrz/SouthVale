@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TownManager.Domain.Entities;
 
 public class Coordinates : IEquatable<Coordinates>, IEquatable<(int x, int y)>
@@ -7,6 +9,7 @@ public class Coordinates : IEquatable<Coordinates>, IEquatable<(int x, int y)>
 
     public Coordinates() { }
 
+    [JsonConstructor]
     public Coordinates(int x, int y)
     {
         X = x;

@@ -28,6 +28,9 @@ export function useMapRenderer(
   const setActiveVillage = useGameStateStore((s) => s.setActiveVillage);
   const setHoveredVillage = useGameStateStore((s) => s.setHoveredVillage);
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
+  const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
+  const selectedTile = useGameStateStore((s) => s.selectedTile);
+  const targetVillage = useGameStateStore((s) => s.targetVillage);
 
   // Single fetch: pinned to the world center with a radius big enough to
   // cover the entire grid from any point. Empty deps so the query key is
@@ -74,7 +77,10 @@ export function useMapRenderer(
         }
         appRef.current = app;
 
-        const scene = new MapScene(app, grid);
+        const scene = new MapScene(app, grid, (x, y) => {
+          setSelectedTile({ x, y });
+          setTargetVillage(null);
+        });
         sceneRef.current = scene;
         disposePan = attachPan(app.canvas, scene.root, {
           onDragStart: () => scene.cancelAnimation(),
@@ -97,7 +103,7 @@ export function useMapRenderer(
       appRef.current?.destroy(true);
       appRef.current = null;
     };
-  }, [divRef, appRef]);
+  }, [divRef, appRef, setSelectedTile, setTargetVillage]);
 
   useEffect(() => {
     if (!pixiReady) return;
@@ -107,6 +113,7 @@ export function useMapRenderer(
       // Own villages become the active selection; enemy villages set
       // the attack target.
       (village) => {
+        setSelectedTile(null);
         if (village.kind === "own") {
           setActiveVillage(village.id);
         } else {
@@ -122,7 +129,24 @@ export function useMapRenderer(
     setActiveVillage,
     setHoveredVillage,
     setTargetVillage,
+    setSelectedTile,
   ]);
+
+  // Clear tile visual when a village is selected
+  useEffect(() => {
+    if (!pixiReady) return;
+    if (activeVillageId || targetVillage) {
+      sceneRef.current?.clearSelectedTile();
+    }
+  }, [activeVillageId, targetVillage, pixiReady]);
+
+  // Clear scene visual when tile selection is cleared from the panel
+  useEffect(() => {
+    if (!pixiReady) return;
+    if (!selectedTile) {
+      sceneRef.current?.clearSelectedTile();
+    }
+  }, [selectedTile, pixiReady]);
 
   // Pan to the active village whenever it changes. The ref guard keeps
   // subsequent store updates (resource ticks, etc.) from stealing the

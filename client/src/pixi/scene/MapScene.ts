@@ -1,9 +1,9 @@
-import { Container } from "pixi.js";
-import type { Application } from "pixi.js";
+import { Container, Graphics, Rectangle } from "pixi.js";
+import type { Application, FederatedPointerEvent } from "pixi.js";
 import type { MapVillage, VillageDto } from "../../api/types";
 import { tween } from "../animation/";
 import type { TweenHandle } from "../animation/";
-import { CAMERA, TILE_SIZE } from "../config";
+import { CAMERA, TILE_SIZE, COLORS, GRID } from "../config";
 import { TileLayer, PropsLayer, VillageLayer } from "./layers";
 import { type TileData, gridSize } from "../tileData";
 
@@ -26,17 +26,67 @@ export class MapScene {
   private readonly app: Application;
   private cancelTween: TweenHandle | null = null;
 
-  constructor(app: Application, grid: TileData[][]) {
+  private readonly hoverHighlight = new Graphics();
+  private readonly selectionFill = new Graphics();
+  hoveredTile: { x: number; y: number } | null = null;
+  selectedTile: { x: number; y: number } | null = null;
+
+  constructor(
+    app: Application,
+    grid: TileData[][],
+    onTileClick?: (x: number, y: number) => void,
+  ) {
     this.app = app;
     this.grid = grid;
     this.root.label = "MapRoot";
     this.tiles = new TileLayer(grid);
     this.props = new PropsLayer(grid);
     this.villages = new VillageLayer();
+
+    this.root.eventMode = "static";
+    const { cols, rows } = gridSize(grid);
+    this.root.hitArea = new Rectangle(0, 0, cols * TILE_SIZE, rows * TILE_SIZE);
+
     this.app.stage.addChild(this.root);
     this.root.addChild(this.tiles);
     this.root.addChild(this.props);
+    this.root.addChild(this.selectionFill);
+    this.root.addChild(this.hoverHighlight);
     this.root.addChild(this.villages);
+
+    let ptrDown = { x: 0, y: 0 };
+    this.root.on("pointerdown", (e: FederatedPointerEvent) => {
+      ptrDown = { x: e.global.x, y: e.global.y };
+    });
+    this.root.on("pointerup", (e: FederatedPointerEvent) => {
+      if (e.target !== this.root) return;
+      if (Math.hypot(e.global.x - ptrDown.x, e.global.y - ptrDown.y) >= GRID.clickDragThreshold) return;
+      const local = e.getLocalPosition(this.root);
+      const x = Math.floor(local.x / TILE_SIZE);
+      const y = Math.floor(local.y / TILE_SIZE);
+      this.selectedTile = { x, y };
+      this.selectionFill.clear();
+      this.selectionFill.rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      this.selectionFill.fill({ color: COLORS.selectionFill, alpha: GRID.selectionFillAlpha });
+      onTileClick?.(x, y);
+    });
+
+    this.root.on("pointermove", (e: FederatedPointerEvent) => {
+      if (e.target !== this.root) return;
+      const local = e.getLocalPosition(this.root);
+      const x = Math.floor(local.x / TILE_SIZE);
+      const y = Math.floor(local.y / TILE_SIZE);
+      this.hoveredTile = { x, y };
+      this.hoverHighlight.clear();
+      this.hoverHighlight.rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      this.hoverHighlight.stroke({ width: GRID.hoverOutlineWidth, color: COLORS.hoverOutline, alpha: GRID.hoverOutlineAlpha });
+    });
+
+    this.root.on("pointerleave", () => {
+      this.hoveredTile = null;
+      this.hoverHighlight.clear();
+    });
+
     this.center();
   }
 
@@ -47,6 +97,11 @@ export class MapScene {
     onHover?: (village: MapVillage | null) => void,
   ): void {
     this.villages.setVillages(villages, activeOwnId, onSelect, onHover);
+  }
+
+  clearSelectedTile(): void {
+    this.selectedTile = null;
+    this.selectionFill.clear();
   }
 
   /**

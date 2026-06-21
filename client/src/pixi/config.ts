@@ -24,4 +24,13 @@ export const COLORS = {
   villageHaloActive: 0xffffff,
   enemyVillage: 0xff3344,
   enemyVillageHalo: 0xaa2233,
+  selectionFill: 0xffffff,
+  hoverOutline: 0xffffff,
+} as const;
+
+export const GRID = {
+  hoverOutlineWidth: 2,
+  hoverOutlineAlpha: 0.15,
+  selectionFillAlpha: 0.2,
+  clickDragThreshold: 5,
 } as const;

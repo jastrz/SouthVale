@@ -17,6 +17,7 @@ export interface GameState {
   hoveredVillage: MapVillage | null;
 
   targetVillage: MapVillage | null;
+  selectedTile: { x: number; y: number } | null;
 
   // bulk hydration
   setVillages: (villages: VillageDto[]) => void;
@@ -28,6 +29,7 @@ export interface GameState {
   setActiveVillage: (id: string | null) => void;
   setHoveredVillage: (village: MapVillage | null) => void;
   setTargetVillage: (village: MapVillage | null) => void;
+  setSelectedTile: (tile: { x: number; y: number } | null) => void;
 
   // fine-grained patches (SignalR-friendly)
   updateResources: (villageId: string, resources: ResourcesDto) => void;
@@ -42,6 +44,7 @@ export const useGameStateStore = create<GameState>((set) => ({
   activeVillageId: null,
   hoveredVillage: null,
   targetVillage: null,
+  selectedTile: null,
 
   setVillages: (villages) =>
     set(() => ({
@@ -67,6 +70,7 @@ export const useGameStateStore = create<GameState>((set) => ({
   setActiveVillage: (id) => set({ activeVillageId: id }),
   setHoveredVillage: (village) => set({ hoveredVillage: village }),
   setTargetVillage: (village) => set({ targetVillage: village }),
+  setSelectedTile: (tile) => set({ selectedTile: tile }),
 
   updateResources: (villageId, resources) =>
     set((state) => {
@@ -141,7 +145,7 @@ export const useGameStateStore = create<GameState>((set) => ({
     }),
 
   clear: () =>
-    set({ villages: {}, activeVillageId: null, hoveredVillage: null, targetVillage: null }),
+    set({ villages: {}, activeVillageId: null, hoveredVillage: null, targetVillage: null, selectedTile: null }),
 }));
 
 // Convenience selectors — keep components from re-rendering on unrelated changes.

@@ -79,7 +79,7 @@ export const useAttack = (villageId: string) =>
 
 export const useSettle = (villageId: string) =>
   useMutation({
-    mutationFn: (data: SettleRequest) =>
+    mutationFn: async (data: SettleRequest) =>
       api.post(`/gameplay/village/${villageId}/settle`, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["villages"] }),
   });

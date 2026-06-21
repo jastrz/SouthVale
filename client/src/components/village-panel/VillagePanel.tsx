@@ -7,6 +7,7 @@ import {
   useBuild,
   useTrain,
   useAttack,
+  useSettle,
   useMovements,
 } from "../../api/hooks/useVillages";
 import type { MapVillage } from "../../api/types";
@@ -17,12 +18,14 @@ import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
 import { QueuePanel } from "./QueuePanel";
 import { AttackPanel } from "./AttackPanel";
+import { SettlePanel } from "./SettlePanel";
 import { MovementsPanel } from "./MovementsPanel";
 
 export function VillagePanel() {
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
   const storeVillage = useGameStateStore(selectActiveVillage);
   const targetVillage = useGameStateStore((s) => s.targetVillage);
+  const selectedTile = useGameStateStore((s) => s.selectedTile);
 
   if (!activeVillageId || !storeVillage) {
     return (
@@ -38,6 +41,7 @@ export function VillagePanel() {
     <VillagePanelInner
       villageId={activeVillageId}
       targetVillage={targetVillage}
+      selectedTile={selectedTile}
     />
   );
 }
@@ -45,16 +49,20 @@ export function VillagePanel() {
 function VillagePanelInner({
   villageId,
   targetVillage,
+  selectedTile,
 }: {
   villageId: string;
   targetVillage: MapVillage | null;
+  selectedTile: { x: number; y: number } | null;
 }) {
   const { data: village, isLoading, isError, error } = useVillage(villageId);
   const buildMutation = useBuild(villageId);
   const trainMutation = useTrain(villageId);
   const attackMutation = useAttack(villageId);
+  const settleMutation = useSettle(villageId);
   const { data: movements } = useMovements();
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
+  const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
 
   if (isLoading) {
     return (
@@ -117,6 +125,16 @@ function VillagePanelInner({
           maxArchers={village.troops.archers}
           mutation={attackMutation}
           onClearTarget={() => setTargetVillage(null)}
+        />
+      )}
+
+      {selectedTile && (
+        <SettlePanel
+          targetX={selectedTile.x}
+          targetY={selectedTile.y}
+          settlers={village.troops.settlers}
+          mutation={settleMutation}
+          onClearTarget={() => setSelectedTile(null)}
         />
       )}
 
