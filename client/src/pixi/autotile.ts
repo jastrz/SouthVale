@@ -1,5 +1,5 @@
 import { ATLAS } from "./atlas";
-import type { Tile } from "./mapData";
+import type { TileData } from "./tileData";
 
 /**
  * For a grass tile at (x, y), check the 4 cardinal neighbors and return
@@ -11,23 +11,28 @@ import type { Tile } from "./mapData";
  *
  */
 export function autotile(
-  grid: Tile[][],
+  grid: TileData[][],
   x: number,
   y: number,
 ): readonly [number, number] {
   const rows = grid.length;
   const cols = grid[0].length;
-  const water = (cx: number, cy: number) =>
-    cy >= 0 && cy < rows && cx >= 0 && cx < cols && grid[cy][cx] === 1;
 
-  const n = water(x, y - 1);
-  const s = water(x, y + 1);
-  const w = water(x - 1, y);
-  const e = water(x + 1, y);
-  const nw = water(x - 1, y - 1);
-  const ne = water(x + 1, y - 1);
-  const sw = water(x - 1, y + 1);
-  const se = water(x + 1, y + 1);
+  const isWater = (cx: number, cy: number) =>
+    cy >= 0 &&
+    cy < rows &&
+    cx >= 0 &&
+    cx < cols &&
+    grid[cy][cx].terrain === "water";
+
+  const n = isWater(x, y - 1);
+  const s = isWater(x, y + 1);
+  const w = isWater(x - 1, y);
+  const e = isWater(x + 1, y);
+  const nw = isWater(x - 1, y - 1);
+  const ne = isWater(x + 1, y - 1);
+  const sw = isWater(x - 1, y + 1);
+  const se = isWater(x + 1, y + 1);
 
   // Outer corners
   if (n && w) return ATLAS.GRASS_TL;

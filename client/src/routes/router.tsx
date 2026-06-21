@@ -9,6 +9,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { useAuthStore } from "../store/authStore";
 import { RootLayout } from "../layouts/RootLayout";
+import { MapEditorPage } from "../pages/MapEditorPage";
 
 const rootRoute = createRootRoute({
   component: RootLayout,
@@ -47,11 +48,15 @@ const registerRoute = createRoute({
   component: RegisterPage,
 });
 
-const routeTree = rootRoute.addChildren([
-  indexRoute,
-  loginRoute,
-  registerRoute,
-]);
+const mapEditorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/map-editor",
+  component: MapEditorPage,
+});
+
+const children = [indexRoute, loginRoute, registerRoute, mapEditorRoute];
+
+const routeTree = rootRoute.addChildren(children);
 
 export const router = createRouter({ routeTree });
 

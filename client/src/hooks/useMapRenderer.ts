@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePixiApp } from "./usePixiApp";
 import { createApplication } from "../pixi/app";
 import { MapScene } from "../pixi/scene/MapScene";
+import { loadMap } from "../pixi/mapLoader";
 import { attachPan, attachZoom } from "../pixi/input";
 import { useGameStateStore } from "../store/gameStateStore";
 import { useMap } from "../api/hooks/useVillages";
@@ -61,14 +62,17 @@ export function useMapRenderer(
 
     (async () => {
       try {
-        const app = await createApplication(divRef.current!);
+        const [app, grid] = await Promise.all([
+          createApplication(divRef.current!),
+          loadMap("/maps/default.json"),
+        ]);
         if (!mounted) {
           app.destroy(true);
           return;
         }
         appRef.current = app;
 
-        const scene = new MapScene(app);
+        const scene = new MapScene(app, grid);
         sceneRef.current = scene;
         disposePan = attachPan(app.canvas, scene.root, {
           onDragStart: () => scene.cancelAnimation(),
@@ -115,6 +119,7 @@ export function useMapRenderer(
     pixiReady,
     setActiveVillage,
     setHoveredVillage,
+    setTargetVillage,
   ]);
 
   // Pan to the active village whenever it changes. The ref guard keeps
