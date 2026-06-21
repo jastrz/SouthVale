@@ -1,11 +1,11 @@
 import { Container, Sprite, Rectangle, Point } from "pixi.js";
 import type { Application, FederatedPointerEvent } from "pixi.js";
-import { TILE } from "../config";
+import { TILE_SIZE } from "../config";
 import { tile, ATLAS } from "../atlas";
 import { autotile } from "../autotile";
 import { createTerrainTile } from "../entities/TerrainTile";
 import { attachZoom } from "../input";
-import type { TileData } from "../tileData";
+import { type TileData, gridSize } from "../tileData";
 
 export type Tool = "grass" | "water" | "tree" | "erase";
 
@@ -43,7 +43,12 @@ export class EditorScene {
     this.rows = grid.length;
     this.root.label = "EditorRoot";
     this.root.eventMode = "static";
-    this.root.hitArea = new Rectangle(0, 0, this.cols * TILE, this.rows * TILE);
+    this.root.hitArea = new Rectangle(
+      0,
+      0,
+      this.cols * TILE_SIZE,
+      this.rows * TILE_SIZE,
+    );
     app.stage.addChild(this.root);
     this.render();
     this.attachEvents(app);
@@ -59,8 +64,9 @@ export class EditorScene {
 
   loadGrid(grid: TileData[][]): void {
     this.grid = grid;
-    this.cols = grid[0]?.length ?? 50;
-    this.rows = grid.length;
+    const sz = gridSize(grid);
+    this.cols = sz.cols;
+    this.rows = sz.rows;
     this.destroyAll();
     this.render();
   }
@@ -94,7 +100,7 @@ export class EditorScene {
     this.rows = rows;
     this.destroyAll();
     this.render();
-    this.root.hitArea = new Rectangle(0, 0, cols * TILE, rows * TILE);
+    this.root.hitArea = new Rectangle(0, 0, cols * TILE_SIZE, rows * TILE_SIZE);
   }
 
   destroy(): void {
@@ -165,8 +171,8 @@ export class EditorScene {
     e: FederatedPointerEvent,
   ): { x: number; y: number } | null {
     const local = e.getLocalPosition(this.root);
-    const x = Math.floor(local.x / TILE);
-    const y = Math.floor(local.y / TILE);
+    const x = Math.floor(local.x / TILE_SIZE);
+    const y = Math.floor(local.y / TILE_SIZE);
     if (x < 0 || x >= this.cols || y < 0 || y >= this.rows) return null;
     return { x, y };
   }
@@ -291,7 +297,7 @@ export class EditorScene {
   }
 
   private centerView(app: Application): void {
-    this.root.x = app.screen.width / 2 - (this.cols * TILE) / 2;
-    this.root.y = app.screen.height / 2 - (this.rows * TILE) / 2;
+    this.root.x = app.screen.width / 2 - (this.cols * TILE_SIZE) / 2;
+    this.root.y = app.screen.height / 2 - (this.rows * TILE_SIZE) / 2;
   }
 }

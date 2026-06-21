@@ -1,6 +1,5 @@
-export const TILE = 40;
-export const COLS = 50;
-export const ROWS = 50;
+export const TILE_SIZE = 40;
+export const VILLAGE_SCALE = 2;
 
 export const ZOOM = {
   min: 0.5,

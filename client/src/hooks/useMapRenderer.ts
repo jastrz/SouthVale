@@ -7,7 +7,9 @@ import { attachPan, attachZoom } from "../pixi/input";
 import { useGameStateStore } from "../store/gameStateStore";
 import { useMap } from "../api/hooks/useVillages";
 import type { MapVillage } from "../api/types";
-import { COLS, ROWS } from "../pixi/config";
+
+// Generous fetch radius for dev
+const FETCH_RADIUS = 150;
 
 /**
  * React↔Pixi bridge for the world map. Owns the Application and MapScene
@@ -33,8 +35,8 @@ export function useMapRenderer(
   // active-village change, or on every store update.
   const mapRequest = useMemo(
     () => ({
-      cords: { x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) },
-      radius: Math.max(COLS, ROWS) * 2,
+      cords: { x: 0, y: 0 },
+      radius: FETCH_RADIUS,
     }),
     [],
   );

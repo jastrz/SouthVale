@@ -4,3 +4,8 @@ export interface TileData {
   occupied: boolean;
   villageId?: string | null;
 }
+
+/** Extract grid dimensions from a loaded TileData grid. */
+export function gridSize(grid: TileData[][]): { cols: number; rows: number } {
+  return { cols: grid[0]?.length ?? 0, rows: grid.length };
+}

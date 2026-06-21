@@ -3,9 +3,9 @@ import type { Application } from "pixi.js";
 import type { MapVillage, VillageDto } from "../../api/types";
 import { tween } from "../animation/";
 import type { TweenHandle } from "../animation/";
-import { CAMERA, TILE } from "../config";
+import { CAMERA, TILE_SIZE } from "../config";
 import { TileLayer, PropsLayer, VillageLayer } from "./layers";
-import type { TileData } from "../tileData";
+import { type TileData, gridSize } from "../tileData";
 
 type Bounds = { xMin: number; xMax: number; yMin: number; yMax: number };
 
@@ -78,8 +78,8 @@ export class MapScene {
     village: VillageDto,
     options: { animate?: boolean; duration?: number } = {},
   ): void {
-    const wx = village.coordinates.x * TILE + TILE / 2;
-    const wy = village.coordinates.y * TILE + TILE / 2;
+    const wx = village.coordinates.x * TILE_SIZE + TILE_SIZE / 2;
+    const wy = village.coordinates.y * TILE_SIZE + TILE_SIZE / 2;
     const s = this.root.scale.x;
     const targetX = this.app.screen.width / 2 - wx * s;
     const targetY = this.app.screen.height / 2 - wy * s;
@@ -154,10 +154,9 @@ export class MapScene {
    * range collapses to the centered value.
    */
   private computeViewportBounds(): Bounds {
-    const cols = this.grid[0]?.length ?? 50;
-    const rows = this.grid.length;
-    const worldW = cols * TILE * this.root.scale.x;
-    const worldH = rows * TILE * this.root.scale.y;
+    const { cols, rows } = gridSize(this.grid);
+    const worldW = cols * TILE_SIZE * this.root.scale.x;
+    const worldH = rows * TILE_SIZE * this.root.scale.y;
     const canvasW = this.app.screen.width;
     const canvasH = this.app.screen.height;
     return {
@@ -169,9 +168,8 @@ export class MapScene {
   }
 
   private center(): void {
-    const cols = this.grid[0]?.length ?? 50;
-    const rows = this.grid.length;
-    this.root.x = this.app.screen.width / 2 - (cols * TILE) / 2;
-    this.root.y = this.app.screen.height / 2 - (rows * TILE) / 2;
+    const { cols, rows } = gridSize(this.grid);
+    this.root.x = this.app.screen.width / 2 - (cols * TILE_SIZE) / 2;
+    this.root.y = this.app.screen.height / 2 - (rows * TILE_SIZE) / 2;
   }
 }

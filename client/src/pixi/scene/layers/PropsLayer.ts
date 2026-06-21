@@ -1,6 +1,6 @@
 import { Container } from "pixi.js";
 import { createTerrainTile } from "../../entities/TerrainTile";
-import type { TileData } from "../../tileData";
+import { type TileData, gridSize } from "../../tileData";
 import { tile, ATLAS } from "../../atlas";
 
 const TREE_KEYS: Record<number, readonly [number, number]> = {
@@ -15,8 +15,7 @@ export class PropsLayer extends Container {
   constructor(grid: TileData[][]) {
     super();
     this.label = "PropsLayer";
-    const rows = grid.length;
-    const cols = grid[0]?.length ?? 0;
+    const { cols, rows } = gridSize(grid);
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         const deco = grid[y]?.[x]?.decoration;
