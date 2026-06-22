@@ -10,7 +10,7 @@ public class TrainOrder : Entity
     public TroopType Type { get; set; }
     public int Amount { get; set; }
     public int Completed { get; set; }
-    public DateTime StartedAt { get; set; }
+    public DateTime StartsAt { get; set; }
     public DateTime CompletesAt { get; set; }
     public TimeSpan TimePerUnit { get; set; }
 
@@ -26,7 +26,7 @@ public class TrainOrder : Entity
             Type = troopType,
             Amount = amount,
             Completed = 0,
-            StartedAt = startedAt,
+            StartsAt = startedAt,
             CompletesAt = startedAt + (timePerUnit * amount),
             TimePerUnit = timePerUnit
         };

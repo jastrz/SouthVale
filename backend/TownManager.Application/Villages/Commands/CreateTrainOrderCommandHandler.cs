@@ -57,10 +57,10 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
 
         foreach (var order in newOrders)
         {
-            var firstUnitDelay = order.StartedAt - DateTime.UtcNow + order.TimePerUnit;
+            var firstUnitDelay = order.StartsAt - DateTime.UtcNow + order.TimePerUnit;
             order.JobId = scheduler.ScheduleTrainOrderResolution(order.Id, firstUnitDelay);
         }
-
+        
         await repo.SaveChangesAsync(ct);
 
         return Result.Success();

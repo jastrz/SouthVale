@@ -27,15 +27,28 @@ public class CancelTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
 
         village.TrainOrders.Remove(order);
 
-        // Recalculate timing for remaining orders — queue shifts up
-        var remaining = village.TrainOrders.OrderBy(o => o.StartedAt).ToList();
-        for (var i = 1; i < remaining.Count; i++)
+        // Recalculate timing for remaining orders 
+        var remaining = village.TrainOrders.OrderBy(o => o.StartsAt).ToList();
+        for (var i = 0; i < remaining.Count; i++)
         {
-            var duration = remaining[i].CompletesAt - remaining[i].StartedAt;
-            remaining[i].StartedAt = remaining[i - 1].CompletesAt;
-            remaining[i].CompletesAt = remaining[i].StartedAt + duration;
+            var remainingDuration = remaining[i].TimePerUnit * (remaining[i].Amount - remaining[i].Completed);
+            remaining[i].StartsAt = i == 0 ? (remaining[i].StartsAt > DateTime.UtcNow ? DateTime.UtcNow : remaining[i].StartsAt ) : remaining[i - 1].CompletesAt;
+            remaining[i].CompletesAt = remaining[i].StartsAt + remainingDuration;
+            remaining[i].UpdatedAt = DateTime.UtcNow;
+
+            var jobId = remaining[i].JobId;
+            if (jobId is not null)
+                scheduler.DeleteJob(jobId);
         }
 
+        await repo.SaveChangesAsync(ct);
+
+        for (int i = 0; i < remaining.Count; i++)
+        {
+            var firstUnitDelay = remaining[i].StartsAt - DateTime.UtcNow + remaining[i].TimePerUnit;
+            remaining[i].JobId = scheduler.ScheduleTrainOrderResolution(remaining[i].Id, firstUnitDelay < TimeSpan.Zero ? TimeSpan.Zero : firstUnitDelay);
+        }
+        
         await repo.SaveChangesAsync(ct);
 
         return Result.Success();

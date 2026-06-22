@@ -67,7 +67,7 @@ public class CreateTrainOrderCommandHandlerTests
 
         result.Succeeded.Should().BeTrue();
         var newOrder = village.TrainOrders.Single(o => o.Type == TroopType.Archer);
-        newOrder.StartedAt.Should().Be(existingOrder.CompletesAt);
+        newOrder.StartsAt.Should().Be(existingOrder.CompletesAt);
     }
 
     [Fact]

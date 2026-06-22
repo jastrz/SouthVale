@@ -34,13 +34,26 @@ public class CancelBuildOrderCommandHandler(IVillageRepository repo, IJobSchedul
 
         // Recalculate timing for remaining orders — queue shifts up
         var remaining = village.BuildOrders.OrderBy(o => o.StartsAt).ToList();
-        for (var i = 1; i < remaining.Count; i++)
+        for (var i = 0; i < remaining.Count; i++)
         {
             var duration = remaining[i].CompletesAt - remaining[i].StartsAt;
-            remaining[i].StartsAt = remaining[i - 1].CompletesAt;
+            remaining[i].StartsAt = i == 0 ? (remaining[i].StartsAt > DateTime.UtcNow ? DateTime.UtcNow : remaining[i].StartsAt ) : remaining[i - 1].CompletesAt;
             remaining[i].CompletesAt = remaining[i].StartsAt + duration;
+            remaining[i].UpdatedAt = DateTime.UtcNow;
+
+            var jobId = remaining[i].JobId;
+            if (jobId is not null)
+                scheduler.DeleteJob(jobId);
         }
 
+        await repo.SaveChangesAsync(ct);
+
+        for (int i = 0; i < remaining.Count; i++)
+        {
+            var delay = remaining[i].CompletesAt - DateTime.UtcNow;
+            remaining[i].JobId = scheduler.ScheduleBuildOrderResolution(remaining[i].Id, delay < TimeSpan.Zero ? TimeSpan.Zero : delay);
+        }
+        
         await repo.SaveChangesAsync(ct);
 
         return Result.Success();

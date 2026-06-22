@@ -40,7 +40,7 @@ public class CancelTrainOrderHandlerTests
         var cost = TroopsConfig.Get(TroopType.Archer).TrainingCost;
         village.Resources.Should().BeEquivalentTo(cost.Multiply(5));
         _scheduler.Received(1).DeleteJob("job-1");
-        await _repo.Received(1).SaveChangesAsync(CancellationToken.None);
+        await _repo.Received(2).SaveChangesAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -81,10 +81,57 @@ public class CancelTrainOrderHandlerTests
         var result = await _handler.Handle(new(order2.Id), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
-        order1.StartedAt.Should().Be(t0); // unchanged
+        order1.StartsAt.Should().Be(t0); // unchanged
         order1.CompletesAt.Should().Be(t0.AddSeconds(50)); // unchanged
-        order3.StartedAt.Should().Be(t0.AddSeconds(50)); // shifted up
+        order3.StartsAt.Should().Be(t0.AddSeconds(50)); // shifted up
         order3.CompletesAt.Should().Be(t0.AddSeconds(100)); // shifted up
+    }
+
+    [Fact]
+    public async Task CancelHeadOrder_RemainingShiftsUp_NewHeadStartsAtUtcNow()
+    {
+        var village = Village.CreateStarter("test", new(0, 0));
+        var head = CreateOrder(TroopType.Archer, 5, TimeSpan.FromSeconds(10), DateTime.UtcNow.AddMinutes(-5));
+        head.CompletesAt = DateTime.UtcNow.AddMinutes(-4);
+        head.JobId = "job-1";
+        var next = CreateOrder(TroopType.Swordsman, 10, TimeSpan.FromSeconds(30), DateTime.UtcNow.AddMinutes(5));
+        next.CompletesAt = DateTime.UtcNow.AddMinutes(10);
+        next.JobId = "job-2";
+        village.TrainOrders.Add(head);
+        village.TrainOrders.Add(next);
+        _repo.GetWithTrainOrdersAsync(head.Id, CancellationToken.None).Returns(village);
+
+        var before = DateTime.UtcNow;
+        var result = await _handler.Handle(new(head.Id), CancellationToken.None);
+        var after = DateTime.UtcNow;
+
+        result.Succeeded.Should().BeTrue();
+        village.TrainOrders.Should().ContainSingle(o => o.Id == next.Id);
+        next.StartsAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
+        next.CompletesAt.Should().BeCloseTo(next.StartsAt.AddSeconds(300), TimeSpan.FromSeconds(1));
+        _scheduler.Received(1).DeleteJob("job-1");
+        _scheduler.Received(1).DeleteJob("job-2");
+        _scheduler.Received(1).ScheduleTrainOrderResolution(next.Id, Arg.Any<TimeSpan>());
+    }
+
+    [Fact]
+    public async Task CancelOnlyOrder_NoRescheduling()
+    {
+        var village = Village.CreateStarter("test", new(0, 0));
+        var order = CreateOrder(TroopType.Archer, 5, TimeSpan.FromSeconds(10), DateTime.UtcNow);
+        order.JobId = "job-1";
+        village.TrainOrders.Add(order);
+        village.Resources = Resources.Zero;
+        _repo.GetWithTrainOrdersAsync(order.Id, CancellationToken.None).Returns(village);
+
+        var result = await _handler.Handle(new(order.Id), CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        village.TrainOrders.Should().BeEmpty();
+        var cost = TroopsConfig.Get(TroopType.Archer).TrainingCost;
+        village.Resources.Should().BeEquivalentTo(cost.Multiply(5));
+        _scheduler.Received(1).DeleteJob("job-1");
+        _scheduler.DidNotReceive().ScheduleTrainOrderResolution(Arg.Any<Guid>(), Arg.Any<TimeSpan>());
     }
 
     [Fact]

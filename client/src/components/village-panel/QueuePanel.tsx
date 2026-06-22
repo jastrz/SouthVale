@@ -1,3 +1,4 @@
+import type { UseMutationResult } from "@tanstack/react-query";
 import { BUILDING_LABELS, TROOP_LABELS } from "../../config/game";
 import { formatTime, timeRemaining } from "./helpers";
 import { useTick } from "../../hooks/useTick";
@@ -5,6 +6,8 @@ import { useTick } from "../../hooks/useTick";
 export function QueuePanel({
   buildOrders,
   trainOrders,
+  cancelBuild,
+  cancelTrain,
 }: {
   buildOrders: readonly {
     id: string;
@@ -20,6 +23,9 @@ export function QueuePanel({
     completed: number;
     completesAt: string;
   }[];
+
+  cancelBuild: UseMutationResult<void, Error, string>;
+  cancelTrain: UseMutationResult<void, Error, string>;
 }) {
   useTick();
 
@@ -33,29 +39,47 @@ export function QueuePanel({
       {buildOrders.map((o) => (
         <div
           key={o.id}
-          className="mb-1 rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
+          className="mb-1 flex items-center justify-between rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
         >
-          <span className="font-medium text-white">
-            {BUILDING_LABELS[o.buildingType] ?? o.buildingType}
-          </span>{" "}
-          → Lv.{o.targetLevel}
-          <span className="ml-2 text-yellow-400">
-            {formatTime(timeRemaining(o.completesAt))}
+          <span>
+            <span className="font-medium text-white">
+              {BUILDING_LABELS[o.buildingType] ?? o.buildingType}
+            </span>{" "}
+            → Lv.{o.targetLevel}
+            <span className="ml-2 text-yellow-400">
+              {formatTime(timeRemaining(o.completesAt))}
+            </span>
           </span>
+          <button
+            onClick={() => cancelBuild.mutate(o.id)}
+            disabled={cancelBuild.isPending}
+            className="ml-2 rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
+          >
+            cancel
+          </button>
         </div>
       ))}
       {trainOrders.map((o) => (
         <div
           key={o.id}
-          className="mb-1 rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
+          className="mb-1 flex items-center justify-between rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
         >
-          <span className="font-medium text-white">
-            {o.completed}/{o.amount}
-          </span>{" "}
-          {TROOP_LABELS[o.troopType] ?? o.troopType}
-          <span className="ml-2 text-yellow-400">
-            {formatTime(timeRemaining(o.completesAt))}
+          <span>
+            <span className="font-medium text-white">
+              {o.completed}/{o.amount}
+            </span>{" "}
+            {TROOP_LABELS[o.troopType] ?? o.troopType}
+            <span className="ml-2 text-yellow-400">
+              {formatTime(timeRemaining(o.completesAt))}
+            </span>
           </span>
+          <button
+            onClick={() => cancelTrain.mutate(o.id)}
+            disabled={cancelTrain.isPending}
+            className="ml-2 rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
+          >
+            cancel
+          </button>
         </div>
       ))}
     </section>

@@ -106,7 +106,7 @@ public class CreateBuildOrderHandlerTests
 
         await _handler.Handle(new(village.Id, BuildingType.IronMine), CancellationToken.None);
 
-        await _repo.Received(1).SaveChangesAsync(CancellationToken.None);
+        await _repo.Received(2).SaveChangesAsync(CancellationToken.None);
         _scheduler.Received(1).ScheduleBuildOrderResolution(
             Arg.Any<Guid>(), Arg.Any<TimeSpan>());
     }

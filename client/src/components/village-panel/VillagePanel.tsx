@@ -9,6 +9,8 @@ import {
   useAttack,
   useSettle,
   useMovements,
+  useCancelBuild,
+  useCancelTrain,
 } from "../../api/hooks/useVillages";
 import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "../PanelContainer";
@@ -60,6 +62,8 @@ function VillagePanelInner({
   const trainMutation = useTrain(villageId);
   const attackMutation = useAttack(villageId);
   const settleMutation = useSettle(villageId);
+  const cancelBuildMutation = useCancelBuild(villageId);
+  const cancelTrainMutation = useCancelTrain(villageId);
   const { data: movements } = useMovements();
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
   const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
@@ -113,6 +117,8 @@ function VillagePanelInner({
       <QueuePanel
         buildOrders={village.buildOrders}
         trainOrders={village.trainOrders}
+        cancelBuild={cancelBuildMutation}
+        cancelTrain={cancelTrainMutation}
       />
       {targetVillage && targetVillage.kind === "enemy" && (
         <AttackPanel

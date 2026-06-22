@@ -26,7 +26,7 @@ public class GetVillageQueryHandler(IVillageRepository repo)
             new TroopsDto(village.Troops.Swordsmen, village.Troops.Archers, village.Troops.Settlers),
             village.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList(),
             village.BuildOrders.Select(o => new BuildOrderDto(o.Id, o.BuildingType, o.TargetLevel, o.StartsAt, o.CompletesAt)).ToList(),
-            village.TrainOrders.Select(o => new TrainOrderDto(o.Id, o.Type, o.Amount, o.Completed, o.StartedAt, o.CompletesAt)).ToList(),
+            village.TrainOrders.Select(o => new TrainOrderDto(o.Id, o.Type, o.Amount, o.Completed, o.StartsAt, o.CompletesAt)).ToList(),
             village.Coordinates
         ));
     }

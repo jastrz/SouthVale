@@ -40,7 +40,7 @@ public class CancelBuildOrderHandlerTests
         village.Resources.Should().BeEquivalentTo(
             BuildingConfig.Get(BuildingType.IronMine, 2).UpgradeCost);
         _scheduler.Received(1).DeleteJob("job-1");
-        await _repo.Received(1).SaveChangesAsync(CancellationToken.None);
+        await _repo.Received(2).SaveChangesAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -99,6 +99,55 @@ public class CancelBuildOrderHandlerTests
         wood2.CompletesAt.Should().Be(t0.AddMinutes(15));
         iron2.StartsAt.Should().Be(t0);
         iron2.CompletesAt.Should().Be(t0.AddMinutes(5));
+    }
+
+    [Fact]
+    public async Task CancelHeadOrder_RemainingShiftsUp_NewHeadStartsAtUtcNow()
+    {
+        var village = Village.CreateStarter("test", new(0, 0));
+        var head = CreateOrder(BuildingType.IronMine, 2, TimeSpan.FromMinutes(5));
+        head.StartsAt = DateTime.UtcNow.AddMinutes(-5);
+        head.CompletesAt = DateTime.UtcNow;
+        head.JobId = "job-1";
+        var next = CreateOrder(BuildingType.WoodCutter, 2, TimeSpan.FromMinutes(10));
+        next.StartsAt = DateTime.UtcNow.AddMinutes(5);
+        next.CompletesAt = DateTime.UtcNow.AddMinutes(15);
+        next.JobId = "job-2";
+        village.BuildOrders.Add(head);
+        village.BuildOrders.Add(next);
+        _repo.GetWithBuildingsAndOrdersAsync(head.Id, CancellationToken.None).Returns(village);
+
+        var before = DateTime.UtcNow;
+        var result = await _handler.Handle(new(head.Id), CancellationToken.None);
+        var after = DateTime.UtcNow;
+
+        result.Succeeded.Should().BeTrue();
+        village.BuildOrders.Should().ContainSingle(o => o.Id == next.Id);
+        next.StartsAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
+        next.CompletesAt.Should().BeCloseTo(next.StartsAt.AddMinutes(10), TimeSpan.FromSeconds(1));
+        _scheduler.Received(1).DeleteJob("job-1");
+        _scheduler.Received(1).DeleteJob("job-2");
+        _scheduler.Received(1).ScheduleBuildOrderResolution(next.Id, Arg.Any<TimeSpan>());
+    }
+
+    [Fact]
+    public async Task CancelOnlyOrder_NoRescheduling()
+    {
+        var village = Village.CreateStarter("test", new(0, 0));
+        var order = CreateOrder(BuildingType.IronMine, 2, TimeSpan.FromMinutes(5));
+        order.JobId = "job-1";
+        village.BuildOrders.Add(order);
+        village.Resources = Resources.Zero;
+        _repo.GetWithBuildingsAndOrdersAsync(order.Id, CancellationToken.None).Returns(village);
+
+        var result = await _handler.Handle(new(order.Id), CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        village.BuildOrders.Should().BeEmpty();
+        village.Resources.Should().BeEquivalentTo(
+            BuildingConfig.Get(BuildingType.IronMine, 2).UpgradeCost);
+        _scheduler.Received(1).DeleteJob("job-1");
+        _scheduler.DidNotReceive().ScheduleBuildOrderResolution(Arg.Any<Guid>(), Arg.Any<TimeSpan>());
     }
 
     [Fact]

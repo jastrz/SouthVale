@@ -1,4 +1,5 @@
 using Hangfire;
+using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
 using TownManager.Infrastructure.Persistence;
@@ -13,8 +14,10 @@ public class TrainOrderResolutionJob(
 {
     [AutomaticRetry(Attempts = 3)]
     [DisableConcurrentExecution(60)]
-    public async Task ResolveAsync(Guid orderId, CancellationToken ct)
+    public async Task ResolveAsync(Guid orderId, PerformContext context, CancellationToken ct)
     {
+        var currentJobId = context.BackgroundJob.Id;
+
         var village = await repo.GetWithTrainOrdersAsync(orderId, ct);
         if (village is null)
         {
@@ -28,8 +31,16 @@ public class TrainOrderResolutionJob(
             logger.LogWarning("Train order {OrderId} not found, skipping", orderId);
             return;
         }
-        
-        var elapsed = DateTime.UtcNow - order.StartedAt;
+
+        if (order.JobId != currentJobId)
+        {
+            logger.LogInformation(
+                "Train order {OrderId} was rescheduled (current job {CurrentJobId} != stored {StoredJobId}), skipping",
+                orderId, currentJobId, order.JobId);
+            return;
+        }
+
+        var elapsed = DateTime.UtcNow - order.StartsAt;
         var shouldBeCompleted = (int)(elapsed / order.TimePerUnit);
         var newlyCompleted = Math.Min(shouldBeCompleted, order.Amount) - order.Completed;
 
@@ -48,7 +59,7 @@ public class TrainOrderResolutionJob(
         {
             village.TrainOrders.Remove(order);
         }
-        
+
         await db.SaveChangesAsync(ct);
     }
 }

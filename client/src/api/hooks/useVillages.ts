@@ -83,3 +83,19 @@ export const useSettle = (villageId: string) =>
       api.post(`/gameplay/village/${villageId}/settle`, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["villages"] }),
   });
+
+export const useCancelBuild = (villageId: string) =>
+  useMutation({
+    mutationFn: (orderId: string) =>
+      api.post(`/gameplay/build/${orderId}/cancel`),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] }),
+  });
+
+export const useCancelTrain = (villageId: string) =>
+  useMutation({
+    mutationFn: (orderId: string) =>
+      api.post(`/gameplay/train/${orderId}/cancel`),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] }),
+  });
