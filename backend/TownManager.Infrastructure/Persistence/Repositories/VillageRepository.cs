@@ -41,6 +41,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
     // By Hangire orderId
     public Task<Village?> GetWithBuildingsAndOrdersAsync(Guid orderId, CancellationToken ct = default) =>
         db.Villages
+            .Include(v => v.Resources)
             .Include(v => v.Buildings)
             .Include(v => v.BuildOrders)
             .AsSplitQuery()
@@ -48,6 +49,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
 
     public Task<Village?> GetWithTrainOrdersAsync(Guid orderId, CancellationToken ct) =>
         db.Villages
+            .Include(v => v.Resources)
             .Include(v => v.TrainOrders)
             .FirstOrDefaultAsync(v => v.TrainOrders.Any(o => o.Id == orderId), ct);
 

@@ -21,7 +21,7 @@ public static class PipelineConfiguration
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            db.Database.EnsureCreated();
+            db.Database.Migrate();
 
             if (userManager.Users.Any() == false)
             {

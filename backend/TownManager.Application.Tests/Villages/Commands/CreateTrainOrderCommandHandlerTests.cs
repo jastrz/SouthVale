@@ -105,7 +105,7 @@ public class CreateTrainOrderCommandHandlerTests
         await _handler.Handle(
             new(village.Id, [new(TroopType.Swordsman, 5)]), CancellationToken.None);
 
-        await _repo.Received(1).SaveChangesAsync(CancellationToken.None);
+        await _repo.Received(2).SaveChangesAsync(CancellationToken.None);
         _scheduler.Received(1).ScheduleTrainOrderResolution(
             Arg.Any<Guid>(), Arg.Any<TimeSpan>());
     }

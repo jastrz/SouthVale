@@ -17,6 +17,8 @@ public class TrainOrder : Entity
     public Guid VillageId { get; set; }
     public Village Village { get; set; } = null!;
 
+    public string? JobId { get; set; }
+
     public static TrainOrder Create(TroopType troopType, int amount, TimeSpan timePerUnit, DateTime startedAt)
     {
         return new()

@@ -38,10 +38,8 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
         order.CompletesAt = queueStartTime.Add(config.UpgradeTime);
         village.BuildOrders.Add(order);
 
+        order.JobId = scheduler.ScheduleBuildOrderResolution(order.Id, config.UpgradeTime);
         await repo.SaveChangesAsync(ct);
-
-        var delay = order.CompletesAt - DateTime.UtcNow;
-        scheduler.ScheduleBuildOrderResolution(order.Id, delay);
 
         return Result.Success();
     }
