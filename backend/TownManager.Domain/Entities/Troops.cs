@@ -17,7 +17,7 @@ public class Troops
 
     public static Troops Zero => new();
 
-    public Troops(int swordsmen, int archers, int settlers = 0)
+    public Troops(int swordsmen = 0, int archers = 0, int settlers = 0)
     {
         Swordsmen = swordsmen;
         Archers = archers;

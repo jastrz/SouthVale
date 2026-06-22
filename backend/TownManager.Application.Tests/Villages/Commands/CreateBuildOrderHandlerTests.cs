@@ -26,11 +26,11 @@ public class CreateBuildOrderHandlerTests
     public async Task FirstOrder_IncrementsFromBuildingLevel()
     {
         var village = CreateVillageWithBuilding(BuildingType.IronMine, level: 1);
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
-        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, default)
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, CancellationToken.None)
             .Returns((int?)null);
 
-        var result = await _handler.Handle(new(village.Id, BuildingType.IronMine), default);
+        var result = await _handler.Handle(new(village.Id, BuildingType.IronMine), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.BuildOrders.Should().ContainSingle(o =>
@@ -41,11 +41,11 @@ public class CreateBuildOrderHandlerTests
     public async Task SecondOrder_IncrementsFromQueuedTarget()
     {
         var village = CreateVillageWithBuilding(BuildingType.IronMine, level: 1);
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
-        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, default)
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, CancellationToken.None)
             .Returns(2);
 
-        var result = await _handler.Handle(new(village.Id, BuildingType.IronMine), default);
+        var result = await _handler.Handle(new(village.Id, BuildingType.IronMine), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.BuildOrders.Should().ContainSingle(o => o.TargetLevel == 3);
@@ -56,14 +56,14 @@ public class CreateBuildOrderHandlerTests
     {
         var village = CreateVillageWithBuilding(BuildingType.IronMine, level: 1);
         village.Buildings.Add(Building.Create(BuildingType.ClayPit, 1));
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
-        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, default)
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, CancellationToken.None)
             .Returns(2);
-        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.ClayPit, default)
+        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.ClayPit, CancellationToken.None)
             .Returns((int?)null);
 
-        await _handler.Handle(new(village.Id, BuildingType.IronMine), default);
-        var result = await _handler.Handle(new(village.Id, BuildingType.ClayPit), default);
+        await _handler.Handle(new(village.Id, BuildingType.IronMine), CancellationToken.None);
+        var result = await _handler.Handle(new(village.Id, BuildingType.ClayPit), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.BuildOrders.Should().ContainSingle(o =>
@@ -75,11 +75,11 @@ public class CreateBuildOrderHandlerTests
     {
         var village = CreateVillageWithBuilding(BuildingType.IronMine, level: 4);
         village.Resources = Resources.Zero;
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
-        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, default)
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, CancellationToken.None)
             .Returns((int?)null);
 
-        var result = await _handler.Handle(new(village.Id, BuildingType.IronMine), default);
+        var result = await _handler.Handle(new(village.Id, BuildingType.IronMine), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
         village.BuildOrders.Should().BeEmpty();
@@ -88,9 +88,9 @@ public class CreateBuildOrderHandlerTests
     [Fact]
     public async Task VillageNotFound_Returns404()
     {
-        _repo.GetWithActiveOrdersAsync(Arg.Any<Guid>(), default).Returns((Village?)null);
+        _repo.GetWithActiveOrdersAsync(Arg.Any<Guid>(), CancellationToken.None).Returns((Village?)null);
 
-        var result = await _handler.Handle(new(Guid.NewGuid(), BuildingType.IronMine), default);
+        var result = await _handler.Handle(new(Guid.NewGuid(), BuildingType.IronMine), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
         result.StatusCode.Should().Be(404);
@@ -100,13 +100,13 @@ public class CreateBuildOrderHandlerTests
     public async Task Success_SavesAndSchedules()
     {
         var village = CreateVillageWithBuilding(BuildingType.IronMine, level: 1);
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
-        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, default)
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, CancellationToken.None)
             .Returns((int?)null);
 
-        await _handler.Handle(new(village.Id, BuildingType.IronMine), default);
+        await _handler.Handle(new(village.Id, BuildingType.IronMine), CancellationToken.None);
 
-        await _repo.Received(1).SaveChangesAsync(default);
+        await _repo.Received(1).SaveChangesAsync(CancellationToken.None);
         _scheduler.Received(1).ScheduleBuildOrderResolution(
             Arg.Any<Guid>(), Arg.Any<TimeSpan>());
     }

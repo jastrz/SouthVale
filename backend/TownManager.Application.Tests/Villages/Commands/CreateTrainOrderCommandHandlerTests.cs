@@ -26,10 +26,10 @@ public class CreateTrainOrderCommandHandlerTests
     public async Task SingleTroopType_CreatesOneOrder()
     {
         var village = CreateVillage();
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
 
         var result = await _handler.Handle(
-            new(village.Id, [new(TroopType.Swordsman, 10)]), default);
+            new(village.Id, [new(TroopType.Swordsman, 10)]), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.TrainOrders.Should().ContainSingle(o =>
@@ -40,13 +40,13 @@ public class CreateTrainOrderCommandHandlerTests
     public async Task MultipleTypes_CreateSeparateOrders()
     {
         var village = CreateVillage();
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
 
         var result = await _handler.Handle(
             new(village.Id, [
                 new(TroopType.Swordsman, 5),
                 new(TroopType.Archer, 3),
-            ]), default);
+            ]), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.TrainOrders.Should().HaveCount(2);
@@ -60,10 +60,10 @@ public class CreateTrainOrderCommandHandlerTests
         var village = CreateVillage();
         var existingOrder = TrainOrder.Create(TroopType.Swordsman, 1, TimeSpan.FromMinutes(10), DateTime.UtcNow);
         village.TrainOrders.Add(existingOrder);
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
 
         var result = await _handler.Handle(
-            new(village.Id, [new(TroopType.Archer, 1)]), default);
+            new(village.Id, [new(TroopType.Archer, 1)]), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         var newOrder = village.TrainOrders.Single(o => o.Type == TroopType.Archer);
@@ -75,10 +75,10 @@ public class CreateTrainOrderCommandHandlerTests
     {
         var village = CreateVillage();
         village.Resources = new Resources(1, 1, 1, 1);
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
 
         var result = await _handler.Handle(
-            new(village.Id, [new(TroopType.Archer, 1000)]), default);
+            new(village.Id, [new(TroopType.Archer, 1000)]), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
         village.TrainOrders.Should().BeEmpty();
@@ -87,10 +87,10 @@ public class CreateTrainOrderCommandHandlerTests
     [Fact]
     public async Task VillageNotFound_Returns404()
     {
-        _repo.GetWithActiveOrdersAsync(Arg.Any<Guid>(), default).Returns((Village?)null);
+        _repo.GetWithActiveOrdersAsync(Arg.Any<Guid>(), CancellationToken.None).Returns((Village?)null);
 
         var result = await _handler.Handle(
-            new(Guid.NewGuid(), [new(TroopType.Swordsman, 1)]), default);
+            new(Guid.NewGuid(), [new(TroopType.Swordsman, 1)]), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
         result.StatusCode.Should().Be(404);
@@ -100,12 +100,12 @@ public class CreateTrainOrderCommandHandlerTests
     public async Task Success_SavesAndSchedules()
     {
         var village = CreateVillage();
-        _repo.GetWithActiveOrdersAsync(village.Id, default).Returns(village);
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
 
         await _handler.Handle(
-            new(village.Id, [new(TroopType.Swordsman, 5)]), default);
+            new(village.Id, [new(TroopType.Swordsman, 5)]), CancellationToken.None);
 
-        await _repo.Received(1).SaveChangesAsync(default);
+        await _repo.Received(1).SaveChangesAsync(CancellationToken.None);
         _scheduler.Received(1).ScheduleTrainOrderResolution(
             Arg.Any<Guid>(), Arg.Any<TimeSpan>());
     }
