@@ -18,6 +18,7 @@ export function RegisterPage() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors<RegisterForm>>({});
   const [touched, setTouched] = useState<
     Partial<Record<keyof RegisterForm, boolean>>
@@ -40,27 +41,45 @@ export function RegisterPage() {
 
   const handleBlur = (field: keyof RegisterForm) => {
     setTouched((t) => ({ ...t, [field]: true }));
-    setErrors(validate({ email, username, password }));
+    setErrors(validate({ email, username, password, confirmPassword }));
   };
 
   const handleChange = (field: keyof RegisterForm, value: string) => {
-    const values = { email, username, password, [field]: value };
+    const values = {
+      email,
+      username,
+      password,
+      confirmPassword,
+      [field]: value,
+    };
     if (field === "email") setEmail(value);
     if (field === "username") setUsername(value);
     if (field === "password") setPassword(value);
+    if (field === "confirmPassword") setConfirmPassword(value);
     if (touched[field]) setErrors(validate(values));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const result = registerSchema.safeParse({ email, username, password });
+    const result = registerSchema.safeParse({
+      email,
+      username,
+      password,
+      confirmPassword,
+    });
     if (!result.success) {
-      setTouched({ email: true, username: true, password: true });
-      setErrors(validate({ email, username, password }));
+      setTouched({
+        email: true,
+        username: true,
+        password: true,
+        confirmPassword: true,
+      });
+      setErrors(validate({ email, username, password, confirmPassword }));
       return;
     }
     setErrors({});
-    register.mutate(result.data, {
+    const { confirmPassword: _, ...payload } = result.data;
+    register.mutate(payload, {
       onSuccess: (response) => {
         setAuth(response.data.accessToken, email, username);
         navigate({ to: "/" });
@@ -123,6 +142,22 @@ export function RegisterPage() {
           />
           {errors.password && (
             <span className="text-xs text-red-400">{errors.password}</span>
+          )}
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm text-slate-300">Confirm password</span>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => handleChange("confirmPassword", e.target.value)}
+            onBlur={() => handleBlur("confirmPassword")}
+            className={`${inputBase} ${errors.confirmPassword ? inputError : inputDefault}`}
+          />
+          {errors.confirmPassword && (
+            <span className="text-xs text-red-400">
+              {errors.confirmPassword}
+            </span>
           )}
         </label>
 

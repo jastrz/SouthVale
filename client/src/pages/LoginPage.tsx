@@ -57,7 +57,7 @@ export function LoginPage() {
     setErrors({});
     login.mutate(result.data, {
       onSuccess: (response) => {
-        setAuth(response.data.accessToken, email);
+        setAuth(response.data.accessToken, email, response.data.username);
         navigate({ to: "/" });
       },
     });

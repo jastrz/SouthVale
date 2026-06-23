@@ -17,6 +17,7 @@ public sealed class RegisterCommandHandler(
         if (!result.Succeeded)
             return Result<RegisterResponse>.Failure(result.Errors);
 
-        return Result<RegisterResponse>.Success(new RegisterResponse(result.Value!));
+        return Result<RegisterResponse>.Success(new RegisterResponse(
+            result.Value!.AccessToken, result.Value!.RefreshToken, result.Value!.Username));
     }
 }

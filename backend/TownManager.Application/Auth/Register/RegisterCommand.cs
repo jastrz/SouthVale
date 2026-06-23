@@ -9,4 +9,4 @@ public sealed record RegisterCommand(
     string Username) 
     : IRequest<Result<RegisterResponse>>;
 
-public sealed record RegisterResponse(string AccessToken);
+public sealed record RegisterResponse(string AccessToken, string RefreshToken, string Username);

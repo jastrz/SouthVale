@@ -15,6 +15,6 @@ public sealed class LoginCommandHandler(IAuthService authService)
             return Result<LoginResponse>.Failure(result.Errors);
 
         return Result<LoginResponse>.Success(new LoginResponse(
-            result.Value!.AccessToken, result.Value!.RefreshToken));
+            result.Value!.AccessToken, result.Value!.RefreshToken, result.Value!.Username));
     }
 }

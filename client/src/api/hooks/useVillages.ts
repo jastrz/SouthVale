@@ -99,3 +99,13 @@ export const useCancelTrain = (villageId: string) =>
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["village", villageId] }),
   });
+
+export const useRenameVillage = (villageId: string) =>
+  useMutation({
+    mutationFn: (name: string) =>
+      api.patch(`/gameplay/village/${villageId}/rename`, { name }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
+      queryClient.invalidateQueries({ queryKey: ["villages"] });
+    },
+  });

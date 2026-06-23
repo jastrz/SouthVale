@@ -27,6 +27,7 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   accessToken: string;
+  username?: string;
 }
 
 export interface BuildRequest {

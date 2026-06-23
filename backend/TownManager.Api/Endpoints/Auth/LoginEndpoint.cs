@@ -28,7 +28,7 @@ public class LoginEndpoint : IEndpoint
                 Path = "/",
             });
 
-            return Results.Ok(new { accessToken = result.Value.AccessToken });
+            return Results.Ok(new { accessToken = result.Value.AccessToken, username = result.Value.Username });
         })
         .WithName("Login")
         .WithTags("Auth")

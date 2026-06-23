@@ -11,6 +11,7 @@ import {
   useMovements,
   useCancelBuild,
   useCancelTrain,
+  useRenameVillage,
 } from "../../api/hooks/useVillages";
 import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "../PanelContainer";
@@ -64,6 +65,7 @@ function VillagePanelInner({
   const settleMutation = useSettle(villageId);
   const cancelBuildMutation = useCancelBuild(villageId);
   const cancelTrainMutation = useCancelTrain(villageId);
+  const renameMutation = useRenameVillage(villageId);
   const { data: movements } = useMovements();
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
   const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
@@ -96,6 +98,8 @@ function VillagePanelInner({
         name={village.name}
         x={village.coordinates.x}
         y={village.coordinates.y}
+        villageId={village.id}
+        onRename={(id, name) => renameMutation.mutate(name)}
       />
       <ResourceDisplay
         wood={Math.floor(village.resources.wood)}

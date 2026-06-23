@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TownManager.Application.Common;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Entities;
@@ -14,7 +15,7 @@ public class AuthService(
     ITokenService tokenService
     ) : IAuthService
 {
-    public async Task<Result<string>> RegisterAsync(string email, string password, string username, CancellationToken ct)
+    public async Task<Result<LoginResult>> RegisterAsync(string email, string password, string username, CancellationToken ct)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
 
@@ -27,7 +28,7 @@ public class AuthService(
 
         var result = await userManager.CreateAsync(user, password);
         if (!result.Succeeded)
-            return Result<string>.Failure(result.Errors.Select(e => e.Description));
+            return Result<LoginResult>.Failure(result.Errors.Select(e => e.Description));
 
         var village = Village.CreateStarter($"{username}'s village", new Coordinates(0, 0));
         var player = Player.Create(username, user.Id, village);
@@ -38,9 +39,10 @@ public class AuthService(
         await db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
-        var token = tokenService.GenerateAccessToken(user.Id, user.Email!);
+        var accessToken = tokenService.GenerateAccessToken(user.Id, user.Email!);
+        var refreshToken = tokenService.GenerateRefreshToken(user.Id, user.Email!);
 
-        return Result<string>.Success(token);
+        return Result<LoginResult>.Success(new LoginResult(accessToken, refreshToken, username));
     }
 
     public async Task<Result<LoginResult>> LoginAsync(string email, string password, CancellationToken ct)
@@ -53,9 +55,12 @@ public class AuthService(
         if (!valid)
             return Result<LoginResult>.Failure(["Invalid email or password"]);
 
+        var player = await db.Players.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == user.Id, ct);
+        var username = player?.Username ?? "Unknown";
+
         var accessToken = tokenService.GenerateAccessToken(user.Id, user.Email!);
         var refreshToken = tokenService.GenerateRefreshToken(user.Id, user.Email!);
 
-        return Result<LoginResult>.Success(new LoginResult(accessToken, refreshToken));
+        return Result<LoginResult>.Success(new LoginResult(accessToken, refreshToken, username));
     }
 }

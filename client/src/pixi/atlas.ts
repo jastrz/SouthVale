@@ -31,7 +31,6 @@ export function tile(row: number, col: number): Texture {
 }
 
 // Tile index to game-element mapping
-
 export const ATLAS = {
   // Grass— 3×3 autotile block (water inside enviro)
   GRASS_TL: [3, 1] as const,

@@ -19,7 +19,7 @@ export function LoginBar() {
   };
 
   return (
-    <div className="fixed top-5 right-5 z-50 flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-950/85 px-3.5 py-2 font-sans text-base text-white">
+    <div className="fixed bottom-5 left-5 z-50 flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-950/85 px-3.5 py-2 font-sans text-base text-white">
       {token ? (
         <>
           <span className="text-slate-400">
