@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 export function VillageHeader({
   name,
@@ -17,13 +17,14 @@ export function VillageHeader({
   const [draft, setDraft] = useState(name);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (editing) {
-      setDraft(name);
+  function startEditing() {
+    setDraft(name);
+    setEditing(true);
+    requestAnimationFrame(() => {
       inputRef.current?.focus();
       inputRef.current?.select();
-    }
-  }, [editing, name]);
+    });
+  }
 
   function submit() {
     const trimmed = draft.trim();
@@ -50,7 +51,7 @@ export function VillageHeader({
       ) : (
         <h2
           className="cursor-pointer text-sm font-bold text-white hover:text-slate-300"
-          onClick={() => setEditing(true)}
+          onClick={startEditing}
           title="Click to rename"
         >
           {name}

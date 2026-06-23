@@ -3,6 +3,16 @@ import { BUILDING_LABELS, BUILDING_DESCRIPTIONS } from "../../config/game";
 import type { BuildingType, BuildRequest } from "../../api/types";
 import { formatTime, timeRemaining } from "./helpers";
 import { useTick } from "../../hooks/useTick";
+import { Icon } from "../Icon";
+
+const BUILDING_ICONS: Record<string, string> = {
+  WoodCutter: "/icons/buildings/woodcutter.png",
+  ClayPit: "/icons/buildings/clay_pit.png",
+  IronMine: "/icons/buildings/iron_mine.png",
+  CropField: "/icons/buildings/crop_farm.png",
+  Warehouse: "/icons/buildings/warehouse.png",
+  Granary: "/icons/buildings/granary.png",
+};
 
 function BuildingCard({
   building,
@@ -23,10 +33,18 @@ function BuildingCard({
   return (
     <div className="flex items-center justify-between rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
       <div>
-        <span className="font-medium text-white">
+        <span className="flex items-center gap-1.5 font-medium text-white">
+          {BUILDING_ICONS[building.type] && (
+            <Icon src={BUILDING_ICONS[building.type]} size={32} />
+          )}
           {BUILDING_LABELS[building.type] ?? building.type}
         </span>
-        <span className="ml-2 text-slate-400">Lv.{building.level}</span>
+        <span className="flex items-center gap-4 text-slate-300">
+          <span>Lv. {building.level}</span>
+          <span className="text-[12px] italic text-slate-500">
+            {BUILDING_DESCRIPTIONS[building.type] ?? ""}
+          </span>
+        </span>
         {nextOrder && (
           <>
             <span className="ml-1 text-slate-400">
@@ -42,9 +60,6 @@ function BuildingCard({
             )}
           </>
         )}
-        <div className="text-[10px] text-slate-500">
-          {BUILDING_DESCRIPTIONS[building.type] ?? ""}
-        </div>
       </div>
       <button
         type="button"

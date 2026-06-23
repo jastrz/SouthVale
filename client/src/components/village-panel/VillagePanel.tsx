@@ -99,7 +99,7 @@ function VillagePanelInner({
         x={village.coordinates.x}
         y={village.coordinates.y}
         villageId={village.id}
-        onRename={(id, name) => renameMutation.mutate(name)}
+        onRename={(_, name) => renameMutation.mutate(name)}
       />
       <ResourceDisplay
         wood={Math.floor(village.resources.wood)}

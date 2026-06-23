@@ -24,8 +24,9 @@ export function QueuePanel({
     completesAt: string;
   }[];
 
-  cancelBuild: UseMutationResult<void, Error, string>;
-  cancelTrain: UseMutationResult<void, Error, string>;
+  // doesn't read .data or .error, add exact type if it ever does
+  cancelBuild: UseMutationResult<unknown, unknown, string>;
+  cancelTrain: UseMutationResult<unknown, unknown, string>;
 }) {
   useTick();
 
