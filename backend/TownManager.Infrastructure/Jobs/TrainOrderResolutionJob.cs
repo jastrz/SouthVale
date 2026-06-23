@@ -49,17 +49,20 @@ public class TrainOrderResolutionJob(
             village.Troops = village.Troops.Add(order.Type, newlyCompleted);
             order.Completed += newlyCompleted;
         }
-
+        
+        await db.SaveChangesAsync(ct);
+        
         if (order.Completed < order.Amount)
         {
             // reschedule for the next unit
-            scheduler.ScheduleTrainOrderResolution(orderId, order.TimePerUnit);
+            var jobId = scheduler.ScheduleTrainOrderResolution(orderId, order.TimePerUnit);
+            order.JobId = jobId;
         }
         else
         {
             village.TrainOrders.Remove(order);
         }
-
+        
         await db.SaveChangesAsync(ct);
     }
 }

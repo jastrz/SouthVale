@@ -78,6 +78,7 @@ public static class DependencyInjection
         services.AddHangfireServer(options =>
         {
             options.HeartbeatInterval = TimeSpan.FromSeconds(15);
+            options.SchedulePollingInterval = TimeSpan.FromSeconds(1);
             options.WorkerCount = 5;
         });
 
