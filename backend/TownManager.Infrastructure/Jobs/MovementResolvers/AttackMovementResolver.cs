@@ -12,8 +12,10 @@ namespace TownManager.Infrastructure.Jobs.MovementResolvers;
 /// </summary>
 public class AttackMovementResolver(
     IVillageRepository villageRepo,
+    IPlayerRepository playerRepo,
     AppDbContext db,
     IJobScheduler scheduler,
+    IGameNotificationService notifications,
     ILogger<AttackMovementResolver> logger
     ) : IMovementResolver
 {
@@ -53,6 +55,17 @@ public class AttackMovementResolver(
             village.TroopMovements.Add(returnMovement);
 
             await db.SaveChangesAsync(ct);
+
+            var sourceUserId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
+            if (sourceUserId is not null)
+                await notifications.VillageUpdatedAsync(sourceUserId, village.Id, ct);
+
+            if (targetVillage.PlayerId != village.PlayerId)
+            {
+                var targetUserId = await playerRepo.GetUserIdByPlayerIdAsync(targetVillage.PlayerId, ct);
+                if (targetUserId is not null)
+                    await notifications.VillageUpdatedAsync(targetUserId, targetVillage.Id, ct);
+            }
 
             scheduler.ScheduleMovementResolution(returnMovement.Id, travelTime);
         }

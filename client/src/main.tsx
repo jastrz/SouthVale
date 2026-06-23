@@ -8,8 +8,10 @@ import { router } from "./routes/router";
 import { queryClient } from "./lib/query-client";
 import { AuthCacheInvalidator } from "./components/AuthCacheInvalidator";
 import { useAuthStore } from "./store/authStore";
+import { useSignalR } from "./hooks/useSignalR";
 
 function App() {
+  useSignalR();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {

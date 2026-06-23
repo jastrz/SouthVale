@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Serilog;
+using TownManager.Api.Hubs;
 using TownManager.Infrastructure.Data;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Persistence;
@@ -42,6 +43,8 @@ public static class PipelineConfiguration
         app.UseCors();
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.MapHub<GameHub>("/hubs/game");
 
         return app;
     }

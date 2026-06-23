@@ -8,8 +8,10 @@ namespace TownManager.Infrastructure.Jobs;
 
 public class TrainOrderResolutionJob(
     IVillageRepository repo,
+    IPlayerRepository playerRepo,
     AppDbContext db,
     IJobScheduler scheduler,
+    IGameNotificationService notifications,
     ILogger<TrainOrderResolutionJob> logger)
 {
     [AutomaticRetry(Attempts = 3)]
@@ -64,5 +66,9 @@ public class TrainOrderResolutionJob(
         }
         
         await db.SaveChangesAsync(ct);
+
+        var userId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
+        if (userId is not null)
+            await notifications.VillageUpdatedAsync(userId, village.Id, ct);
     }
 }

@@ -18,5 +18,11 @@ internal sealed class PlayerRepository(AppDbContext db) : IPlayerRepository
     public Task<bool> ExistsAsync(string username, CancellationToken ct = default) =>
         db.Players.AnyAsync(p => p.Username == username, ct);
 
+    public Task<string?> GetUserIdByPlayerIdAsync(Guid playerId, CancellationToken ct = default) =>
+        db.Players.Where(p => p.Id == playerId).Select(p => p.UserId).FirstOrDefaultAsync(ct);
+
+    public Task<string?> GetUserIdByVillageIdAsync(Guid villageId, CancellationToken ct = default) =>
+        db.Players.Where(p => p.Villages.Any(v => v.Id == villageId)).Select(p => p.UserId).FirstOrDefaultAsync(ct);
+
     public void Add(Player player) => db.Players.Add(player);
 }

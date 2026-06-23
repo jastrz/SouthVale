@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using TownManager.Api.Configuration;
 using TownManager.Api.ExceptionHandling;
+using TownManager.Api.Services;
+using TownManager.Application.Interfaces;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Persistence;
 
@@ -30,6 +32,10 @@ public static class DependencyInjection
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
+
+        services.AddSignalR();
+
+        services.AddSingleton<IGameNotificationService, GameNotificationService>();
 
         var allowedOrigins = configuration
             .GetSection("Cors:AllowedOrigins")

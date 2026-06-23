@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
+using TownManager.Infrastructure.Persistence;
 
 namespace TownManager.Infrastructure.Jobs.MovementResolvers;
 
@@ -10,6 +11,9 @@ namespace TownManager.Infrastructure.Jobs.MovementResolvers;
 /// </summary>
 public class ReturnMovementResolver(
     IVillageRepository villageRepo,
+    IPlayerRepository playerRepo,
+    AppDbContext db,
+    IGameNotificationService notifications,
     ILogger<ReturnMovementResolver> logger) : IMovementResolver
 {
     public MovementType Handles => MovementType.Return;
@@ -27,6 +31,12 @@ public class ReturnMovementResolver(
 
         if (movement.CarriedResources is not null)
             village.Resources = village.Resources.Add(movement.CarriedResources);
+
+        await db.SaveChangesAsync(ct);
+
+        var userId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
+        if (userId is not null)
+            await notifications.VillageUpdatedAsync(userId, village.Id, ct);
 
         logger.LogInformation(
             "Return movement {MovementId} resolved: {TroopsSummary} returned to village {VillageId}",

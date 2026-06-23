@@ -8,8 +8,10 @@ namespace TownManager.Infrastructure.Jobs;
 
 public class TroopMovementResolutionJob(
     IMovementRepository repo,
+    IPlayerRepository playerRepo,
     AppDbContext db,
     IEnumerable<IMovementResolver> resolvers,
+    IGameNotificationService notifications,
     ILogger<TroopMovementResolutionJob> logger)
 {
     [AutomaticRetry(Attempts = 3)]
@@ -48,5 +50,9 @@ public class TroopMovementResolutionJob(
         movement.Status = MovementStatus.Resolved;
 
         await db.SaveChangesAsync(ct);
+
+        var userId = await playerRepo.GetUserIdByVillageIdAsync(movement.VillageId, ct);
+        if (userId is not null)
+            await notifications.MovementsChangedAsync(userId, ct);
     }
 }

@@ -6,7 +6,12 @@ using TownManager.Infrastructure.Persistence;
 
 namespace TownManager.Infrastructure.Jobs;
 
-public class BuildOrderResolutionJob(IVillageRepository repo, AppDbContext db, ILogger<BuildOrderResolutionJob> logger)
+public class BuildOrderResolutionJob(
+    IVillageRepository villageRepo,
+    IPlayerRepository playerRepo,
+    AppDbContext db,
+    IGameNotificationService notifications,
+    ILogger<BuildOrderResolutionJob> logger)
 {
     [AutomaticRetry(Attempts = 3)]
     [DisableConcurrentExecution(60)]
@@ -14,7 +19,7 @@ public class BuildOrderResolutionJob(IVillageRepository repo, AppDbContext db, I
     {
         var currentJobId = context.BackgroundJob.Id;
 
-        var village = await repo.GetWithBuildingsAndOrdersAsync(orderId, ct);
+        var village = await villageRepo.GetWithBuildingsAndOrdersAsync(orderId, ct);
         if (village is null)
         {
             logger.LogWarning("Village not found for build order {OrderId}, skipping", orderId);
@@ -42,5 +47,9 @@ public class BuildOrderResolutionJob(IVillageRepository repo, AppDbContext db, I
         village.BuildOrders.Remove(order);
 
         await db.SaveChangesAsync(ct);
+
+        var userId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
+        if (userId is not null)
+            await notifications.VillageUpdatedAsync(userId, village.Id, ct);
     }
 }

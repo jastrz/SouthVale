@@ -13,8 +13,10 @@ namespace TownManager.Infrastructure.Jobs.MovementResolvers;
 /// </summary>
 public class SettleMovementResolver(
     IVillageRepository villageRepo,
+    IPlayerRepository playerRepo,
     AppDbContext db,
     IJobScheduler scheduler,
+    IGameNotificationService notifications,
     ILogger<SettleMovementResolver> logger) : IMovementResolver
 {
     public MovementType Handles => MovementType.Settle;
@@ -55,6 +57,10 @@ public class SettleMovementResolver(
 
             await db.SaveChangesAsync(ct);
 
+            var userId = await playerRepo.GetUserIdByPlayerIdAsync(origin.PlayerId, ct);
+            if (userId is not null)
+                await notifications.VillageUpdatedAsync(userId, origin.Id, ct);
+
             scheduler.ScheduleMovementResolution(returnMovement.Id, travelTime);
 
             return;
@@ -67,6 +73,12 @@ public class SettleMovementResolver(
         newVillage.PlayerId = origin.PlayerId;
 
         villageRepo.Add(newVillage);
+
+        await db.SaveChangesAsync(ct);
+
+        var userId2 = await playerRepo.GetUserIdByPlayerIdAsync(origin.PlayerId, ct);
+        if (userId2 is not null)
+            await notifications.VillagesChangedAsync(userId2, ct);
 
         logger.LogInformation("New village {VillageName} created at {Coords} by player {PlayerId}",
             newVillage.Name, movement.TargetCoordinates, origin.PlayerId);
