@@ -52,13 +52,20 @@ public class Village : Entity
     public void ApplyProduction(BuildingEffects effects)
     {
         var elapsed = DateTime.UtcNow - LastTickAt;
-        Resources = Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours));
+        Resources = Cap(Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours)), effects);
         LastTickAt = DateTime.UtcNow;
     }
 
     public Resources GetCurrentResources(BuildingEffects effects)
     {
         var elapsed = DateTime.UtcNow - LastTickAt;
-        return Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours));
+        return Cap(Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours)), effects);
     }
+
+    private static Resources Cap(Resources r, BuildingEffects e) => new(
+        Math.Min(r.Wood, e.WarehouseCapacity),
+        Math.Min(r.Clay, e.WarehouseCapacity),
+        Math.Min(r.Iron, e.WarehouseCapacity),
+        Math.Min(r.Crop, e.GranaryCapacity)
+    );
 }
