@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useGameStateStore } from "../store/gameStateStore";
 import type { MapVillage } from "../api/types";
+import { tooltipBase } from "../styles/styles";
+import { Icon } from "./Icon";
+import { RESOURCE_ICONS } from "./village-panel/helpers";
 
 export function VillageTooltip() {
   const hoveredVillage = useGameStateStore((s) => s.hoveredVillage);
@@ -21,7 +24,7 @@ export function VillageTooltip() {
 
   return (
     <div
-      className="pointer-events-none fixed z-50 max-w-64 rounded border border-slate-700 bg-slate-900 p-3 font-sans text-sm text-white shadow-lg backdrop-blur-sm"
+      className={`pointer-events-none fixed z-50 ${tooltipBase}`}
       style={{ left: mousePos.x + 14, top: mousePos.y + 14 }}
     >
       <TooltipBody village={hoveredVillage} />
@@ -55,13 +58,21 @@ function PlayerVillageInfoBody({ village }: { village: OwnVillage }) {
   return (
     <>
       <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
-        <span className="text-slate-400">Wood</span>
+        <span className="flex items-center gap-1 text-slate-400">
+          <Icon src={RESOURCE_ICONS.wood} size={14} /> Wood
+        </span>
         <span className="text-right">{resources.wood}</span>
-        <span className="text-slate-400">Clay</span>
+        <span className="flex items-center gap-1 text-slate-400">
+          <Icon src={RESOURCE_ICONS.clay} size={14} /> Clay
+        </span>
         <span className="text-right">{resources.clay}</span>
-        <span className="text-slate-400">Iron</span>
+        <span className="flex items-center gap-1 text-slate-400">
+          <Icon src={RESOURCE_ICONS.iron} size={14} /> Iron
+        </span>
         <span className="text-right">{resources.iron}</span>
-        <span className="text-slate-400">Crop</span>
+        <span className="flex items-center gap-1 text-slate-400">
+          <Icon src={RESOURCE_ICONS.crop} size={14} /> Crop
+        </span>
         <span className="text-right">{resources.crop}</span>
       </div>
       <div className="mt-2 border-t border-slate-700 pt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">

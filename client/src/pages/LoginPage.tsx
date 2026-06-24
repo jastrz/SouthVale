@@ -4,7 +4,7 @@ import type { AxiosError } from "axios";
 import { useLogin } from "../api/hooks/useAuth";
 import { useAuthStore } from "../store/authStore";
 import { loginSchema, type LoginForm, type FormErrors } from "../schemas/auth";
-import { inputBase, inputDefault, inputError } from "../styles/inputs";
+import { inputBase, inputDefault, inputError } from "../styles/styles";
 
 export function LoginPage() {
   const navigate = useNavigate();

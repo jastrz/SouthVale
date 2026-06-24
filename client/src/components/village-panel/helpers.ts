@@ -1,3 +1,15 @@
+export const RESOURCE_ICONS: Record<string, string> = {
+  wood: "/icons/resources/wood.png",
+  clay: "/icons/resources/clay.png",
+  iron: "/icons/resources/iron.png",
+  crop: "/icons/resources/crop.png",
+};
+
+export function parseTimeSpanMs(ts: string): number {
+  const [h, m, s] = ts.split(":").map(Number);
+  return ((h || 0) * 3600 + (m || 0) * 60 + (s || 0)) * 1000;
+}
+
 export function formatTime(ms: number): string {
   if (ms <= 0) return "Complete!";
   const totalSec = Math.ceil(ms / 1000);
@@ -12,3 +24,4 @@ export function formatTime(ms: number): string {
 export function timeRemaining(completesAt: string): number {
   return new Date(completesAt).getTime() - Date.now();
 }
+

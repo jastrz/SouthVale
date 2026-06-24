@@ -8,7 +8,7 @@ import {
   type RegisterForm,
   type FormErrors,
 } from "../schemas/auth";
-import { inputBase, inputDefault, inputError } from "../styles/inputs";
+import { inputBase, inputDefault, inputError } from "../styles/styles";
 
 export function RegisterPage() {
   const navigate = useNavigate();
