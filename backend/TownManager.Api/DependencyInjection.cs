@@ -35,6 +35,7 @@ public static class DependencyInjection
 
         services.AddSignalR();
 
+        services.AddSingleton<IConnectedUserTracker, Hubs.ConnectedUserTracker>();
         services.AddSingleton<IGameNotificationService, GameNotificationService>();
 
         var allowedOrigins = configuration

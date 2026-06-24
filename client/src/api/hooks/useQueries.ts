@@ -41,6 +41,7 @@ export const useVillage = (id: string) =>
     queryFn: () =>
       api.get<VillageDto>(`/gameplay/village/${id}`).then((r) => r.data),
     enabled: !!id,
+    refetchInterval: 10_000,
   });
 
 export const usePlayerVillages = (username: string) =>

@@ -17,7 +17,6 @@ export function useSignalR() {
 
     connection.on("VillageUpdated", (villageId: string) => {
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
-      queryClient.invalidateQueries({ queryKey: ["villages"] });
     });
 
     connection.on("VillagesChanged", () => {
