@@ -78,6 +78,7 @@ export function RegisterPage() {
       return;
     }
     setErrors({});
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword: _, ...payload } = result.data;
     register.mutate(payload, {
       onSuccess: (response) => {

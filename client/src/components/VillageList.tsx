@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useMyVillages } from "../api/hooks/useVillages";
+import { useMyVillages } from "../api/hooks/useQueries";
 import { useGameStateStore } from "../store/gameStateStore";
 import { PanelContainer } from "./PanelContainer";
 

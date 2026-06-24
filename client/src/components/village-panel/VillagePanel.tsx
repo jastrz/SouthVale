@@ -12,7 +12,7 @@ import {
   useCancelBuild,
   useCancelTrain,
   useRenameVillage,
-} from "../../api/hooks/useVillages";
+} from "../../api/hooks/useQueries";
 import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "../PanelContainer";
 import { VillageHeader } from "./VillageHeader";

@@ -5,7 +5,7 @@ import { MapScene } from "../pixi/scene/MapScene";
 import { loadMap } from "../pixi/mapLoader";
 import { attachPan, attachZoom } from "../pixi/input";
 import { useGameStateStore } from "../store/gameStateStore";
-import { useMap } from "../api/hooks/useVillages";
+import { useMap } from "../api/hooks/useQueries";
 import type { MapVillage } from "../api/types";
 
 // Generous fetch radius for dev

@@ -51,7 +51,7 @@ public static class BuildingConfig
             new(2, new Resources(160,  80,  100, 120), TimeSpan.FromMinutes(1),   new BuildingEffects(new Resources(0, 9,  0, 0))),
             new(3, new Resources(320,  160, 200, 240), TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(0, 15, 0, 0))),
             new(4, new Resources(640,  320, 400, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 22, 0, 0))),
-            new(5, new Resources(1280, 640, 800, 960), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(0, 33, 0, 0))),
+            new(5, new Resources(1280, 640, 800, 1000), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(0, 33, 0, 0))),
         ],
 
         [BuildingType.IronMine] =
@@ -60,7 +60,7 @@ public static class BuildingConfig
             new(2, new Resources(200,  160, 60,  120), TimeSpan.FromMinutes(5),   new BuildingEffects(new Resources(0, 0, 9,  0))),
             new(3, new Resources(1,  1, 1, 1), TimeSpan.FromSeconds(15),  new BuildingEffects(new Resources(0, 0, 15, 0))),
             new(4, new Resources(800,  640, 240, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 0, 22, 0))),
-            new(5, new Resources(1600, 1280, 480, 960), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(0, 0, 33, 0))),
+            new(5, new Resources(1600, 1280, 480, 1000), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(0, 0, 33, 0))),
         ],
 
         [BuildingType.CropField] =

@@ -59,6 +59,32 @@ export interface ResourcesDto {
   crop: number;
 }
 
+export interface BuildingLevelConfigDto {
+  level: number;
+  upgradeCost: ResourcesDto;
+  upgradeTime: string;
+  warehouseCapacity: number;
+  granaryCapacity: number;
+  productionPerHour: ResourcesDto | null;
+  trainingSpeedMultiplier: number;
+}
+
+export interface TroopConfigDto {
+  type: string;
+  trainingCost: ResourcesDto;
+  trainingTime: string;
+  attack: number;
+  defense: number;
+  carryCapacity: number;
+  speed: number;
+  upkeep: number;
+}
+
+export interface GameConfigDto {
+  buildings: Record<string, BuildingLevelConfigDto[]>;
+  troops: Record<string, TroopConfigDto>;
+}
+
 export interface TroopsDto {
   swordsmen: number;
   archers: number;

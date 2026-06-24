@@ -10,7 +10,14 @@ import type {
   PlayerVillageDto,
   GetMapRequest,
   MovementDto,
+  GameConfigDto,
 } from "../types";
+
+export const useGameConfig = () =>
+  useQuery({
+    queryKey: ["gameConfig"],
+    queryFn: () => api.get<GameConfigDto>("/config").then((r) => r.data),
+  });
 
 export const useMyVillages = () =>
   useQuery({
