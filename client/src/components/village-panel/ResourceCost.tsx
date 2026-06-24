@@ -1,6 +1,6 @@
 import type { ResourcesDto } from "../../api/types";
 import { Icon } from "../Icon";
-import { RESOURCE_ICONS } from "./helpers";
+import { RESOURCE_ICONS } from "../../lib/helpers";
 
 const RESOURCE_ROWS: { key: keyof ResourcesDto; label: string; icon: string }[] = [
   { key: "wood", label: "Wood", icon: RESOURCE_ICONS.wood },

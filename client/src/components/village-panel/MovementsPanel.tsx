@@ -1,5 +1,5 @@
 import type { MovementDto } from "../../api/types";
-import { formatTime, timeRemaining } from "./helpers";
+import { formatTime, timeRemaining } from "../../lib/helpers";
 import { useTick } from "../../hooks/useTick";
 
 function troopLabel(m: MovementDto): string {

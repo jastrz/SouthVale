@@ -5,6 +5,15 @@ export const RESOURCE_ICONS: Record<string, string> = {
   crop: "/icons/resources/crop.png",
 };
 
+export const BUILDING_ICONS: Record<string, string> = {
+  WoodCutter: "/icons/buildings/woodcutter.png",
+  ClayPit: "/icons/buildings/clay_pit.png",
+  IronMine: "/icons/buildings/iron_mine.png",
+  CropField: "/icons/buildings/crop_farm.png",
+  Warehouse: "/icons/buildings/warehouse.png",
+  Granary: "/icons/buildings/granary.png",
+};
+
 export function parseTimeSpanMs(ts: string): number {
   const [h, m, s] = ts.split(":").map(Number);
   return ((h || 0) * 3600 + (m || 0) * 60 + (s || 0)) * 1000;

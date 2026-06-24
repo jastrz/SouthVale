@@ -3,7 +3,7 @@ import { useGameStateStore } from "../store/gameStateStore";
 import type { MapVillage } from "../api/types";
 import { tooltipBase } from "../styles/styles";
 import { Icon } from "./Icon";
-import { RESOURCE_ICONS } from "./village-panel/helpers";
+import { RESOURCE_ICONS } from "../lib/helpers";
 
 export function VillageTooltip() {
   const hoveredVillage = useGameStateStore((s) => s.hoveredVillage);

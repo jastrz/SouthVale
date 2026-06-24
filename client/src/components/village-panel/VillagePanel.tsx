@@ -11,13 +11,9 @@ import {
   useMovements,
   useCancelBuild,
   useCancelTrain,
-  useRenameVillage,
-  useGameConfig,
 } from "../../api/hooks/useQueries";
 import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "../PanelContainer";
-import { VillageHeader } from "./VillageHeader";
-import { ResourceDisplay } from "./ResourceDisplay";
 import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
 import { QueuePanel } from "./QueuePanel";
@@ -60,14 +56,12 @@ function VillagePanelInner({
   selectedTile: { x: number; y: number } | null;
 }) {
   const { data: village, isLoading, isError, error } = useVillage(villageId);
-  const { data: gameConfig } = useGameConfig();
   const buildMutation = useBuild(villageId);
   const trainMutation = useTrain(villageId);
   const attackMutation = useAttack(villageId);
   const settleMutation = useSettle(villageId);
   const cancelBuildMutation = useCancelBuild(villageId);
   const cancelTrainMutation = useCancelTrain(villageId);
-  const renameMutation = useRenameVillage(villageId);
   const { data: movements } = useMovements();
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
   const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
@@ -94,28 +88,8 @@ function VillagePanelInner({
     );
   }
 
-  const warehouseLevel = village.buildings.find((b) => b.type === "Warehouse")?.level ?? 0;
-  const granaryLevel = village.buildings.find((b) => b.type === "Granary")?.level ?? 0;
-  const warehouseCapacity = gameConfig?.buildings["Warehouse"]?.find((l) => l.level === warehouseLevel)?.warehouseCapacity;
-  const granaryCapacity = gameConfig?.buildings["Granary"]?.find((l) => l.level === granaryLevel)?.granaryCapacity;
-
   return (
     <PanelContainer>
-      <VillageHeader
-        name={village.name}
-        x={village.coordinates.x}
-        y={village.coordinates.y}
-        villageId={village.id}
-        onRename={(_, name) => renameMutation.mutate(name)}
-      />
-      <ResourceDisplay
-        wood={Math.floor(village.resources.wood)}
-        clay={Math.floor(village.resources.clay)}
-        iron={Math.floor(village.resources.iron)}
-        crop={Math.floor(village.resources.crop)}
-        warehouseCapacity={warehouseCapacity}
-        granaryCapacity={granaryCapacity}
-      />
       <BuildingsPanel
         buildings={village.buildings}
         buildOrders={village.buildOrders}

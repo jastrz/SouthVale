@@ -4,7 +4,7 @@ import { TROOP_LABELS } from "../../config/game";
 import type { TroopType, TrainRequest, TroopConfigDto } from "../../api/types";
 import { useGameConfig } from "../../api/hooks/useQueries";
 import { Tooltip } from "../Tooltip";
-import { formatTime, parseTimeSpanMs } from "./helpers";
+import { formatTime, parseTimeSpanMs } from "../../lib/helpers";
 import { ResourceCost } from "./ResourceCost";
 
 function TroopTooltip({ config }: { config: TroopConfigDto }) {

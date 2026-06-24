@@ -1,6 +1,6 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import { BUILDING_LABELS, TROOP_LABELS } from "../../config/game";
-import { formatTime, timeRemaining } from "./helpers";
+import { formatTime, timeRemaining } from "../../lib/helpers";
 import { useTick } from "../../hooks/useTick";
 
 export function QueuePanel({

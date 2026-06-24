@@ -1,7 +1,17 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import { BUILDING_LABELS, BUILDING_DESCRIPTIONS } from "../../config/game";
-import type { BuildingType, BuildRequest, BuildingLevelConfigDto } from "../../api/types";
-import { formatTime, timeRemaining, parseTimeSpanMs, RESOURCE_ICONS } from "./helpers";
+import type {
+  BuildingType,
+  BuildRequest,
+  BuildingLevelConfigDto,
+} from "../../api/types";
+import {
+  formatTime,
+  timeRemaining,
+  parseTimeSpanMs,
+  RESOURCE_ICONS,
+  BUILDING_ICONS,
+} from "../../lib/helpers";
 import { ResourceCost } from "./ResourceCost";
 import { useTick } from "../../hooks/useTick";
 import { useGameConfig } from "../../api/hooks/useQueries";
@@ -23,11 +33,12 @@ function BuildingTooltip({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-1.5 font-semibold text-white">
-        {BUILDING_ICONS[building.type] && <Icon src={BUILDING_ICONS[building.type]} size={18} />}
+        {BUILDING_ICONS[building.type] && (
+          <Icon src={BUILDING_ICONS[building.type]} size={18} />
+        )}
         {BUILDING_LABELS[building.type] ?? building.type}
       </div>
       <div className="text-slate-400">Level {building.level}</div>
-
       {config.warehouseCapacity > 0 && (
         <div className="text-slate-300">Capacity: {config.warehouseCapacity}</div>
       )}
@@ -60,28 +71,39 @@ function BuildingTooltip({
         </div>
       )}
       {config.trainingSpeedMultiplier > 1 && (
-        <div className="text-slate-300">Training Speed: {config.trainingSpeedMultiplier}x</div>
+        <div className="text-slate-300">
+          Training Speed: {config.trainingSpeedMultiplier}x
+        </div>
       )}
-
       {nextConfig && (
         <>
           <div className="border-t border-slate-700 pt-1" />
-          <div className="font-medium text-cyan-400">Next Level ({nextConfig.level})</div>
+          <div className="font-medium text-cyan-400">
+            Next Level ({nextConfig.level})
+          </div>
           <div className="text-slate-300">Cost</div>
           <ResourceCost value={nextConfig.upgradeCost} />
           <div className="border-t border-slate-700 pt-1" />
-          <div className="text-slate-300">Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime))}</div>
+          <div className="text-slate-300">
+            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime))}
+          </div>
           <div className="border-t border-slate-700 pt-1" />
           {nextConfig.warehouseCapacity > 0 && (
             <div className="text-slate-300">
               Capacity: {nextConfig.warehouseCapacity}
-              <span className="text-green-400"> (+{nextConfig.warehouseCapacity - config.warehouseCapacity})</span>
+              <span className="text-green-400">
+                {" "}
+                (+{nextConfig.warehouseCapacity - config.warehouseCapacity})
+              </span>
             </div>
           )}
           {nextConfig.granaryCapacity > 0 && (
             <div className="text-slate-300">
               Capacity: {nextConfig.granaryCapacity}
-              <span className="text-green-400"> (+{nextConfig.granaryCapacity - config.granaryCapacity})</span>
+              <span className="text-green-400">
+                {" "}
+                (+{nextConfig.granaryCapacity - config.granaryCapacity})
+              </span>
             </div>
           )}
           {nextPerHour && (
@@ -91,7 +113,9 @@ function BuildingTooltip({
                 <span className="flex items-center gap-1 text-slate-300 whitespace-nowrap">
                   <Icon src={RESOURCE_ICONS.wood} size={12} /> {nextPerHour.wood}/h
                   {currentPerHour && nextPerHour.wood > currentPerHour.wood && (
-                    <span className="text-green-400">(+{nextPerHour.wood - currentPerHour.wood}/h)</span>
+                    <span className="text-green-400">
+                      (+{nextPerHour.wood - currentPerHour.wood}/h)
+                    </span>
                   )}
                 </span>
               )}
@@ -99,7 +123,9 @@ function BuildingTooltip({
                 <span className="flex items-center gap-1 text-slate-300 whitespace-nowrap">
                   <Icon src={RESOURCE_ICONS.clay} size={12} /> {nextPerHour.clay}/h
                   {currentPerHour && nextPerHour.clay > currentPerHour.clay && (
-                    <span className="text-green-400">(+{nextPerHour.clay - currentPerHour.clay}/h)</span>
+                    <span className="text-green-400">
+                      (+{nextPerHour.clay - currentPerHour.clay}/h)
+                    </span>
                   )}
                 </span>
               )}
@@ -107,7 +133,9 @@ function BuildingTooltip({
                 <span className="flex items-center gap-1 text-slate-300 whitespace-nowrap">
                   <Icon src={RESOURCE_ICONS.iron} size={12} /> {nextPerHour.iron}/h
                   {currentPerHour && nextPerHour.iron > currentPerHour.iron && (
-                    <span className="text-green-400">(+{nextPerHour.iron - currentPerHour.iron}/h)</span>
+                    <span className="text-green-400">
+                      (+{nextPerHour.iron - currentPerHour.iron}/h)
+                    </span>
                   )}
                 </span>
               )}
@@ -115,7 +143,9 @@ function BuildingTooltip({
                 <span className="flex items-center gap-1 text-slate-300 whitespace-nowrap">
                   <Icon src={RESOURCE_ICONS.crop} size={12} /> {nextPerHour.crop}/h
                   {currentPerHour && nextPerHour.crop > currentPerHour.crop && (
-                    <span className="text-green-400">(+{nextPerHour.crop - currentPerHour.crop}/h)</span>
+                    <span className="text-green-400">
+                      (+{nextPerHour.crop - currentPerHour.crop}/h)
+                    </span>
                   )}
                 </span>
               )}
@@ -124,7 +154,16 @@ function BuildingTooltip({
           {nextConfig.trainingSpeedMultiplier > 1 && (
             <div className="text-slate-300">
               Speed: {nextConfig.trainingSpeedMultiplier}x
-              <span className="text-green-400"> (+{((nextConfig.trainingSpeedMultiplier - config.trainingSpeedMultiplier) * 100).toFixed(0)}%)</span>
+              <span className="text-green-400">
+                {" "}
+                (+
+                {(
+                  (nextConfig.trainingSpeedMultiplier -
+                    config.trainingSpeedMultiplier) *
+                  100
+                ).toFixed(0)}
+                %)
+              </span>
             </div>
           )}
         </>
@@ -132,15 +171,6 @@ function BuildingTooltip({
     </div>
   );
 }
-
-const BUILDING_ICONS: Record<string, string> = {
-  WoodCutter: "/icons/buildings/woodcutter.png",
-  ClayPit: "/icons/buildings/clay_pit.png",
-  IronMine: "/icons/buildings/iron_mine.png",
-  CropField: "/icons/buildings/crop_farm.png",
-  Warehouse: "/icons/buildings/warehouse.png",
-  Granary: "/icons/buildings/granary.png",
-};
 
 function BuildingCard({
   building,
@@ -161,7 +191,11 @@ function BuildingCard({
 
   const levels = config?.buildings[building.type];
   const currentCfg = levels?.find((l) => l.level === building.level);
-  const nextCfg = levels?.find((l) => l.level === building.level + 1);
+  const highestQueued = orders.reduce(
+    (max, o) => Math.max(max, o.targetLevel),
+    building.level,
+  );
+  const nextCfg = levels?.find((l) => l.level === highestQueued + 1);
 
   return (
     <Tooltip
