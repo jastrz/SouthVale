@@ -28,6 +28,7 @@ export class MapScene {
 
   private readonly hoverHighlight = new Graphics();
   private readonly selectionFill = new Graphics();
+  private onVillageHover: ((v: MapVillage | null) => void) | null = null;
   hoveredTile: { x: number; y: number } | null = null;
   selectedTile: { x: number; y: number } | null = null;
 
@@ -85,6 +86,7 @@ export class MapScene {
     this.root.on("pointerleave", () => {
       this.hoveredTile = null;
       this.hoverHighlight.clear();
+      this.onVillageHover?.(null);
     });
 
     this.center();
@@ -96,6 +98,7 @@ export class MapScene {
     onSelect?: (village: MapVillage) => void,
     onHover?: (village: MapVillage | null) => void,
   ): void {
+    this.onVillageHover = onHover ?? null;
     this.villages.setVillages(villages, activeOwnId, onSelect, onHover);
   }
 
