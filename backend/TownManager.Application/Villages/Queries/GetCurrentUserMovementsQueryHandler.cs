@@ -38,6 +38,9 @@ public class GetCurrentUserMovementsQueryHandler(
             m.ArrivesAt,
             m.CompletedAt,
             new TroopsDto(m.Troops.Swordsmen, m.Troops.Archers, m.Troops.Settlers),
+            m.CarriedResources is { } r
+                ? new ResourcesDto((int)r.Wood, (int)r.Clay, (int)r.Iron, (int)r.Crop)
+                : null,
             m.VillageId,
             m.Village.Name,
             m.TargetVillageId,

@@ -34,13 +34,11 @@ public class CombatResolverTests
         // No defenders - no defense power - defenders take no losses
         result.AttackerTroops.Should().BeEquivalentTo(new Troops(swordsmen: 50));
         result.DefenderTroops.Should().BeEquivalentTo(Troops.Zero);
-
-        // 50 × 50 × 0.25 = 625
-        var expectedLoot = resources.Multiply(50 * 50 * 0.25);
-        result.AttackerLoot.Wood.Should().Be(expectedLoot.Wood);
-        result.AttackerLoot.Clay.Should().Be(expectedLoot.Clay);
-        result.AttackerLoot.Iron.Should().Be(expectedLoot.Iron);
-        result.AttackerLoot.Crop.Should().Be(expectedLoot.Crop);
+        
+        result.AttackerLoot.Wood.Should().Be(resources.Wood);
+        result.AttackerLoot.Clay.Should().Be(resources.Clay);
+        result.AttackerLoot.Iron.Should().Be(resources.Iron);
+        result.AttackerLoot.Crop.Should().Be(resources.Crop);
     }
 
     [Fact]

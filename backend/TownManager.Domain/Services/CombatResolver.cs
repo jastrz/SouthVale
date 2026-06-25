@@ -21,10 +21,12 @@ public class CombatResolver
         var survivingAttackers = ApplyLosses(attackers, attackerLossRatio);
         var survivingDefenders = ApplyLosses(defenders, defenderLossRatio);
 
-        int attackerCapacity = survivingAttackers.Swordsmen * TroopsConfig.Get(TroopType.Swordsman).Stats.CarryCapacity 
+        int attackerCapacity = survivingAttackers.Swordsmen * TroopsConfig.Get(TroopType.Swordsman).Stats.CarryCapacity
                                + survivingAttackers.Archers * TroopsConfig.Get(TroopType.Archer).Stats.CarryCapacity;
 
-        Resources attackerLoot = defenderResources.Multiply(attackerCapacity * (1d / Enum.GetValues<ResourceType>().Length));
+        double totalResources = defenderResources.Wood + defenderResources.Clay + defenderResources.Iron + defenderResources.Crop;
+        double lootRatio = totalResources > 0 ? Math.Min(1.0, attackerCapacity / totalResources) : 0;
+        Resources attackerLoot = defenderResources.Multiply(lootRatio);
 
         return new CombatResult(survivingAttackers, survivingDefenders, attackerLoot);
     }

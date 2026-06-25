@@ -1,6 +1,7 @@
 import type { MovementDto } from "../../api/types";
 import { formatTime, timeRemaining } from "../../lib/helpers";
 import { useTick } from "../../hooks/useTick";
+import { ResourceCost } from "./ResourceCost";
 
 function troopLabel(m: MovementDto): string {
   const parts: string[] = [];
@@ -88,6 +89,9 @@ function MovementRow({
           </span>
         </div>
         <div className="text-[10px] text-slate-500">{troopLabel(movement)}</div>
+        {movement.carriedResources && (
+          <ResourceCost value={movement.carriedResources} />
+        )}
       </div>
       <span className="ml-2 shrink-0 whitespace-nowrap text-yellow-400">
         {formatTime(timeRemaining(movement.arrivesAt))}

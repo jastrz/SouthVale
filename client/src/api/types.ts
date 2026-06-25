@@ -108,6 +108,7 @@ export interface MovementDto {
   arrivesAt: string;
   completedAt: string | null;
   troops: TroopsDto;
+  carriedResources: ResourcesDto | null;
   originVillageId: string;
   originVillageName: string;
   targetVillageId: string | null;

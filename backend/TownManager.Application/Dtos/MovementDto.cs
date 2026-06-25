@@ -11,6 +11,7 @@ public record MovementDto(
     DateTime ArrivesAt,
     DateTime? CompletedAt,
     TroopsDto Troops,
+    ResourcesDto? CarriedResources,
     Guid OriginVillageId,
     string OriginVillageName,
     Guid? TargetVillageId,
