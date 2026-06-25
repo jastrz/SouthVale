@@ -1,0 +1,90 @@
+using FluentAssertions;
+using TownManager.Domain.Entities;
+using TownManager.Domain.Services;
+
+namespace TownManager.Domain.Tests.Services;
+
+public class CombatResolverTests
+{
+    [Fact]
+    public void NoAttackers_DefendersUntouched_NoLoot()
+    {
+        var result = CombatResolver.Resolve(
+            Troops.Zero,
+            new Troops(swordsmen: 100),
+            new Resources(500, 400, 300, 200)
+        );
+
+        result.AttackerTroops.Should().BeEquivalentTo(Troops.Zero);
+        result.DefenderTroops.Should().BeEquivalentTo(new Troops(swordsmen: 100));
+        result.AttackerLoot.IsEmpty().Should().BeTrue();
+    }
+    
+    [Fact]
+    public void NoDefenders_AttackersUnaffected_FullLoot()
+    {
+        var resources = new Resources(wood: 100, clay: 200, iron: 300, crop: 400);
+
+        var result = CombatResolver.Resolve(
+            new Troops(swordsmen: 50),
+            Troops.Zero,
+            resources
+        );
+
+        // No defenders - no defense power - defenders take no losses
+        result.AttackerTroops.Should().BeEquivalentTo(new Troops(swordsmen: 50));
+        result.DefenderTroops.Should().BeEquivalentTo(Troops.Zero);
+
+        // 50 × 50 × 0.25 = 625
+        var expectedLoot = resources.Multiply(50 * 50 * 0.25);
+        result.AttackerLoot.Wood.Should().Be(expectedLoot.Wood);
+        result.AttackerLoot.Clay.Should().Be(expectedLoot.Clay);
+        result.AttackerLoot.Iron.Should().Be(expectedLoot.Iron);
+        result.AttackerLoot.Crop.Should().Be(expectedLoot.Crop);
+    }
+
+    [Fact]
+    public void MixedTroops_CombinesSwordsmenAndArchers()
+    {
+        var result = CombatResolver.Resolve(
+            new Troops(swordsmen: 50, archers: 50),
+            new Troops(swordsmen: 50, archers: 50),
+            Resources.Zero
+        );
+        
+        result.DefenderTroops.Should().BeEquivalentTo(Troops.Zero);
+        result.AttackerTroops.Swordsmen.Should().BeGreaterThan(0);
+        result.AttackerTroops.Archers.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void Settlers_DoNotContributeToCombat()
+    {
+        var result = CombatResolver.Resolve(
+            new Troops(swordsmen: 100, settlers: 100),
+            new Troops(swordsmen: 100),
+            Resources.Zero
+        );
+
+        // Settlers have 0 attack/defense - same outcome as 100 swordsmen vs 100
+        result.AttackerTroops.Swordsmen.Should().BeGreaterThan(0);
+        result.AttackerTroops.Settlers.Should().Be(0);
+    }
+
+    [Fact]
+    public void TroopCounts_NeverNegative()
+    {
+        var result = CombatResolver.Resolve(
+            new Troops(swordsmen: 1),
+            new Troops(swordsmen: 1000),
+            Resources.Zero
+        );
+
+        result.AttackerTroops.Swordsmen.Should().BeGreaterThanOrEqualTo(0);
+        result.AttackerTroops.Archers.Should().BeGreaterThanOrEqualTo(0);
+        result.AttackerTroops.Settlers.Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Swordsmen.Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Archers.Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Settlers.Should().BeGreaterThanOrEqualTo(0);
+    }
+}

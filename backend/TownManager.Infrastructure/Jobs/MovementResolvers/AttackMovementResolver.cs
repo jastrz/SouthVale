@@ -4,6 +4,7 @@ using TownManager.Domain.Entities;
 using TownManager.Infrastructure.Persistence;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
+using TownManager.Domain.Services;
 
 namespace TownManager.Infrastructure.Jobs.MovementResolvers;
 
@@ -30,8 +31,7 @@ public class AttackMovementResolver(
             return;
         }
 
-        var targetVillage = await villageRepo.GetForCombatAsync(
-            movement.TargetVillageId!.Value, ct);
+        var targetVillage = await villageRepo.GetForCombatAsync(movement.TargetVillageId!.Value, ct);
         if (targetVillage is null)
         {
             logger.LogWarning("Target village {TargetVillageId} not found for attack movement {MovementId}",
@@ -39,17 +39,16 @@ public class AttackMovementResolver(
             return;
         }
 
-        // TODO: proper combat model (ATK vs DEF, casualty formula, etc.)
+        var combatResult = CombatResolver.Resolve(movement.Troops, targetVillage.Troops, targetVillage.Resources);
 
-        var survivingAttackers = new Troops(movement.Troops.Swordsmen, movement.Troops.Archers, movement.Troops.Settlers);
-        var loot = new Resources(1000, 1000, 1000, 1000);
+        targetVillage.Troops = combatResult.DefenderTroops;
 
-        if (!survivingAttackers.IsEmpty())
+        if (!combatResult.AttackerTroops.IsEmpty())
         {
             // var travelTime = movement.ArrivesAt - movement.DepartureAt;
             var travelTime = TimeSpan.FromSeconds(10);
 
-            var returnMovement = TroopMovement.Create(survivingAttackers, loot, movement.VillageId,
+            var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.VillageId,
                 travelTime, DateTime.UtcNow, MovementType.Return);
 
             village.TroopMovements.Add(returnMovement);
