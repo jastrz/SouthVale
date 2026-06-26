@@ -17,6 +17,7 @@ import { useTick } from "../../hooks/useTick";
 import { useGameConfig } from "../../api/hooks/useQueries";
 import { Icon } from "../Icon";
 import { Tooltip } from "../Tooltip";
+import { BUILDING_ORDER } from "../../config/game";
 
 function BuildingTooltip({
   building,
@@ -224,20 +225,20 @@ function BuildingCard({
             </span>
           </span>
           {nextOrder && (
-            <>
-              <span className="ml-1 text-slate-400">
-                → {nextOrder.targetLevel}
-              </span>
-              <span className="ml-2 text-yellow-400">
-                {formatTime(timeRemaining(nextOrder.completesAt))}
-              </span>
-              {orders.length > 1 && (
-                <span className="ml-1 text-[10px] text-slate-500">
-                  +{orders.length - 1} more
+              <div className="mt-0.5 flex items-center gap-2 text-slate-400">
+                <span>
+                  → {nextOrder.targetLevel}
                 </span>
-              )}
-            </>
-          )}
+                <span className="text-yellow-400">
+                  {formatTime(timeRemaining(nextOrder.completesAt))}
+                </span>
+                {orders.length > 1 && (
+                  <span className="text-[10px] text-slate-500">
+                    +{orders.length - 1} more
+                  </span>
+                )}
+              </div>
+            )}
         </div>
         <button
           type="button"
@@ -273,7 +274,9 @@ export function BuildingsPanel({
         Buildings
       </h3>
       <div className="flex flex-col gap-1.5">
-        {buildings.map((b) => (
+        {[...buildings]
+          .sort((a, b) => BUILDING_ORDER.indexOf(a.type as typeof BUILDING_ORDER[number]) - BUILDING_ORDER.indexOf(b.type as typeof BUILDING_ORDER[number]))
+          .map((b) => (
           <BuildingCard
             key={b.id}
             building={b}

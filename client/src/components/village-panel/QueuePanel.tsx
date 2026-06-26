@@ -42,15 +42,15 @@ export function QueuePanel({
           key={o.id}
           className="mb-1 flex items-center justify-between rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
         >
-          <span>
+          <div>
             <span className="font-medium text-white">
               {BUILDING_LABELS[o.buildingType] ?? o.buildingType}
             </span>{" "}
             → Lv.{o.targetLevel}
-            <span className="ml-2 text-yellow-400">
+            <div className="mt-0.5 text-yellow-400">
               {formatTime(timeRemaining(o.completesAt))}
-            </span>
-          </span>
+            </div>
+          </div>
           <button
             onClick={() => cancelBuild.mutate(o.id)}
             disabled={cancelBuild.isPending}
@@ -65,15 +65,15 @@ export function QueuePanel({
           key={o.id}
           className="mb-1 flex items-center justify-between rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
         >
-          <span>
+          <div>
             <span className="font-medium text-white">
               {o.completed}/{o.amount}
             </span>{" "}
             {TROOP_LABELS[o.troopType] ?? o.troopType}
-            <span className="ml-2 text-yellow-400">
+            <div className="mt-0.5 text-yellow-400">
               {formatTime(timeRemaining(o.completesAt))}
-            </span>
-          </span>
+            </div>
+          </div>
           <button
             onClick={() => cancelTrain.mutate(o.id)}
             disabled={cancelTrain.isPending}
