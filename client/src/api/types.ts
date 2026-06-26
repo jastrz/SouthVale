@@ -164,6 +164,22 @@ export interface GetMapRequest {
  * villages and the lightweight view from enemy villages without a second
  * fetch.
  */
+export type ReportType = "Attack" | "Defense" | "Settle" | "Return";
+
+export interface ReportDto {
+  id: string;
+  type: ReportType;
+  title: string;
+  body: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface ReportsResult {
+  reports: ReportDto[];
+  unreadCount: number;
+}
+
 export type MapVillage =
   | ({ kind: "own" } & VillageDto)
   | ({ kind: "enemy" } & PlayerVillageDto);

@@ -11,6 +11,7 @@ import type {
   GetMapRequest,
   MovementDto,
   GameConfigDto,
+  ReportsResult,
 } from "../types";
 
 export const useGameConfig = () =>
@@ -116,4 +117,18 @@ export const useRenameVillage = (villageId: string) =>
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["villages"] });
     },
+  });
+
+export const useReports = () =>
+  useQuery({
+    queryKey: ["reports"],
+    queryFn: () =>
+      api.get<ReportsResult>("/gameplay/me/reports").then((r) => r.data),
+  });
+
+export const useMarkReportsRead = () =>
+  useMutation({
+    mutationFn: () => api.post("/gameplay/me/reports/read"),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["reports"] }),
   });

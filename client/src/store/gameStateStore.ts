@@ -11,10 +11,13 @@ import type {
  * Holds the live state of all villages the client currently knows about.
  */
 
+export type ViewMode = "map" | "notifications";
+
 export interface GameState {
   villages: Record<string, VillageDto>;
   activeVillageId: string | null;
   hoveredVillage: MapVillage | null;
+  currentView: ViewMode;
 
   targetVillage: MapVillage | null;
   selectedTile: { x: number; y: number } | null;
@@ -30,6 +33,7 @@ export interface GameState {
   setHoveredVillage: (village: MapVillage | null) => void;
   setTargetVillage: (village: MapVillage | null) => void;
   setSelectedTile: (tile: { x: number; y: number } | null) => void;
+  setCurrentView: (view: ViewMode) => void;
 
   // fine-grained patches (SignalR-friendly)
   updateResources: (villageId: string, resources: ResourcesDto) => void;
@@ -43,6 +47,7 @@ export const useGameStateStore = create<GameState>((set) => ({
   villages: {},
   activeVillageId: null,
   hoveredVillage: null,
+  currentView: "map",
   targetVillage: null,
   selectedTile: null,
 
@@ -71,6 +76,7 @@ export const useGameStateStore = create<GameState>((set) => ({
   setHoveredVillage: (village) => set({ hoveredVillage: village }),
   setTargetVillage: (village) => set({ targetVillage: village }),
   setSelectedTile: (tile) => set({ selectedTile: tile }),
+  setCurrentView: (view) => set({ currentView: view }),
 
   updateResources: (villageId, resources) =>
     set((state) => {

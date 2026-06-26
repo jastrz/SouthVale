@@ -27,6 +27,10 @@ export function useSignalR() {
       queryClient.invalidateQueries({ queryKey: ["movements"] });
     });
 
+    connection.on("ReportCreated", () => {
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    });
+
     connection.start().catch(() => {
       /* connection will be retried by SignalR's auto-reconnect */
     });
