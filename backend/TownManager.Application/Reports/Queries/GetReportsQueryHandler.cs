@@ -16,12 +16,14 @@ public class GetReportsQueryHandler(
         if (player is null)
             return Result<ReportsResult>.Failure(["Player not found."], statusCode: 404);
 
-        var reports = await reportRepo.GetByPlayerAsync(player.Id, ct: ct);
+        var skip = (q.Page - 1) * q.PageSize;
+        var reports = await reportRepo.GetByPlayerAsync(player.Id, skip, q.PageSize, ct);
         var unread = await reportRepo.GetUnreadCountAsync(player.Id, ct);
+        var total = await reportRepo.GetTotalCountAsync(player.Id, ct);
 
         var dtos = reports.Select(r => new ReportDto(
             r.Id, r.Type, r.Title, r.Body, r.IsRead, r.CreatedAt)).ToList();
 
-        return Result<ReportsResult>.Success(new ReportsResult(dtos, unread));
+        return Result<ReportsResult>.Success(new ReportsResult(dtos, unread, total));
     }
 }

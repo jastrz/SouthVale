@@ -119,24 +119,25 @@ export const useRenameVillage = (villageId: string) =>
     },
   });
 
-export const useReports = () =>
+export const useReports = (page = 1) =>
   useQuery({
-    queryKey: ["reports"],
+    queryKey: ["reports", page],
     queryFn: () =>
-      api.get<ReportsResult>("/gameplay/me/reports").then((r) => r.data),
+      api
+        .get<ReportsResult>("/gameplay/me/reports", { params: { page, pageSize: 10 } })
+        .then((r) => r.data),
+    placeholderData: (prev) => prev,
   });
 
 export const useMarkReportsRead = () =>
   useMutation({
     mutationFn: () => api.post("/gameplay/me/reports/read"),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["reports"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reports"] }),
   });
 
 export const useMarkReportRead = () =>
   useMutation({
     mutationFn: (reportId: string) =>
       api.post(`/gameplay/me/reports/${reportId}/read`),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["reports"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reports"] }),
   });

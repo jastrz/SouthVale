@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   useReports,
   useMarkReportsRead,
@@ -15,11 +16,14 @@ function titleColor(r: ReportDto): string {
 }
 
 export function NotificationsPanel() {
-  const { data } = useReports();
+  const [page, setPage] = useState(1);
+  const { data } = useReports(page);
   const markRead = useMarkReportsRead();
   const markOne = useMarkReportRead();
 
   const reports = data?.reports ?? [];
+  const unreadCount = data?.unreadCount ?? 0;
+  const totalPages = Math.ceil((data?.totalCount ?? 0) / 10);
 
   return (
     <div className="flex w-full max-w-2xl flex-col gap-2 p-4 pt-[15vh] self-start">
@@ -27,7 +31,7 @@ export function NotificationsPanel() {
         <h2 className="text-sm font-bold tracking-wide text-slate-300 uppercase">
           Reports
         </h2>
-        {data && data.reports.some((r) => !r.isRead) && (
+        {unreadCount > 0 && (
           <button
             className="rounded bg-slate-700 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-600"
             onClick={() => markRead.mutate()}
@@ -62,6 +66,27 @@ export function NotificationsPanel() {
           <p className="mt-0.5 whitespace-pre-line text-slate-400">{r.body}</p>
         </div>
       ))}
+      {totalPages > 1 && (
+        <div className="mt-2 flex items-center justify-center gap-2">
+          <button
+            className="rounded bg-slate-700 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-600 disabled:opacity-40"
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page <= 1}
+          >
+            Prev
+          </button>
+          <span className="text-xs text-slate-400">
+            {page} / {totalPages}
+          </span>
+          <button
+            className="rounded bg-slate-700 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-600 disabled:opacity-40"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -11,13 +11,16 @@ public class GetReportsEndpoint : IEndpoint
         app.MapGet("/gameplay/me/reports", async (
             ISender sender,
             ClaimsPrincipal user,
+            int? page,
+            int? pageSize,
             CancellationToken ct) =>
         {
             var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Results.Problem(statusCode: 401, title: "Unauthorized");
 
-            var result = await sender.Send(new GetReportsQuery(userId), ct);
+            var result = await sender.Send(
+                new GetReportsQuery(userId, Math.Max(1, page ?? 1), Math.Clamp(pageSize ?? 10, 1, 100)), ct);
             return result.ToHttpResponse();
         })
         .WithName("GetReports")

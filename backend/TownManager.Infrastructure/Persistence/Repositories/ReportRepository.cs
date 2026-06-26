@@ -11,13 +11,19 @@ internal sealed class ReportRepository(AppDbContext db) : IReportRepository
         await db.Reports.AddAsync(report, ct);
     }
 
-    public async Task<IReadOnlyList<Report>> GetByPlayerAsync(Guid playerId, int limit = 50, CancellationToken ct = default) =>
+    public async Task<IReadOnlyList<Report>> GetByPlayerAsync(Guid playerId, int skip = 0, int limit = 50, CancellationToken ct = default) =>
         await db.Reports
             .AsNoTracking()
             .Where(r => r.PlayerId == playerId)
             .OrderByDescending(r => r.CreatedAt)
+            .Skip(skip)
             .Take(limit)
             .ToListAsync(ct);
+
+    public async Task<int> GetTotalCountAsync(Guid playerId, CancellationToken ct = default) =>
+        await db.Reports
+            .AsNoTracking()
+            .CountAsync(r => r.PlayerId == playerId, ct);
 
     public async Task<int> GetUnreadCountAsync(Guid playerId, CancellationToken ct = default) =>
         await db.Reports
