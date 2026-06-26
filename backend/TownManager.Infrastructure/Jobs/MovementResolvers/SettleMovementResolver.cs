@@ -1,19 +1,17 @@
 using Microsoft.Extensions.Logging;
+using TownManager.Domain.Factories;
 using TownManager.Application.Interfaces;
-using TownManager.Domain.Entities;
 using TownManager.Infrastructure.Persistence;
+using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Infrastructure.Jobs.MovementResolvers;
 
-/// <summary>
-/// Handles settler arrival: found a new village at the target tile, owned by the same player.
-/// If the tile is already occupied (race), the settlers travel back as a fresh Return movement.
-/// </summary>
 public class SettleMovementResolver(
     IVillageRepository villageRepo,
     IPlayerRepository playerRepo,
+    IReportRepository reportRepo,
     AppDbContext db,
     IJobScheduler scheduler,
     IGameNotificationService notifications,
@@ -55,11 +53,17 @@ public class SettleMovementResolver(
 
             origin.TroopMovements.Add(returnMovement);
 
+            await reportRepo.AddAsync(
+                ReportFactory.SettleFailedReport(origin.PlayerId, movement.TargetCoordinates.X, movement.TargetCoordinates.Y), ct);
+
             await db.SaveChangesAsync(ct);
 
             var userId = await playerRepo.GetUserIdByPlayerIdAsync(origin.PlayerId, ct);
             if (userId is not null)
+            {
                 await notifications.VillageUpdatedAsync(userId, origin.Id, ct);
+                await notifications.ReportCreatedAsync(userId, ct);
+            }
 
             scheduler.ScheduleMovementResolution(returnMovement.Id, travelTime);
 
@@ -74,11 +78,17 @@ public class SettleMovementResolver(
 
         villageRepo.Add(newVillage);
 
+        await reportRepo.AddAsync(
+            ReportFactory.SettleReport(origin.PlayerId, newVillage.Name, movement.TargetCoordinates.X, movement.TargetCoordinates.Y), ct);
+
         await db.SaveChangesAsync(ct);
 
         var userId2 = await playerRepo.GetUserIdByPlayerIdAsync(origin.PlayerId, ct);
         if (userId2 is not null)
+        {
             await notifications.VillagesChangedAsync(userId2, ct);
+            await notifications.ReportCreatedAsync(userId2, ct);
+        }
 
         logger.LogInformation("New village {VillageName} created at {Coords} by player {PlayerId}",
             newVillage.Name, movement.TargetCoordinates, origin.PlayerId);

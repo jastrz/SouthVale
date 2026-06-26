@@ -62,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IPlayerRepository, PlayerRepository>();
         services.AddScoped<IVillageRepository, VillageRepository>();
         services.AddScoped<IMovementRepository, MovementRepository>();
+        services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<IJobScheduler, HangfireJobScheduler>();
         
         services.AddScoped<IMovementResolver, AttackMovementResolver>();

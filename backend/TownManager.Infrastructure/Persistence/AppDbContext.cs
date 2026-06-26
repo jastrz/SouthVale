@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<Applicat
     public DbSet<BuildOrder> BuildOrders => Set<BuildOrder>();
     public DbSet<TrainOrder> TrainOrders => Set<TrainOrder>();
     public DbSet<TroopMovement> TroopMovements => Set<TroopMovement>();
+    public DbSet<Report> Reports => Set<Report>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

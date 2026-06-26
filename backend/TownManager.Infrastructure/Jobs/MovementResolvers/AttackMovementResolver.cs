@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
-using TownManager.Domain.Entities;
+using TownManager.Domain.Factories;
 using TownManager.Infrastructure.Persistence;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
@@ -8,12 +8,10 @@ using TownManager.Domain.Services;
 
 namespace TownManager.Infrastructure.Jobs.MovementResolvers;
 
-/// <summary>
-/// Handles attack arrival: combat resolution, loot calculation, survivor return.
-/// </summary>
 public class AttackMovementResolver(
     IVillageRepository villageRepo,
     IPlayerRepository playerRepo,
+    IReportRepository reportRepo,
     AppDbContext db,
     IJobScheduler scheduler,
     IGameNotificationService notifications,
@@ -43,9 +41,15 @@ public class AttackMovementResolver(
 
         targetVillage.Troops = combatResult.DefenderTroops;
 
+        await reportRepo.AddAsync(
+            ReportFactory.AttackReport(village.PlayerId, targetVillage.Name, combatResult.AttackerTroops, combatResult.AttackerLoot), ct);
+
+        if (targetVillage.PlayerId != village.PlayerId)
+            await reportRepo.AddAsync(
+                ReportFactory.DefenseReport(targetVillage.PlayerId, targetVillage.Name, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
+
         if (!combatResult.AttackerTroops.IsEmpty())
         {
-            // var travelTime = movement.ArrivesAt - movement.DepartureAt;
             var travelTime = TimeSpan.FromSeconds(10);
 
             var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.VillageId,
@@ -57,16 +61,37 @@ public class AttackMovementResolver(
 
             var sourceUserId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
             if (sourceUserId is not null)
+            {
                 await notifications.VillageUpdatedAsync(sourceUserId, village.Id, ct);
+                await notifications.ReportCreatedAsync(sourceUserId, ct);
+            }
 
             if (targetVillage.PlayerId != village.PlayerId)
             {
                 var targetUserId = await playerRepo.GetUserIdByPlayerIdAsync(targetVillage.PlayerId, ct);
                 if (targetUserId is not null)
+                {
                     await notifications.VillageUpdatedAsync(targetUserId, targetVillage.Id, ct);
+                    await notifications.ReportCreatedAsync(targetUserId, ct);
+                }
             }
 
             scheduler.ScheduleMovementResolution(returnMovement.Id, travelTime);
+        }
+        else
+        {
+            await db.SaveChangesAsync(ct);
+
+            var sourceUserId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
+            if (sourceUserId is not null)
+                await notifications.ReportCreatedAsync(sourceUserId, ct);
+
+            if (targetVillage.PlayerId != village.PlayerId)
+            {
+                var targetUserId = await playerRepo.GetUserIdByPlayerIdAsync(targetVillage.PlayerId, ct);
+                if (targetUserId is not null)
+                    await notifications.ReportCreatedAsync(targetUserId, ct);
+            }
         }
     }
 }
