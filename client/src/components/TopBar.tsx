@@ -22,8 +22,8 @@ export function TopBar() {
   const unreadCount = reportsData?.unreadCount ?? 0;
 
   return (
-    <div className="absolute left-0 right-0 top-0 z-10 flex flex-col items-center gap-1">
-      <div className="flex items-center gap-4 rounded-b-lg border border-t-0 border-slate-800 bg-slate-950/70 px-4 py-2 text-xs shadow-lg">
+    <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 flex flex-col items-center gap-1">
+      <div className="pointer-events-auto flex items-center gap-4 rounded-b-lg border border-t-0 border-slate-800 bg-slate-950/70 px-4 py-2 text-xs shadow-lg">
         <LoginBar />
 
         {activeVillageId && storeVillage && (
@@ -34,7 +34,7 @@ export function TopBar() {
         )}
       </div>
 
-      <nav className="flex gap-1 rounded-lg border border-slate-800 bg-slate-950/70 px-2 py-1.5">
+      <nav className="pointer-events-auto flex gap-1 rounded-lg border border-slate-800 bg-slate-950/70 px-2 py-1.5">
         <Tab
           active={currentView === "map"}
           onClick={() => setCurrentView("map")}

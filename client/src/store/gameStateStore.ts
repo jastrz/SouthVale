@@ -6,12 +6,11 @@ import type {
   TrainOrderDto,
   VillageDto,
 } from "../api/types";
+import type { ViewMode } from "../types/view";
 
 /**
  * Holds the live state of all villages the client currently knows about.
  */
-
-export type ViewMode = "map" | "notifications";
 
 export interface GameState {
   villages: Record<string, VillageDto>;
