@@ -98,7 +98,8 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
         int? radius = null,
         CancellationToken ct = default)
     {
-        var query = db.Villages.AsNoTracking();
+        IQueryable<Village> query = db.Villages.AsNoTracking()
+            .Include(v => v.Player);
 
         if (center is not null && radius is not null)
         {

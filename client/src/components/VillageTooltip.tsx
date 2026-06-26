@@ -94,7 +94,7 @@ function EnemyVillageInfoBody({ village }: { village: EnemyVillage }) {
       <span className="text-right">{village.population}</span>
       <span className="text-slate-400">Owner</span>
       <span className="truncate text-right text-slate-300">
-        {village.playerId.slice(0, 8)}…
+        {village.playerName}
       </span>
     </div>
   );

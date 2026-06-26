@@ -148,6 +148,7 @@ export interface PlayerVillageDto {
   id: string;
   playerId: string;
   name: string;
+  playerName: string;
   coordinates: Coordinates;
   population: number;
 }
