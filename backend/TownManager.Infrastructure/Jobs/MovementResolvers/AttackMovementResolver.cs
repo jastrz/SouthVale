@@ -43,17 +43,21 @@ public class AttackMovementResolver(
         targetVillage.Troops = combatResult.DefenderTroops;
 
         await reportRepo.AddAsync(
-            ReportFactory.AttackReport(village.PlayerId, targetVillage.Name, movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
+            ReportFactory.AttackReport(village.PlayerId, village.Name, village.Player.Username,
+                targetVillage.Name, targetVillage.Player.Username,
+                movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
 
         if (targetVillage.PlayerId != village.PlayerId)
             await reportRepo.AddAsync(
-                ReportFactory.DefenseReport(targetVillage.PlayerId, targetVillage.Name, movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
+                ReportFactory.DefenseReport(targetVillage.PlayerId, targetVillage.Name,
+                    village.Name, village.Player.Username,
+                    movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
 
         if (!combatResult.AttackerTroops.IsEmpty())
         {
             var travelTime = TimeSpan.FromSeconds(10);
 
-            var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.VillageId,
+            var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.TargetVillageId!.Value,
                 travelTime, DateTime.UtcNow, MovementType.Return);
 
             village.TroopMovements.Add(returnMovement);

@@ -90,7 +90,10 @@ export const useSettle = (villageId: string) =>
   useMutation({
     mutationFn: async (data: SettleRequest) =>
       api.post(`/gameplay/village/${villageId}/settle`, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["villages"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["villages"] });
+      queryClient.invalidateQueries({ queryKey: ["movements"] });
+    },
   });
 
 export const useCancelBuild = (villageId: string) =>

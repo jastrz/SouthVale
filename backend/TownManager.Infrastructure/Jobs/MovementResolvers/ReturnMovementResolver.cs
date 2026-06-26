@@ -19,28 +19,40 @@ public class ReturnMovementResolver(
 
     public async Task ResolveAsync(TroopMovement movement, CancellationToken ct)
     {
-        var village = await villageRepo.GetForCombatAsync(movement.VillageId, ct);
-        if (village is null)
+        var home = await villageRepo.GetForCombatAsync(movement.VillageId, ct);
+        if (home is null)
         {
             logger.LogWarning("Return target village {VillageId} not found for movement {MovementId}", movement.VillageId, movement.Id);
             return;
         }
 
-        village.Troops = village.Troops.Add(movement.Troops);
+        home.Troops = home.Troops.Add(movement.Troops);
 
         var loot = movement.CarriedResources;
         if (loot is not null)
-            village.Resources = village.Resources.Add(loot);
+            home.Resources = home.Resources.Add(loot);
+
+        var fromName = home.Name;
+        var fromPlayer = home.Player?.Username ?? "";
+        if (movement.TargetVillageId.HasValue && movement.TargetVillageId != movement.VillageId)
+        {
+            var from = await villageRepo.GetForCombatAsync(movement.TargetVillageId.Value, ct);
+            if (from is not null)
+            {
+                fromName = from.Name;
+                fromPlayer = from.Player?.Username ?? "";
+            }
+        }
 
         await reportRepo.AddAsync(
-            ReportFactory.ReturnReport(village.PlayerId, village.Name, movement.Troops, loot), ct);
+            ReportFactory.ReturnReport(home.PlayerId, home.Name, fromName, fromPlayer, movement.Troops, loot), ct);
 
         await db.SaveChangesAsync(ct);
 
-        var userId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
+        var userId = await playerRepo.GetUserIdByPlayerIdAsync(home.PlayerId, ct);
         if (userId is not null)
         {
-            await notifications.VillageUpdatedAsync(userId, village.Id, ct);
+            await notifications.VillageUpdatedAsync(userId, home.Id, ct);
             await notifications.ReportCreatedAsync(userId, ct);
         }
 

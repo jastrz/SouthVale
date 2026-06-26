@@ -113,7 +113,6 @@ public class CreateTrainOrderCommandHandlerTests
     private static Village CreateVillage()
     {
         var village = Village.CreateStarter("test", new Coordinates(0, 0));
-        village.Buildings.Clear();
         village.Resources = new Resources(99999, 99999, 99999, 99999);
         return village;
     }

@@ -114,8 +114,6 @@ public class CreateBuildOrderHandlerTests
     private static Village CreateVillageWithBuilding(BuildingType type, int level)
     {
         var village = Village.CreateStarter("test", new Coordinates(0, 0));
-        village.Buildings.Clear();
-        village.Buildings.Add(Building.Create(type, level));
         village.Resources = new Resources(99999, 99999, 99999, 99999);
         return village;
     }

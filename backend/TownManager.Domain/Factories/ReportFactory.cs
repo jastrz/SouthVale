@@ -22,19 +22,24 @@ public static class ReportFactory
         + $"Defenders: {TroopBreakdown(defenderSurvivors)} of {TroopBreakdown(defenders)} survived."
         + LootLine(loot);
 
-    public static Report AttackReport(Guid playerId, string targetName, Troops attackers, Troops attackerSurvivors, Troops defenders, Troops defenderSurvivors, Resources loot)
+    public static Report AttackReport(Guid playerId, string sourceVillage, string sourcePlayer,
+        string targetVillage, string targetPlayer,
+        Troops attackers, Troops attackerSurvivors, Troops defenders, Troops defenderSurvivors, Resources loot)
     {
         return new Report
         {
             Id = Guid.NewGuid(),
             PlayerId = playerId,
             Type = ReportType.Attack,
-            Title = $"Attack on {targetName}",
-            Body = CombatBody(attackers, attackerSurvivors, defenders, defenderSurvivors, loot),
+            Title = $"Attack on {targetVillage}",
+            Body = $"Source: {sourceVillage} ({sourcePlayer})\nTarget: {targetVillage} ({targetPlayer})\n\n"
+                   + CombatBody(attackers, attackerSurvivors, defenders, defenderSurvivors, loot),
         };
     }
 
-    public static Report DefenseReport(Guid playerId, string villageName, Troops attackers, Troops attackerSurvivors, Troops defenders, Troops defenderSurvivors, Resources looted)
+    public static Report DefenseReport(Guid playerId, string villageName,
+        string attackerVillage, string attackerPlayer,
+        Troops attackers, Troops attackerSurvivors, Troops defenders, Troops defenderSurvivors, Resources looted)
     {
         return new Report
         {
@@ -42,11 +47,14 @@ public static class ReportFactory
             PlayerId = playerId,
             Type = ReportType.Defense,
             Title = $"Defense of {villageName}",
-            Body = CombatBody(attackers, attackerSurvivors, defenders, defenderSurvivors, looted),
+            Body = $"Attacker: {attackerVillage} ({attackerPlayer})\nDefender: {villageName}\n\n"
+                   + CombatBody(attackers, attackerSurvivors, defenders, defenderSurvivors, looted),
         };
     }
 
-    public static Report ReturnReport(Guid playerId, string villageName, Troops troops, Resources? loot)
+    public static Report ReturnReport(Guid playerId, string villageName,
+        string fromVillage, string fromPlayer,
+        Troops troops, Resources? loot)
     {
         var lootStr = loot is not null && !loot.IsEmpty()
             ? $" with {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Crop} Crop"
@@ -58,7 +66,7 @@ public static class ReportFactory
             PlayerId = playerId,
             Type = ReportType.Return,
             Title = $"Return to {villageName}",
-            Body = $"{TroopBreakdown(troops)} returned{lootStr}.",
+            Body = $"From: {fromVillage} ({fromPlayer})\n\n{TroopBreakdown(troops)} returned{lootStr}.",
         };
     }
 

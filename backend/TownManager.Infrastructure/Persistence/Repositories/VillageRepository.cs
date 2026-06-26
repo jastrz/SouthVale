@@ -30,12 +30,14 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
         db.Villages
             .Include(v => v.Troops)
             .Include(v => v.Resources)
+            .Include(v => v.Player)
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
     public Task<Village?> GetWithMovementOrdersAsync(Guid id, CancellationToken ct = default) =>
         db.Villages
             .Include(v => v.Troops)
             .Include(v => v.TroopMovements)
+            .Include(v => v.Player)
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
     // By Hangire orderId
