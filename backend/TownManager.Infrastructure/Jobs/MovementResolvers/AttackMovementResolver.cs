@@ -37,16 +37,17 @@ public class AttackMovementResolver(
             return;
         }
 
-        var combatResult = CombatResolver.Resolve(movement.Troops, targetVillage.Troops, targetVillage.Resources);
+        var originalDefenders = targetVillage.Troops;
+        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, targetVillage.Resources);
 
         targetVillage.Troops = combatResult.DefenderTroops;
 
         await reportRepo.AddAsync(
-            ReportFactory.AttackReport(village.PlayerId, targetVillage.Name, combatResult.AttackerTroops, combatResult.AttackerLoot), ct);
+            ReportFactory.AttackReport(village.PlayerId, targetVillage.Name, movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
 
         if (targetVillage.PlayerId != village.PlayerId)
             await reportRepo.AddAsync(
-                ReportFactory.DefenseReport(targetVillage.PlayerId, targetVillage.Name, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
+                ReportFactory.DefenseReport(targetVillage.PlayerId, targetVillage.Name, movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
 
         if (!combatResult.AttackerTroops.IsEmpty())
         {

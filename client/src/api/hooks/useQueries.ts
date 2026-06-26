@@ -132,3 +132,11 @@ export const useMarkReportsRead = () =>
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["reports"] }),
   });
+
+export const useMarkReportRead = () =>
+  useMutation({
+    mutationFn: (reportId: string) =>
+      api.post(`/gameplay/me/reports/${reportId}/read`),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["reports"] }),
+  });
