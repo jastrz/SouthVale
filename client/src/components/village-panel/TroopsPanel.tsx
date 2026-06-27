@@ -1,7 +1,12 @@
 import { useState } from "react";
 import type { UseMutationResult } from "@tanstack/react-query";
 import { TROOP_LABELS } from "../../config/game";
-import type { TroopType, TrainRequest, TroopConfigDto } from "../../api/types";
+import type {
+  TroopType,
+  TrainRequest,
+  TroopConfigDto,
+  ResourcesDto,
+} from "../../api/types";
 import { useGameConfig } from "../../api/hooks/useQueries";
 import { Tooltip } from "../Tooltip";
 import { formatTime, parseTimeSpanMs } from "../../lib/helpers";
@@ -9,23 +14,33 @@ import { ResourceCost } from "./ResourceCost";
 
 function TroopTooltip({ config }: { config: TroopConfigDto }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       <div className="font-semibold text-white">
         {TROOP_LABELS[config.type as TroopType] ?? config.type}
       </div>
-      <div className="flex gap-3 text-slate-300">
-        <span>ATK: {config.attack}</span>
-        <span>DEF: {config.defense}</span>
+      <div className="border-t border-slate-700" />
+      <div className="grid grid-cols-[auto_1fr] gap-x-3">
+        <div className="text-slate-300">Attack:</div>
+        <div className="text-white">{config.attack}</div>
+
+        <div className="text-slate-300">Defense:</div>
+        <div className="text-white">{config.defense}</div>
+
+        <div className="text-slate-300">Carry:</div>
+        <div className="text-white">{config.carryCapacity}</div>
+
+        <div className="text-slate-300">Speed:</div>
+        <div className="text-white">{config.speed}</div>
+
+        <div className="text-slate-300">Upkeep:</div>
+        <div className="text-white">{config.upkeep}</div>
+
+        <div className="text-slate-300">Time:</div>
+        <div className="text-white">
+          {formatTime(parseTimeSpanMs(config.trainingTime))}
+        </div>
       </div>
-      <div className="flex gap-3 text-slate-300">
-        <span>Carry: {config.carryCapacity}</span>
-        <span>Speed: {config.speed}</span>
-        <span>Upkeep: {config.upkeep}</span>
-      </div>
-      <div className="text-slate-300">
-        Time: {formatTime(parseTimeSpanMs(config.trainingTime))}
-      </div>
-      <div className="border-t border-slate-700 pt-1" />
+      <div className="border-t border-slate-700" />
       <div className="text-slate-300">Cost</div>
       <ResourceCost value={config.trainingCost} />
     </div>
@@ -42,12 +57,61 @@ function TroopCount({ label, count }: { label: string; count: number }) {
 }
 
 function TrainingForm({
+  resources,
   mutation,
 }: {
+  resources: ResourcesDto;
   mutation: UseMutationResult<unknown, Error, TrainRequest, unknown>;
 }) {
   const { data: gameConfig } = useGameConfig();
   const [orders, setOrders] = useState<Record<string, number>>({});
+
+  const orderCost = (type: string, count: number): ResourcesDto => {
+    const c = gameConfig?.troops[type]?.trainingCost;
+    return c
+      ? {
+          wood: c.wood * count,
+          clay: c.clay * count,
+          iron: c.iron * count,
+          crop: c.crop * count,
+        }
+      : { wood: 0, clay: 0, iron: 0, crop: 0 };
+  };
+
+  const sumCost = (costs: ResourcesDto[]): ResourcesDto =>
+    costs.reduce(
+      (a, b) => ({
+        wood: a.wood + b.wood,
+        clay: a.clay + b.clay,
+        iron: a.iron + b.iron,
+        crop: a.crop + b.crop,
+      }),
+      { wood: 0, clay: 0, iron: 0, crop: 0 },
+    );
+
+  const maxFor = (type: string): number => {
+    const unitCost = gameConfig?.troops[type]?.trainingCost;
+    if (!unitCost) return 0;
+
+    // subtract resources already committed to other pending orders
+    const otherOrders = Object.entries(orders).filter(
+      ([t, c]) => t !== type && c > 0,
+    );
+    const committed = sumCost(otherOrders.map(([t, c]) => orderCost(t, c)));
+    const remaining: ResourcesDto = {
+      wood: resources.wood - committed.wood,
+      clay: resources.clay - committed.clay,
+      iron: resources.iron - committed.iron,
+      crop: resources.crop - committed.crop,
+    };
+
+    return Math.min(
+      unitCost.wood > 0 ? Math.floor(remaining.wood / unitCost.wood) : Infinity,
+      unitCost.clay > 0 ? Math.floor(remaining.clay / unitCost.clay) : Infinity,
+      unitCost.iron > 0 ? Math.floor(remaining.iron / unitCost.iron) : Infinity,
+      unitCost.crop > 0 ? Math.floor(remaining.crop / unitCost.crop) : Infinity,
+    );
+  };
 
   const handleTrain = () => {
     const entries = Object.entries(orders).filter(([, count]) => count > 0);
@@ -64,6 +128,14 @@ function TrainingForm({
   };
 
   const hasOrders = Object.values(orders).some((c) => c > 0);
+
+  const totalCost = hasOrders
+    ? sumCost(
+        Object.entries(orders)
+          .filter(([, c]) => c > 0)
+          .map(([t, c]) => orderCost(t, c)),
+      )
+    : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -84,23 +156,37 @@ function TrainingForm({
               ) : (
                 label
               )}
-              <input
-                type="number"
-                min={0}
-                value={orders[type] ?? ""}
-                onChange={(e) =>
-                  setOrders((prev) => ({
-                    ...prev,
-                    [type]: Math.max(0, Number.parseInt(e.target.value) || 0),
-                  }))
-                }
-                className="w-full rounded border border-slate-600 bg-slate-900 px-1.5 py-1 text-xs text-white outline-none focus:border-blue-500"
-                placeholder="0"
-              />
+              <div>
+                <input
+                  type="number"
+                  min={0}
+                  value={orders[type] ?? ""}
+                  onChange={(e) =>
+                    setOrders((prev) => ({
+                      ...prev,
+                      [type]: Math.max(0, Number.parseInt(e.target.value) || 0),
+                    }))
+                  }
+                  className="w-full rounded border border-slate-600 bg-slate-900 px-1.5 py-1 text-xs text-white outline-none focus:border-blue-500"
+                  placeholder="0"
+                />
+                {troopCfg && maxFor(type) > 0 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOrders((prev) => ({ ...prev, [type]: maxFor(type) }))
+                    }
+                    className="mt-0.5 w-full cursor-pointer rounded bg-slate-700/60 px-1 py-0.5 text-[9px] text-slate-400 transition-colors hover:bg-slate-600/60 hover:text-slate-200"
+                  >
+                    Max: {maxFor(type)}
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
+      {totalCost && <ResourceCost value={totalCost} />}
       <button
         type="button"
         onClick={handleTrain}
@@ -121,27 +207,44 @@ function TrainingForm({
 }
 
 export function TroopsPanel({
+  resources,
   swordsmen,
   archers,
   settlers,
   mutation,
 }: {
+  resources: ResourcesDto;
   swordsmen: number;
   archers: number;
   settlers: number;
   mutation: UseMutationResult<unknown, Error, TrainRequest, unknown>;
 }) {
+  const { data: gameConfig } = useGameConfig();
+  const troopList: [string, TroopType, number][] = [
+    ["Swordsmen", "Swordsman", swordsmen],
+    ["Archers", "Archer", archers],
+    ["Settlers", "Settler", settlers],
+  ];
+
   return (
     <section className="border-b border-slate-800 px-4 py-3">
       <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
         Troops
       </h3>
       <div className="mb-2 grid grid-cols-3 gap-1 text-xs">
-        <TroopCount label="Swordsmen" count={swordsmen} />
-        <TroopCount label="Archers" count={archers} />
-        <TroopCount label="Settlers" count={settlers} />
+        {troopList.map(([label, type, count]) => {
+          const troopCfg = gameConfig?.troops[type];
+          return (
+            <Tooltip
+              key={type}
+              content={troopCfg ? <TroopTooltip config={troopCfg} /> : null}
+            >
+              <TroopCount label={label} count={count} />
+            </Tooltip>
+          );
+        })}
       </div>
-      <TrainingForm mutation={mutation} />
+      <TrainingForm resources={resources} mutation={mutation} />
     </section>
   );
 }

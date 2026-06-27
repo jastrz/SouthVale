@@ -10,13 +10,14 @@ export function Tooltip({
   children: ReactNode;
 }) {
   const [show, setShow] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
+  const anchorRef = useRef<HTMLSpanElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const [flip, setFlip] = useState(false);
 
   useEffect(() => {
-    if (!show || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
+    if (!show || !anchorRef.current) return;
+    const rect = anchorRef.current.getBoundingClientRect();
     const shouldFlip = rect.top < window.innerHeight - rect.bottom;
     setFlip(shouldFlip);
     setPos({
@@ -25,9 +26,19 @@ export function Tooltip({
     });
   }, [show]);
 
+  useEffect(() => {
+    if (!show || !tooltipRef.current) return;
+    const el = tooltipRef.current;
+    const r = el.getBoundingClientRect();
+    const PAD = 8;
+    if (r.right > window.innerWidth - PAD)
+      el.style.left = `${window.innerWidth - PAD - r.width / 2}px`;
+    if (r.left < PAD) el.style.left = `${PAD + r.width / 2}px`;
+  }, [show, pos]);
+
   return (
     <span
-      ref={ref}
+      ref={anchorRef}
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
     >
@@ -35,7 +46,8 @@ export function Tooltip({
       {show &&
         createPortal(
           <div
-            className={`pointer-events-none fixed z-50 -translate-x-1/2 ${flip ? "translate-y-0 pt-1.5" : "-translate-y-full"} ${tooltipBase}`}
+            ref={tooltipRef}
+            className={`pointer-events-none fixed z-50 w-max max-w-xs -translate-x-1/2 ${flip ? "translate-y-0 pt-1.5" : "-translate-y-full"} ${tooltipBase}`}
             style={{ top: pos.top, left: pos.left }}
           >
             {content}

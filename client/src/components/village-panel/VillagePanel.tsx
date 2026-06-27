@@ -96,6 +96,7 @@ function VillagePanelInner({
         mutation={buildMutation}
       />
       <TroopsPanel
+        resources={village.resources}
         swordsmen={village.troops.swordsmen}
         archers={village.troops.archers}
         settlers={village.troops.settlers}
