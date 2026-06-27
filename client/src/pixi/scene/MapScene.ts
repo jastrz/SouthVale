@@ -176,7 +176,7 @@ export class MapScene {
     this.cancelTween = tween({
       duration,
       onUpdate: (t) => {
-        if (this.root.destroyed) return;
+        if (!this.app.renderer) return;
         // Re-clamp each frame: if the user zooms mid-tween, the valid
         // range shifts and intermediate lerp values might leave it.
         const cb = this.computeViewportBounds();
