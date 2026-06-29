@@ -127,7 +127,9 @@ export const useReports = (page = 1) =>
     queryKey: ["reports", page],
     queryFn: () =>
       api
-        .get<ReportsResult>("/gameplay/me/reports", { params: { page, pageSize: 10 } })
+        .get<ReportsResult>("/gameplay/me/reports", {
+          params: { page, pageSize: 10 },
+        })
         .then((r) => r.data),
     placeholderData: (prev) => prev,
   });
