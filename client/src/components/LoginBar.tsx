@@ -22,7 +22,9 @@ export function LoginBar() {
     <div className="flex items-center gap-2">
       {token ? (
         <>
-          <span className="max-w-[120px] truncate text-slate-200">{username ?? email}</span>
+          <span className="max-w-30 truncate text-slate-200">
+            {username ?? email}
+          </span>
           <button
             onClick={handleLogout}
             className="cursor-pointer rounded bg-red-700 px-2 py-1 font-bold text-white transition-colors hover:bg-red-600"

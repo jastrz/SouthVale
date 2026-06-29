@@ -28,22 +28,26 @@ export function MovementsPanel({
   useTick();
 
   const outgoing = movements.filter(
-    (m) => m.originVillageId === villageId && m.status === "InFlight" && m.type !== "Return",
+    (m) =>
+      m.originVillageId === villageId &&
+      m.status === "InFlight" &&
+      m.type !== "Return",
   );
   const incoming = movements.filter(
     (m) =>
       m.status === "InFlight" &&
-      (m.targetVillageId === villageId || (m.type === "Return" && m.originVillageId === villageId)),
+      (m.targetVillageId === villageId ||
+        (m.type === "Return" && m.originVillageId === villageId)),
   );
 
   if (outgoing.length === 0 && incoming.length === 0) return null;
 
   return (
-    <section className="border-b border-slate-800 px-4 py-3">
-      <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
+    <section className="border-t border-slate-800 px-4 py-2">
+      <h3 className="mb-1.5 text-[11px] font-bold tracking-widest text-slate-400 uppercase">
         Movements
       </h3>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1">
         {outgoing.map((m) => (
           <MovementRow key={m.id} movement={m} kind="outgoing" />
         ))}
@@ -62,17 +66,35 @@ function MovementRow({
   movement: MovementDto;
   kind: "outgoing" | "incoming";
 }) {
-  const color = movement.type === "Attack" ? "red" : movement.type === "Settle" ? "blue" : "green";
-  const textColor = color === "red" ? "text-red-400" : color === "blue" ? "text-blue-400" : "text-green-400";
-  const bgColor = color === "red" ? "bg-red-950/30" : color === "blue" ? "bg-blue-950/30" : "bg-green-950/30";
+  const color =
+    movement.type === "Attack"
+      ? "red"
+      : movement.type === "Settle"
+        ? "blue"
+        : "green";
+  const textColor =
+    color === "red"
+      ? "text-red-400"
+      : color === "blue"
+        ? "text-blue-400"
+        : "text-green-400";
+  const bgColor =
+    color === "red"
+      ? "bg-red-950/30"
+      : color === "blue"
+        ? "bg-blue-950/30"
+        : "bg-green-950/30";
 
-  const targetName = movement.targetVillageName
-    ?? (movement.targetCoordinates
+  const targetName =
+    movement.targetVillageName ??
+    (movement.targetCoordinates
       ? `${movement.targetCoordinates.x},${movement.targetCoordinates.y}`
       : null);
 
   return (
-    <div className={`flex items-center justify-between rounded ${bgColor} px-2.5 py-1.5 text-xs`}>
+    <div
+      className={`flex items-center justify-between rounded ${bgColor} px-2.5 py-1.5 text-xs`}
+    >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <span className={`font-medium ${textColor}`}>

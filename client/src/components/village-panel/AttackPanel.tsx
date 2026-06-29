@@ -27,7 +27,13 @@ function TroopInput({
         className="w-full rounded border border-slate-600 bg-slate-900 px-1.5 py-1 text-xs text-white outline-none focus:border-red-500"
         placeholder="0"
       />
-      <div className="text-[10px] text-slate-500">max {max}</div>
+      <button
+        type="button"
+        onClick={() => onChange(max)}
+        className="mt-0.5 w-full cursor-pointer rounded bg-slate-700/60 px-1 py-px text-[9px] text-slate-400 transition-colors hover:bg-slate-600/60 hover:text-slate-200"
+      >
+        Max: {max}
+      </button>
     </div>
   );
 }
@@ -83,33 +89,35 @@ export function AttackPanel({
       <div className="mb-2 rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
         <div className="font-medium text-white">{targetName}</div>
         <div className="text-slate-400">
-          {targetX}, {targetY} · Pop. {targetPopulation}
+          ({targetX}, {targetY}) · Population: {targetPopulation}
         </div>
       </div>
 
-      <div className="mb-2 flex gap-1">
-        <TroopInput
-          label="Swordsmen"
-          value={swordsmen}
-          onChange={setSwordsmen}
-          max={maxSwordsmen}
-        />
-        <TroopInput
-          label="Archers"
-          value={archers}
-          onChange={setArchers}
-          max={maxArchers}
-        />
-      </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-1">
+          <TroopInput
+            label="Swordsmen"
+            value={swordsmen}
+            onChange={setSwordsmen}
+            max={maxSwordsmen}
+          />
+          <TroopInput
+            label="Archers"
+            value={archers}
+            onChange={setArchers}
+            max={maxArchers}
+          />
+        </div>
 
-      <button
-        type="button"
-        onClick={handleAttack}
-        disabled={(swordsmen === 0 && archers === 0) || mutation.isPending}
-        className="w-full cursor-pointer rounded bg-red-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-red-700"
-      >
-        {mutation.isPending ? "Sending…" : "Send Attack"}
-      </button>
+        <button
+          type="button"
+          onClick={handleAttack}
+          disabled={(swordsmen === 0 && archers === 0) || mutation.isPending}
+          className="w-full cursor-pointer rounded bg-red-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-red-700"
+        >
+          {mutation.isPending ? "Sending…" : "Send Attack"}
+        </button>
+      </div>
       {mutation.isError && (
         <p className="mt-1 text-xs text-red-400">
           {mutation.error instanceof Error

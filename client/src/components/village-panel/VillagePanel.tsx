@@ -8,18 +8,13 @@ import {
   useTrain,
   useAttack,
   useSettle,
-  useMovements,
-  useCancelBuild,
-  useCancelTrain,
 } from "../../api/hooks/useQueries";
 import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "../PanelContainer";
 import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
-import { QueuePanel } from "./QueuePanel";
 import { AttackPanel } from "./AttackPanel";
 import { SettlePanel } from "./SettlePanel";
-import { MovementsPanel } from "./MovementsPanel";
 
 export function VillagePanel() {
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
@@ -60,9 +55,6 @@ function VillagePanelInner({
   const trainMutation = useTrain(villageId);
   const attackMutation = useAttack(villageId);
   const settleMutation = useSettle(villageId);
-  const cancelBuildMutation = useCancelBuild(villageId);
-  const cancelTrainMutation = useCancelTrain(villageId);
-  const { data: movements } = useMovements();
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
   const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
 
@@ -102,13 +94,7 @@ function VillagePanelInner({
         settlers={village.troops.settlers}
         mutation={trainMutation}
       />
-      <QueuePanel
-        buildOrders={village.buildOrders}
-        trainOrders={village.trainOrders}
-        cancelBuild={cancelBuildMutation}
-        cancelTrain={cancelTrainMutation}
-      />
-      {targetVillage && targetVillage.kind === "enemy" && (
+{targetVillage && targetVillage.kind === "enemy" && (
         <AttackPanel
           targetName={targetVillage.name}
           targetX={targetVillage.coordinates.x}
@@ -131,8 +117,6 @@ function VillagePanelInner({
           onClearTarget={() => setSelectedTile(null)}
         />
       )}
-
-      <MovementsPanel villageId={villageId} movements={movements ?? []} />
     </PanelContainer>
   );
 }

@@ -1,7 +1,7 @@
 import { useGameStateStore } from "../store/gameStateStore";
 import { MapCanvas } from "../components/MapCanvas";
 import { NotificationsPanel } from "../components/NotificationsPanel";
-import { VillageList } from "../components/VillageList";
+import { OverviewPanel } from "../components/OverviewPanel";
 import { VillagePanel } from "../components/village-panel";
 import { VillageTooltip } from "../components/VillageTooltip";
 import { TopBar } from "../components/TopBar";
@@ -13,7 +13,7 @@ export function GamePage() {
     <div className="relative h-screen w-screen">
       <TopBar />
       <div className="flex h-full">
-        <VillageList />
+        <OverviewPanel />
         <div className="flex flex-1 min-w-0 items-start overflow-y-auto">
           {currentView === "map" ? <MapCanvas /> : <NotificationsPanel />}
         </div>
