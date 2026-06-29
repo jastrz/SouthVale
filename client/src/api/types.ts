@@ -133,6 +133,21 @@ export interface TrainOrderDto {
   completesAt: string;
 }
 
+export interface VillageStatusDto {
+  villageId: string;
+  buildOrderCount: number;
+  trainOrderCount: number;
+  resources: ResourcesDto;
+}
+
+export interface VillageListItemDto {
+  id: string;
+  name: string;
+  resources: ResourcesDto;
+  troops: TroopsDto;
+  coordinates: Coordinates;
+}
+
 export interface VillageDto {
   id: string;
   name: string;
@@ -176,5 +191,5 @@ export interface ReportsResult {
 }
 
 export type MapVillage =
-  | ({ kind: "own" } & VillageDto)
+  | ({ kind: "own" } & VillageListItemDto)
   | ({ kind: "enemy" } & PlayerVillageDto);

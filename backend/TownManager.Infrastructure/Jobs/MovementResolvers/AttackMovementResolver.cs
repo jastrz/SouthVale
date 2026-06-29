@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Config;
+using TownManager.Domain.Entities;
 using TownManager.Domain.Factories;
 using TownManager.Infrastructure.Persistence;
 using TownManager.Domain.Entities.Villages;
@@ -37,10 +39,14 @@ public class AttackMovementResolver(
             return;
         }
 
+        var effects = BuildingConfig.AggregateEffects(targetVillage.Buildings);
+        targetVillage.ApplyProduction(effects);
+
         var originalDefenders = targetVillage.Troops;
         var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, targetVillage.Resources);
 
         targetVillage.Troops = combatResult.DefenderTroops;
+        targetVillage.Resources = targetVillage.Resources.Subtract(combatResult.AttackerLoot);
 
         await reportRepo.AddAsync(
             ReportFactory.AttackReport(village.PlayerId, village.Name, village.Player.Username,
@@ -57,7 +63,7 @@ public class AttackMovementResolver(
         {
             var travelTime = TimeSpan.FromSeconds(10);
 
-            var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.TargetVillageId!.Value,
+            var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.VillageId,
                 travelTime, DateTime.UtcNow, MovementType.Return);
 
             village.TroopMovements.Add(returnMovement);

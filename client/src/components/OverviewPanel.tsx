@@ -3,6 +3,7 @@ import {
   useMyVillages,
   useMovements,
   useVillage,
+  useVillageStatus,
   useCancelBuild,
   useCancelTrain,
 } from "../api/hooks/useQueries";
@@ -19,7 +20,29 @@ export function OverviewPanel() {
   const setActiveVillage = useGameStateStore((s) => s.setActiveVillage);
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
   const { data: movements } = useMovements();
+  const { data: statuses } = useVillageStatus();
   const { data: village } = useVillage(activeVillageId ?? "");
+
+  const statusMap = new Map(statuses?.map((s) => [s.villageId, s]));
+
+  const movementCountMap = movements?.reduce(
+    (acc, m) => {
+      acc[m.originVillageId] = (acc[m.originVillageId] ?? 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const incomingCountMap = movements?.reduce(
+    (acc, m) => {
+      if (m.status === "InFlight" && m.targetVillageId && m.type === "Attack") {
+        acc[m.targetVillageId] = (acc[m.targetVillageId] ?? 0) + 1;
+      }
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   const cancelBuild = useCancelBuild(activeVillageId ?? "");
   const cancelTrain = useCancelTrain(activeVillageId ?? "");
 
@@ -65,6 +88,12 @@ export function OverviewPanel() {
             <ul className="flex flex-col">
               {villages.map((v) => {
                 const isActive = v.id === activeVillageId;
+                const inc = incomingCountMap?.[v.id] ?? 0;
+                const s = statusMap.get(v.id);
+                const mc = movementCountMap?.[v.id] ?? 0;
+                const bc = s?.buildOrderCount ?? 0;
+                const tc = s?.trainOrderCount ?? 0;
+                const r = s?.resources ?? v.resources;
                 return (
                   <li key={v.id}>
                     <button
@@ -78,17 +107,41 @@ export function OverviewPanel() {
                           : "bg-transparent text-white hover:bg-slate-800",
                       ].join(" ")}
                     >
-                      <div className="font-semibold">{v.name}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{v.name}</span>
+                        {(bc > 0 || tc > 0 || mc > 0 || inc > 0) && (
+                          <span className="flex gap-1 text-[10px] text-amber-400">
+                            {inc > 0 && (
+                              <span className="text-red-400">A:{inc}</span>
+                            )}
+                            {bc > 0 && <span>B:{bc}</span>}
+                            {tc > 0 && <span>T:{tc}</span>}
+                            {mc > 0 && <span>M:{mc}</span>}
+                          </span>
+                        )}
+                      </div>
                       <div
                         className={[
                           "mt-0.5 flex gap-1.5 text-[11px]",
                           isActive ? "text-blue-100" : "text-slate-400",
                         ].join(" ")}
                       >
-                        <span className="flex items-center gap-0.5"><Icon src={RESOURCE_ICONS.wood} size={10} />{v.resources.wood}</span>
-                        <span className="flex items-center gap-0.5"><Icon src={RESOURCE_ICONS.clay} size={10} />{v.resources.clay}</span>
-                        <span className="flex items-center gap-0.5"><Icon src={RESOURCE_ICONS.iron} size={10} />{v.resources.iron}</span>
-                        <span className="flex items-center gap-0.5"><Icon src={RESOURCE_ICONS.crop} size={10} />{v.resources.crop}</span>
+                        <span className="flex items-center gap-0.5">
+                          <Icon src={RESOURCE_ICONS.wood} size={10} />
+                          {r.wood}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Icon src={RESOURCE_ICONS.clay} size={10} />
+                          {r.clay}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Icon src={RESOURCE_ICONS.iron} size={10} />
+                          {r.iron}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Icon src={RESOURCE_ICONS.crop} size={10} />
+                          {r.crop}
+                        </span>
                       </div>
                     </button>
                   </li>
@@ -107,7 +160,10 @@ export function OverviewPanel() {
             />
           )}
           {movements && movements.length > 0 && (
-            <MovementsPanel villageId={activeVillageId} movements={movements} />
+            <MovementsPanel
+              villageId={activeVillageId!}
+              movements={movements}
+            />
           )}
         </div>
       </div>

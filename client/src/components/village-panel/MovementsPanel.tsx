@@ -98,7 +98,7 @@ function MovementRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <span className={`font-medium ${textColor}`}>
-            {TYPE_LABEL[movement.type] ?? movement.type}
+            {movement.type === "Attack" && kind === "incoming" ? "Incoming Attack" : TYPE_LABEL[movement.type] ?? movement.type}
           </span>
           <span className="truncate text-slate-400">
             {kind === "outgoing" ? (

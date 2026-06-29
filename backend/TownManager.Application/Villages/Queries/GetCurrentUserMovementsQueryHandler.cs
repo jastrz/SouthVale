@@ -18,7 +18,10 @@ public class GetCurrentUserMovementsQueryHandler(
         if (player is null)
             return Result<IReadOnlyList<MovementDto>>.Failure(["Player not found."], statusCode: 404);
 
-        var movements = await movementRepo.GetInFlightByPlayerAsync(player.Id, ct);
+        var villages = await villageRepo.GetSummariesByPlayerAsync(player.Id, ct);
+        var villageIds = villages.Select(v => v.Id).ToList();
+
+        var movements = await movementRepo.GetInFlightForPlayerAsync(player.Id, villageIds, ct);
 
         var targetIds = movements
             .Where(m => m.TargetVillageId.HasValue)

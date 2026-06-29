@@ -1,10 +1,7 @@
 import { create } from "zustand";
 import type {
-  BuildOrderDto,
   MapVillage,
-  ResourcesDto,
-  TrainOrderDto,
-  VillageDto,
+  VillageListItemDto,
 } from "../api/types";
 import type { ViewMode } from "../types/view";
 
@@ -13,7 +10,7 @@ import type { ViewMode } from "../types/view";
  */
 
 export interface GameState {
-  villages: Record<string, VillageDto>;
+  villages: Record<string, VillageListItemDto>;
   activeVillageId: string | null;
   hoveredVillage: MapVillage | null;
   currentView: ViewMode;
@@ -22,8 +19,8 @@ export interface GameState {
   selectedTile: { x: number; y: number } | null;
 
   // bulk hydration
-  setVillages: (villages: VillageDto[]) => void;
-  upsertVillage: (village: VillageDto) => void;
+  setVillages: (villages: VillageListItemDto[]) => void;
+  upsertVillage: (village: VillageListItemDto) => void;
   removeVillage: (id: string) => void;
   clear: () => void;
 
@@ -34,12 +31,6 @@ export interface GameState {
   setSelectedTile: (tile: { x: number; y: number } | null) => void;
   setCurrentView: (view: ViewMode) => void;
 
-  // fine-grained patches (SignalR-friendly)
-  updateResources: (villageId: string, resources: ResourcesDto) => void;
-  addBuildOrder: (villageId: string, order: BuildOrderDto) => void;
-  removeBuildOrder: (villageId: string, orderId: string) => void;
-  addTrainOrder: (villageId: string, order: TrainOrderDto) => void;
-  removeTrainOrder: (villageId: string, orderId: string) => void;
 }
 
 export const useGameStateStore = create<GameState>((set) => ({
@@ -77,87 +68,15 @@ export const useGameStateStore = create<GameState>((set) => ({
   setSelectedTile: (tile) => set({ selectedTile: tile }),
   setCurrentView: (view) => set({ currentView: view }),
 
-  updateResources: (villageId, resources) =>
-    set((state) => {
-      const village = state.villages[villageId];
-      if (!village) return state;
-      return {
-        villages: {
-          ...state.villages,
-          [villageId]: { ...village, resources },
-        },
-      };
-    }),
-
-  addBuildOrder: (villageId, order) =>
-    set((state) => {
-      const village = state.villages[villageId];
-      if (!village) return state;
-      return {
-        villages: {
-          ...state.villages,
-          [villageId]: {
-            ...village,
-            buildOrders: [...village.buildOrders, order],
-          },
-        },
-      };
-    }),
-
-  removeBuildOrder: (villageId, orderId) =>
-    set((state) => {
-      const village = state.villages[villageId];
-      if (!village) return state;
-      return {
-        villages: {
-          ...state.villages,
-          [villageId]: {
-            ...village,
-            buildOrders: village.buildOrders.filter((o) => o.id !== orderId),
-          },
-        },
-      };
-    }),
-
-  addTrainOrder: (villageId, order) =>
-    set((state) => {
-      const village = state.villages[villageId];
-      if (!village) return state;
-      return {
-        villages: {
-          ...state.villages,
-          [villageId]: {
-            ...village,
-            trainOrders: [...village.trainOrders, order],
-          },
-        },
-      };
-    }),
-
-  removeTrainOrder: (villageId, orderId) =>
-    set((state) => {
-      const village = state.villages[villageId];
-      if (!village) return state;
-      return {
-        villages: {
-          ...state.villages,
-          [villageId]: {
-            ...village,
-            trainOrders: village.trainOrders.filter((o) => o.id !== orderId),
-          },
-        },
-      };
-    }),
-
   clear: () =>
     set({ villages: {}, activeVillageId: null, hoveredVillage: null, targetVillage: null, selectedTile: null }),
 }));
 
 // Convenience selectors — keep components from re-rendering on unrelated changes.
-export const selectActiveVillage = (s: GameState): VillageDto | undefined =>
+export const selectActiveVillage = (s: GameState): VillageListItemDto | undefined =>
   s.activeVillageId ? s.villages[s.activeVillageId] : undefined;
 
 export const selectVillage =
   (id: string) =>
-  (s: GameState): VillageDto | undefined =>
+  (s: GameState): VillageListItemDto | undefined =>
     s.villages[id];

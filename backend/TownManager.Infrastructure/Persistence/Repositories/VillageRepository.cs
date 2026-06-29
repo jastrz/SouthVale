@@ -30,6 +30,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
         db.Villages
             .Include(v => v.Troops)
             .Include(v => v.Resources)
+            .Include(v => v.Buildings)
             .Include(v => v.Player)
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
@@ -75,6 +76,16 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .AsNoTracking()
             .Include(v => v.Buildings)
             .Include(v => v.Troops)
+            .Include(v => v.Resources)
+            .Where(v => v.PlayerId == playerId)
+            .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<Village>> GetWithOrdersByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
+        await db.Villages
+            .AsNoTracking()
+            .Include(v => v.BuildOrders)
+            .Include(v => v.TrainOrders)
+            .Include(v => v.Buildings)
             .Include(v => v.Resources)
             .Where(v => v.PlayerId == playerId)
             .ToListAsync(ct);

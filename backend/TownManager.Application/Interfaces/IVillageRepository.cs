@@ -25,6 +25,7 @@ public interface IVillageRepository
     // By playerId
     Task<IReadOnlyList<Village>> GetSummariesByPlayerAsync(Guid playerId, CancellationToken ct = default);
     Task<IReadOnlyList<Village>> GetFullDetailsByPlayerAsync(Guid playerId, CancellationToken ct = default);
+    Task<IReadOnlyList<Village>> GetWithOrdersByPlayerAsync(Guid playerId, CancellationToken ct = default);
 
     // By map coordinates
     Task<Village?> GetByCoordsAsync(Coordinates coordinates, CancellationToken ct = default);

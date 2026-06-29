@@ -4,5 +4,5 @@ using TownManager.Application.Dtos;
 
 namespace TownManager.Application.Villages.Queries;
 
-public record GetCurrentUserVillagesQuery(string UserId)
-    : IRequest<Result<IReadOnlyList<VillageListItemDto>>>;
+public record GetCurrentUserVillagesStatusQuery(string UserId)
+    : IRequest<Result<IReadOnlyList<VillageStatusDto>>>;

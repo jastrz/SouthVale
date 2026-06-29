@@ -51,8 +51,15 @@ public class TroopMovementResolutionJob(
 
         await db.SaveChangesAsync(ct);
 
-        var userId = await playerRepo.GetUserIdByVillageIdAsync(movement.VillageId, ct);
-        if (userId is not null)
-            await notifications.MovementsChangedAsync(userId, ct);
+        var sourceUserId = await playerRepo.GetUserIdByVillageIdAsync(movement.VillageId, ct);
+        if (sourceUserId is not null)
+            await notifications.MovementsChangedAsync(sourceUserId, ct);
+
+        if (movement.TargetVillageId.HasValue)
+        {
+            var targetUserId = await playerRepo.GetUserIdByVillageIdAsync(movement.TargetVillageId.Value, ct);
+            if (targetUserId is not null && targetUserId != sourceUserId)
+                await notifications.MovementsChangedAsync(targetUserId, ct);
+        }
     }
 }

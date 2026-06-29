@@ -6,12 +6,14 @@ import type {
   TrainRequest,
   AttackRequest,
   SettleRequest,
+  VillageListItemDto,
   VillageDto,
   PlayerVillageDto,
   GetMapRequest,
   MovementDto,
   GameConfigDto,
   ReportsResult,
+  VillageStatusDto,
 } from "../types";
 
 export const useGameConfig = () =>
@@ -24,7 +26,7 @@ export const useMyVillages = () =>
   useQuery({
     queryKey: ["villages"],
     queryFn: () =>
-      api.get<VillageDto[]>("/gameplay/me/villages").then((r) => r.data),
+      api.get<VillageListItemDto[]>("/gameplay/me/villages").then((r) => r.data),
   });
 
 export const useMap = (request: GetMapRequest) =>
@@ -63,27 +65,43 @@ export const useMovements = () =>
     // refetchInterval: 30_000,
   });
 
+export const useVillageStatus = () =>
+  useQuery({
+    queryKey: ["villageStatus"],
+    queryFn: () =>
+      api
+        .get<VillageStatusDto[]>("/gameplay/me/villages/status")
+        .then((r) => r.data),
+  });
+
 export const useBuild = (villageId: string) =>
   useMutation({
     mutationFn: (data: BuildRequest) =>
       api.post(`/gameplay/village/${villageId}/build`, data),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["village", villageId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
+      queryClient.invalidateQueries({ queryKey: ["villageStatus"] });
+    },
   });
 
 export const useTrain = (villageId: string) =>
   useMutation({
     mutationFn: (data: TrainRequest) =>
       api.post(`/gameplay/village/${villageId}/train`, data),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["village", villageId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
+      queryClient.invalidateQueries({ queryKey: ["villageStatus"] });
+    },
   });
 
 export const useAttack = (villageId: string) =>
   useMutation({
     mutationFn: (data: AttackRequest) =>
       api.post(`/gameplay/village/${villageId}/attack`, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["movements"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
+      queryClient.invalidateQueries({ queryKey: ["movements"] });
+    },
   });
 
 export const useSettle = (villageId: string) =>
@@ -100,16 +118,20 @@ export const useCancelBuild = (villageId: string) =>
   useMutation({
     mutationFn: (orderId: string) =>
       api.post(`/gameplay/build/${orderId}/cancel`),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["village", villageId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
+      queryClient.invalidateQueries({ queryKey: ["villageStatus"] });
+    },
   });
 
 export const useCancelTrain = (villageId: string) =>
   useMutation({
     mutationFn: (orderId: string) =>
       api.post(`/gameplay/train/${orderId}/cancel`),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["village", villageId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
+      queryClient.invalidateQueries({ queryKey: ["villageStatus"] });
+    },
   });
 
 export const useRenameVillage = (villageId: string) =>

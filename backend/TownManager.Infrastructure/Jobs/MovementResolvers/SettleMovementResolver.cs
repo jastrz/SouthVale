@@ -42,7 +42,7 @@ public class SettleMovementResolver(
             var returningSettlers = new Troops(0, 0, movement.Troops.Settlers);
             if (returningSettlers.IsEmpty()) return;
 
-            TimeSpan travelTime = movement.CompletedAt!.Value - movement.DepartureAt;
+            TimeSpan travelTime = movement.ArrivesAt - movement.DepartureAt;
 
             var returnMovement = TroopMovement.Create(
                 returningSettlers,
