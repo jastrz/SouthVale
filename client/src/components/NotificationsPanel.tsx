@@ -16,7 +16,7 @@ export function NotificationsPanel() {
     <div className="flex w-full max-w-2xl h-full flex-col gap-2 p-4 pt-24">
       <div className="flex items-center">
         <div className="flex-1" />
-        <h2 className="text-sm font-bold tracking-wide text-slate-300 uppercase">
+        <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
           Reports
         </h2>
         <div className="flex-1 flex justify-end">

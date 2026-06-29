@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { UseMutationResult } from "@tanstack/react-query";
 import { TROOP_LABELS } from "../../config/game";
+import { TROOP_ICONS } from "../../lib/helpers";
+import { Icon } from "../Icon";
+
 import type {
   TroopType,
   TrainRequest,
@@ -47,11 +50,24 @@ function TroopTooltip({ config }: { config: TroopConfigDto }) {
   );
 }
 
-function TroopCount({ label, count }: { label: string; count: number }) {
+function TroopCount({
+  label,
+  count,
+  icon,
+}: {
+  label: string;
+  count: number;
+  icon?: string;
+}) {
   return (
     <div className="rounded bg-slate-800/40 px-2 py-1.5 text-center">
+      {icon && (
+        <div className="mb-1 flex justify-center">
+          <Icon src={icon} size={32} />
+        </div>
+      )}
       <div className="font-medium text-white">{count}</div>
-      <div className="text-[10px] text-slate-400">{label}</div>
+      {/*<div className="text-[10px] text-slate-400">{label}</div>*/}
     </div>
   );
 }
@@ -220,10 +236,10 @@ export function TroopsPanel({
   mutation: UseMutationResult<unknown, Error, TrainRequest, unknown>;
 }) {
   const { data: gameConfig } = useGameConfig();
-  const troopList: [string, TroopType, number][] = [
-    ["Swordsmen", "Swordsman", swordsmen],
-    ["Archers", "Archer", archers],
-    ["Settlers", "Settler", settlers],
+  const troopList: [string, TroopType, number, string][] = [
+    ["Swordsmen", "Swordsman", swordsmen, TROOP_ICONS.Swordsman],
+    ["Archers", "Archer", archers, TROOP_ICONS.Archer],
+    ["Settlers", "Settler", settlers, TROOP_ICONS.Settler],
   ];
 
   return (
@@ -232,14 +248,14 @@ export function TroopsPanel({
         Troops
       </h3>
       <div className="mb-2 grid grid-cols-3 gap-1 text-xs">
-        {troopList.map(([label, type, count]) => {
+        {troopList.map(([label, type, count, icon]) => {
           const troopCfg = gameConfig?.troops[type];
           return (
             <Tooltip
               key={type}
               content={troopCfg ? <TroopTooltip config={troopCfg} /> : null}
             >
-              <TroopCount label={label} count={count} />
+              <TroopCount label={label} count={count} icon={icon} />
             </Tooltip>
           );
         })}

@@ -44,7 +44,7 @@ export function MovementsPanel({
 
   return (
     <section className="border-t border-slate-800 px-4 py-2">
-      <h3 className="mb-1.5 text-[11px] font-bold tracking-widest text-slate-400 uppercase">
+      <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
         Movements
       </h3>
       <div className="flex flex-col gap-1">

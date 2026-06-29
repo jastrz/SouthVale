@@ -5,6 +5,12 @@ export const RESOURCE_ICONS: Record<string, string> = {
   crop: "/icons/resources/crop.png",
 };
 
+export const TROOP_ICONS: Record<string, string> = {
+  Swordsman: "/icons/troops/swordman.png",
+  Archer: "/icons/troops/archer.png",
+  Settler: "/icons/troops/hiking.png",
+};
+
 export const BUILDING_ICONS: Record<string, string> = {
   WoodCutter: "/icons/buildings/woodcutter.png",
   ClayPit: "/icons/buildings/clay_pit.png",
