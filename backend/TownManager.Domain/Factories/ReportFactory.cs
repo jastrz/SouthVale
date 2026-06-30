@@ -93,4 +93,21 @@ public static class ReportFactory
             Body = $"Tile ({x}, {y}) was already occupied. Settlers returning.",
         };
     }
+
+    public static Report TransportReport(Guid playerId, string fromVillage, string toVillage,
+        Troops troops, Resources resources)
+    {
+        var parts = new List<string>();
+        if (!troops.IsEmpty()) parts.Add(TroopBreakdown(troops));
+        if (!resources.IsEmpty()) parts.Add($"{(int)resources.Wood} Wood, {(int)resources.Clay} Clay, {(int)resources.Iron} Iron, {(int)resources.Crop} Crop");
+
+        return new Report
+        {
+            Id = Guid.NewGuid(),
+            PlayerId = playerId,
+            Type = ReportType.Transport,
+            Title = $"Transport arrived at {toVillage}",
+            Body = $"From: {fromVillage}\n\n{string.Join(" and ", parts)} delivered.",
+        };
+    }
 }

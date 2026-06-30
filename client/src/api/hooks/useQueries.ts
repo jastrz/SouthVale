@@ -5,6 +5,7 @@ import type {
   BuildRequest,
   TrainRequest,
   AttackRequest,
+  TransportRequest,
   SettleRequest,
   VillageListItemDto,
   VillageDto,
@@ -100,6 +101,16 @@ export const useAttack = (villageId: string) =>
   useMutation({
     mutationFn: (data: AttackRequest) =>
       api.post(`/gameplay/village/${villageId}/attack`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
+      queryClient.invalidateQueries({ queryKey: ["movements"] });
+    },
+  });
+
+export const useTransport = (villageId: string) =>
+  useMutation({
+    mutationFn: (data: TransportRequest) =>
+      api.post(`/gameplay/village/${villageId}/transport`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["movements"] });

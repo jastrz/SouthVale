@@ -11,6 +11,7 @@ import { useGameStateStore } from "../store/gameStateStore";
 import { PanelContainer } from "./PanelContainer";
 import { MovementsPanel } from "./village-panel/MovementsPanel";
 import { QueuePanel } from "./village-panel/QueuePanel";
+import { TransportController } from "./transport/TransportController";
 import { Icon } from "./Icon";
 import { RESOURCE_ICONS, TROOP_ICONS } from "../lib/helpers";
 
@@ -186,6 +187,7 @@ export function OverviewPanel() {
             />
           )}
         </div>
+        {activeVillageId && <TransportController villageId={activeVillageId} />}
       </div>
     </PanelContainer>
   );

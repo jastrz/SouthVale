@@ -28,23 +28,20 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
 
     public Task<Village?> GetForCombatAsync(Guid id, CancellationToken ct = default) =>
         db.Villages
-            .Include(v => v.Troops)
-            .Include(v => v.Resources)
             .Include(v => v.Buildings)
             .Include(v => v.Player)
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
     public Task<Village?> GetWithMovementOrdersAsync(Guid id, CancellationToken ct = default) =>
         db.Villages
-            .Include(v => v.Troops)
             .Include(v => v.TroopMovements)
             .Include(v => v.Player)
+            .Include(v => v.Buildings)
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
     // By Hangire orderId
     public Task<Village?> GetWithBuildingsAndOrdersAsync(Guid orderId, CancellationToken ct = default) =>
         db.Villages
-            .Include(v => v.Resources)
             .Include(v => v.Buildings)
             .Include(v => v.BuildOrders)
             .AsSplitQuery()
@@ -52,13 +49,11 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
 
     public Task<Village?> GetWithTrainOrdersAsync(Guid orderId, CancellationToken ct) =>
         db.Villages
-            .Include(v => v.Resources)
             .Include(v => v.TrainOrders)
             .FirstOrDefaultAsync(v => v.TrainOrders.Any(o => o.Id == orderId), ct);
 
     public Task<Village?> GetWithAttackOrdersAsyncByOrder(Guid orderId, CancellationToken ct = default) =>
         db.Villages
-            .Include(v => v.Troops)
             .Include(v => v.TroopMovements)
             .FirstOrDefaultAsync(v => v.TroopMovements.Any(o => o.Id == orderId), ct);
 
@@ -67,7 +62,6 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
     public async Task<IReadOnlyList<Village>> GetSummariesByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
         await db.Villages
             .AsNoTracking()
-            .Include(v => v.Troops)
             .Where(v => v.PlayerId == playerId)
             .ToListAsync(ct);
 
@@ -75,8 +69,6 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
         await db.Villages
             .AsNoTracking()
             .Include(v => v.Buildings)
-            .Include(v => v.Troops)
-            .Include(v => v.Resources)
             .Where(v => v.PlayerId == playerId)
             .ToListAsync(ct);
 
@@ -86,7 +78,6 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .Include(v => v.BuildOrders)
             .Include(v => v.TrainOrders)
             .Include(v => v.Buildings)
-            .Include(v => v.Resources)
             .Where(v => v.PlayerId == playerId)
             .ToListAsync(ct);
 

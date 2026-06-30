@@ -128,6 +128,7 @@ function VillagePanelInner({
             onClearTarget={() => setSelectedTile(null)}
           />
         )}
+
       </TravelTimeProvider>
     </PanelContainer>
   );

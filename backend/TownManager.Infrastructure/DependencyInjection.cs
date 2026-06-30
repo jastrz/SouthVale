@@ -69,6 +69,7 @@ public static class DependencyInjection
         services.AddScoped<IMovementResolver, AttackMovementResolver>();
         services.AddScoped<IMovementResolver, ReturnMovementResolver>();
         services.AddScoped<IMovementResolver, SettleMovementResolver>();
+        services.AddScoped<IMovementResolver, TransportMovementResolver>();
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
 

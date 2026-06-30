@@ -52,6 +52,12 @@ export interface AttackRequest {
   troops: TroopEntry[];
 }
 
+export interface TransportRequest {
+  targetVillageId: string;
+  troops: TroopEntry[];
+  resources: ResourcesDto;
+}
+
 export interface ResourcesDto {
   wood: number;
   clay: number;
@@ -174,7 +180,7 @@ export interface GetMapRequest {
   radius: number;
 }
 
-export type ReportType = "Attack" | "Defense" | "Settle" | "Return";
+export type ReportType = "Attack" | "Defense" | "Settle" | "Return" | "Transport";
 
 export interface ReportDto {
   id: string;
