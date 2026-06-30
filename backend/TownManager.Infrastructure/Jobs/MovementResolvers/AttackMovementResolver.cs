@@ -62,7 +62,8 @@ public class AttackMovementResolver(
 
         if (!combatResult.AttackerTroops.IsEmpty())
         {
-            var travelTime = TimeSpan.FromSeconds(10);
+            var slowestSpeed = TroopsConfig.GetSlowestSpeed(combatResult.AttackerTroops);
+            var travelTime = TravelTimeCalculator.Calculate(targetVillage.Coordinates, village.Coordinates, slowestSpeed);
 
             var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.VillageId,
                 travelTime, DateTime.UtcNow, MovementType.Return);

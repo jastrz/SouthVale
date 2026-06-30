@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { AttackRequest, TroopEntry } from "../../api/types";
+import { TravelEta } from "../travel-time/TravelEta";
+import { useTravelTime } from "../travel-time/useTravelTime";
 
 function TroopInput({
   label,
@@ -61,6 +63,17 @@ export function AttackPanel({
 }) {
   const [swordsmen, setSwordsmen] = useState(0);
   const [archers, setArchers] = useState(0);
+  const { getSpeed } = useTravelTime();
+
+  const selected = [
+    { type: "Swordsman" as const, count: swordsmen },
+    { type: "Archer" as const, count: archers },
+  ].filter((t) => t.count > 0);
+
+  const speed =
+    selected.length > 0
+      ? Math.min(...selected.map((t) => getSpeed(t.type)))
+      : Math.min(getSpeed("Swordsman"), getSpeed("Archer"));
 
   const handleAttack = () => {
     if (swordsmen === 0 && archers === 0) return;
@@ -91,6 +104,7 @@ export function AttackPanel({
         <div className="text-slate-400">
           ({targetX}, {targetY}) · Population: {targetPopulation}
         </div>
+        <TravelEta toX={targetX} toY={targetY} speed={speed} />
       </div>
 
       <div className="flex flex-col gap-3">

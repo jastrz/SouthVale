@@ -1,5 +1,7 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { SettleRequest } from "../../api/types";
+import { TravelEta } from "../travel-time/TravelEta";
+import { useTravelTime } from "../travel-time/useTravelTime";
 
 export function SettlePanel({
   targetX,
@@ -14,6 +16,8 @@ export function SettlePanel({
   mutation: UseMutationResult<unknown, Error, SettleRequest, unknown>;
   onClearTarget: () => void;
 }) {
+  const { getSpeed } = useTravelTime();
+
   return (
     <section className="border-t border-emerald-900/60 bg-emerald-950/20 px-4 py-3">
       <div className="mb-2 flex items-center justify-between">
@@ -36,6 +40,7 @@ export function SettlePanel({
         <div className="text-slate-400">
           Settlers available: {settlers}
         </div>
+        <TravelEta toX={targetX} toY={targetY} speed={getSpeed("Settler")} />
       </div>
 
       <button

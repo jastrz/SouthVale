@@ -26,7 +26,9 @@ export const useMyVillages = () =>
   useQuery({
     queryKey: ["villages"],
     queryFn: () =>
-      api.get<VillageListItemDto[]>("/gameplay/me/villages").then((r) => r.data),
+      api
+        .get<VillageListItemDto[]>("/gameplay/me/villages")
+        .then((r) => r.data),
   });
 
 export const useMap = (request: GetMapRequest) =>
@@ -109,7 +111,7 @@ export const useSettle = (villageId: string) =>
     mutationFn: async (data: SettleRequest) =>
       api.post(`/gameplay/village/${villageId}/settle`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["villages"] });
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["movements"] });
     },
   });

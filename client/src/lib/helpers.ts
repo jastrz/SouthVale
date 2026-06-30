@@ -40,3 +40,15 @@ export function timeRemaining(completesAt: string): number {
   return new Date(completesAt).getTime() - Date.now();
 }
 
+// matches server formula: fields/hour -> seconds
+export function travelTime(
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  speed: number,
+): string {
+  const dist = Math.abs(fromX - toX) + Math.abs(fromY - toY);
+  const sec = Math.ceil((dist / speed) * 3600);
+  return formatTime(sec * 1000);
+}

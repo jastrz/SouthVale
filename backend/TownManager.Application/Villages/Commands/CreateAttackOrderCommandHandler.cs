@@ -1,9 +1,11 @@
 using MediatR;
 using TownManager.Application.Common;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
+using TownManager.Domain.Services;
 
 namespace TownManager.Application.Villages.Commands;
 
@@ -37,7 +39,10 @@ public class CreateAttackOrderCommandHandler(
         // Remove troops from garrison
         village.Troops = village.Troops.Subtract(troops);
 
-        var travelTime = TimeSpan.FromSeconds(15); // Calculate based on distance
+        var slowestSpeed = request.Troops
+            .Where(t => t.Count > 0)
+            .Min(t => TroopsConfig.All[t.TroopType].Stats.Speed);
+        var travelTime = TravelTimeCalculator.Calculate(village.Coordinates, targetVillage.Coordinates, slowestSpeed);
         
         var order = TroopMovement.Create(troops, request.TargetVillageId, travelTime, 
             DateTime.UtcNow, MovementType.Attack);

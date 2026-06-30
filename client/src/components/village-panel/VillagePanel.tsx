@@ -8,6 +8,7 @@ import {
   useTrain,
   useAttack,
   useSettle,
+  useGameConfig,
 } from "../../api/hooks/useQueries";
 import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "../PanelContainer";
@@ -15,6 +16,7 @@ import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
 import { AttackPanel } from "./AttackPanel";
 import { SettlePanel } from "./SettlePanel";
+import { TravelTimeProvider } from "../travel-time/TravelTime";
 
 export function VillagePanel() {
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
@@ -51,6 +53,10 @@ function VillagePanelInner({
   selectedTile: { x: number; y: number } | null;
 }) {
   const { data: village, isLoading, isError, error } = useVillage(villageId);
+  const { data: config } = useGameConfig();
+  const troopSpeeds = config?.troops
+    ? Object.fromEntries(Object.entries(config.troops).map(([k, v]) => [k, v.speed]))
+    : undefined;
   const buildMutation = useBuild(villageId);
   const trainMutation = useTrain(villageId);
   const attackMutation = useAttack(villageId);
@@ -94,29 +100,35 @@ function VillagePanelInner({
         settlers={village.troops.settlers}
         mutation={trainMutation}
       />
+      <TravelTimeProvider
+        originX={village.coordinates.x}
+        originY={village.coordinates.y}
+        troopSpeeds={troopSpeeds}
+      >
 {targetVillage && targetVillage.kind === "enemy" && (
-        <AttackPanel
-          targetName={targetVillage.name}
-          targetX={targetVillage.coordinates.x}
-          targetY={targetVillage.coordinates.y}
-          targetPopulation={targetVillage.population}
-          targetVillageId={targetVillage.id}
-          maxSwordsmen={village.troops.swordsmen}
-          maxArchers={village.troops.archers}
-          mutation={attackMutation}
-          onClearTarget={() => setTargetVillage(null)}
-        />
-      )}
+          <AttackPanel
+            targetName={targetVillage.name}
+            targetX={targetVillage.coordinates.x}
+            targetY={targetVillage.coordinates.y}
+            targetPopulation={targetVillage.population}
+            targetVillageId={targetVillage.id}
+            maxSwordsmen={village.troops.swordsmen}
+            maxArchers={village.troops.archers}
+            mutation={attackMutation}
+            onClearTarget={() => setTargetVillage(null)}
+          />
+        )}
 
-      {selectedTile && (
-        <SettlePanel
-          targetX={selectedTile.x}
-          targetY={selectedTile.y}
-          settlers={village.troops.settlers}
-          mutation={settleMutation}
-          onClearTarget={() => setSelectedTile(null)}
-        />
-      )}
+        {selectedTile && (
+          <SettlePanel
+            targetX={selectedTile.x}
+            targetY={selectedTile.y}
+            settlers={village.troops.settlers}
+            mutation={settleMutation}
+            onClearTarget={() => setSelectedTile(null)}
+          />
+        )}
+      </TravelTimeProvider>
     </PanelContainer>
   );
 }

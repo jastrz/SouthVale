@@ -70,4 +70,13 @@ public static class TroopsConfig
 
     public static int CalculateTotalUpkeep(IEnumerable<(TroopType Type, int Count)> troops) =>
         troops.Sum(t => All[t.Type].Stats.Upkeep * t.Count);
+
+    public static int GetSlowestSpeed(Troops troops)
+    {
+        var speeds = new List<int>();
+        if (troops.Swordsmen > 0) speeds.Add(All[TroopType.Swordsman].Stats.Speed);
+        if (troops.Archers > 0) speeds.Add(All[TroopType.Archer].Stats.Speed);
+        if (troops.Settlers > 0) speeds.Add(All[TroopType.Settler].Stats.Speed);
+        return speeds.Min();
+    }
 }

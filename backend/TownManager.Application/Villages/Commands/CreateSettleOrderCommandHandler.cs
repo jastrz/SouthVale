@@ -1,8 +1,11 @@
 using MediatR;
 using TownManager.Application.Common;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
+using TownManager.Domain.Enums;
+using TownManager.Domain.Services;
 
 namespace TownManager.Application.Villages.Commands;
 
@@ -13,9 +16,6 @@ public class CreateSettleOrderCommandHandler(
     IJobScheduler scheduler)
     : IRequestHandler<CreateSettleOrderCommand, Result>
 {
-    // TODO: move to game config later
-    private const int SecondsPerField = 2;
-
     public async Task<Result> Handle(CreateSettleOrderCommand request, CancellationToken ct)
     {
         var village = await repo.GetWithMovementOrdersAsync(request.VillageId, ct);
@@ -31,8 +31,8 @@ public class CreateSettleOrderCommandHandler(
 
         village.Troops = village.Troops.Subtract(settlersNeeded);
 
-        var distance = Math.Abs(village.Coordinates.X - request.Target.X) + Math.Abs(village.Coordinates.Y - request.Target.Y);
-        var travelTime = TimeSpan.FromSeconds(distance * SecondsPerField);
+        var speed = TroopsConfig.All[TroopType.Settler].Stats.Speed;
+        var travelTime = TravelTimeCalculator.Calculate(village.Coordinates, request.Target, speed);
 
         var movement = TroopMovement.CreateSettle(
             settlersNeeded, request.Target, travelTime, DateTime.UtcNow);
