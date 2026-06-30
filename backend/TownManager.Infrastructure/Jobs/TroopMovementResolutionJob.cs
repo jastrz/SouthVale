@@ -1,4 +1,5 @@
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
 using TownManager.Infrastructure.Persistence;
@@ -44,12 +45,15 @@ public class TroopMovementResolutionJob(
             return;
         }
 
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+
         await resolver.ResolveAsync(movement, ct);
 
         movement.CompletedAt = DateTime.UtcNow;
         movement.Status = MovementStatus.Resolved;
 
         await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
 
         var sourceUserId = await playerRepo.GetUserIdByVillageIdAsync(movement.VillageId, ct);
         if (sourceUserId is not null)

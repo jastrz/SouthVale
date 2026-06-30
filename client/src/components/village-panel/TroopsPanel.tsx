@@ -51,7 +51,7 @@ function TroopTooltip({ config }: { config: TroopConfigDto }) {
 }
 
 function TroopCount({
-  label,
+  // label,
   count,
   icon,
 }: {

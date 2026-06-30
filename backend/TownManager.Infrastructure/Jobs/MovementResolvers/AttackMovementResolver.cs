@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Config;

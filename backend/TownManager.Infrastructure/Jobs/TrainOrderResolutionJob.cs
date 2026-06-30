@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.Server;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
 using TownManager.Infrastructure.Persistence;
@@ -46,14 +47,16 @@ public class TrainOrderResolutionJob(
         var shouldBeCompleted = (int)(elapsed / order.TimePerUnit);
         var newlyCompleted = Math.Min(shouldBeCompleted, order.Amount) - order.Completed;
 
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+
         if (newlyCompleted > 0)
         {
             village.Troops = village.Troops.Add(order.Type, newlyCompleted);
             order.Completed += newlyCompleted;
         }
-        
+
         await db.SaveChangesAsync(ct);
-        
+
         if (order.Completed < order.Amount)
         {
             // reschedule for the next unit
@@ -64,8 +67,9 @@ public class TrainOrderResolutionJob(
         {
             village.TrainOrders.Remove(order);
         }
-        
+
         await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
 
         var userId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
         if (userId is not null)

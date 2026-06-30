@@ -5,4 +5,5 @@
   <Project Path="TownManager.Domain/TownManager.Domain.csproj" />
   <Project Path="TownManager.Infrastructure/TownManager.Infrastructure.csproj" />
   <Project Path="TownManager.Application.Tests/TownManager.Application.Tests.csproj" />
+  <Project Path="TownManager.IntegrationTests/TownManager.IntegrationTests.csproj" />
 </Solution>

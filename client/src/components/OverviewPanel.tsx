@@ -12,7 +12,7 @@ import { PanelContainer } from "./PanelContainer";
 import { MovementsPanel } from "./village-panel/MovementsPanel";
 import { QueuePanel } from "./village-panel/QueuePanel";
 import { Icon } from "./Icon";
-import { RESOURCE_ICONS } from "../lib/helpers";
+import { RESOURCE_ICONS, TROOP_ICONS } from "../lib/helpers";
 
 export function OverviewPanel() {
   const { data: villages, isLoading, isError, error } = useMyVillages();
@@ -94,6 +94,7 @@ export function OverviewPanel() {
                 const bc = s?.buildOrderCount ?? 0;
                 const tc = s?.trainOrderCount ?? 0;
                 const r = s?.resources ?? v.resources;
+                const t = s?.troops ?? v.troops;
                 return (
                   <li key={v.id}>
                     <button
@@ -141,6 +142,25 @@ export function OverviewPanel() {
                         <span className="flex items-center gap-0.5">
                           <Icon src={RESOURCE_ICONS.crop} size={10} />
                           {r.crop}
+                        </span>
+                      </div>
+                      <div
+                        className={[
+                          "flex gap-1.5 text-[11px]",
+                          isActive ? "text-blue-100" : "text-slate-400",
+                        ].join(" ")}
+                      >
+                        <span className="flex items-center gap-0.5">
+                          <Icon src={TROOP_ICONS.Swordsman} size={10} />
+                          {t.swordsmen}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Icon src={TROOP_ICONS.Archer} size={10} />
+                          {t.archers}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Icon src={TROOP_ICONS.Settler} size={10} />
+                          {t.settlers}
                         </span>
                       </div>
                     </button>

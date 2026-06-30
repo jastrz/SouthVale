@@ -138,6 +138,7 @@ export interface VillageStatusDto {
   buildOrderCount: number;
   trainOrderCount: number;
   resources: ResourcesDto;
+  troops: TroopsDto;
 }
 
 export interface VillageListItemDto {

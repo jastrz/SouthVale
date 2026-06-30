@@ -1,6 +1,7 @@
 using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -69,7 +70,8 @@ public static class DependencyInjection
         services.AddScoped<IMovementResolver, ReturnMovementResolver>();
         services.AddScoped<IMovementResolver, SettleMovementResolver>();
 
-        
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+
         // Hangfire Configuration
         
         var storageOptions = new PostgreSqlStorageOptions
