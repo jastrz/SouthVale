@@ -8,6 +8,8 @@ namespace TownManager.Application.Villages.Commands;
 
 public class CreateSettleOrderCommandHandler(
     IVillageRepository repo,
+    IPlayerRepository playerRepo,
+    IGameNotificationService notifications,
     IJobScheduler scheduler)
     : IRequestHandler<CreateSettleOrderCommand, Result>
 {
@@ -40,6 +42,10 @@ public class CreateSettleOrderCommandHandler(
         await repo.SaveChangesAsync(ct);
 
         scheduler.ScheduleMovementResolution(movement.Id, travelTime);
+
+        var userId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
+        if (userId is not null)
+            await notifications.VillageUpdatedAsync(userId, village.Id, ct);
 
         return Result.Success();
     }

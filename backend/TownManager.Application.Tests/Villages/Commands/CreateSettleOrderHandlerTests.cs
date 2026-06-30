@@ -12,14 +12,18 @@ namespace TownManager.Application.Tests.Villages.Commands;
 public class CreateSettleOrderHandlerTests
 {
     private readonly IVillageRepository _repo;
+    private readonly IPlayerRepository _playerRepo;
+    private readonly IGameNotificationService _notifications;
     private readonly IJobScheduler _scheduler;
     private readonly CreateSettleOrderCommandHandler _handler;
 
     public CreateSettleOrderHandlerTests()
     {
         _repo = Substitute.For<IVillageRepository>();
+        _playerRepo = Substitute.For<IPlayerRepository>();
+        _notifications = Substitute.For<IGameNotificationService>();
         _scheduler = Substitute.For<IJobScheduler>();
-        _handler = new CreateSettleOrderCommandHandler(_repo, _scheduler);
+        _handler = new CreateSettleOrderCommandHandler(_repo, _playerRepo, _notifications, _scheduler);
     }
 
     [Fact]

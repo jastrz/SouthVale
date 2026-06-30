@@ -9,6 +9,7 @@ public class VillageConfiguration : IEntityTypeConfiguration<Village>
     public void Configure(EntityTypeBuilder<Village> b)
     {
         b.HasKey(v => v.Id);
+        b.Property(v => v.UpdatedAt).IsConcurrencyToken();
 
         b.HasOne(v => v.Player)
          .WithMany(p => p.Villages)
