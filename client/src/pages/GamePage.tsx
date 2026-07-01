@@ -1,7 +1,7 @@
 import { useGameStateStore } from "../store/gameStateStore";
 import { MapCanvas } from "../components/MapCanvas";
 import { NotificationsPanel } from "../components/NotificationsPanel";
-import { OverviewPanel } from "../components/OverviewPanel";
+import { OverviewPanel } from "../components/overview-panel/OverviewPanel";
 import { VillagePanel } from "../components/village-panel";
 import { VillageTooltip } from "../components/VillageTooltip";
 import { TopBar } from "../components/TopBar";

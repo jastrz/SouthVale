@@ -84,8 +84,8 @@ export function TransportPanel({
   };
 
   return (
-    <section className="border-t border-emerald-900/60 bg-emerald-950/20 px-4 py-3">
-      <div className="mb-2 flex items-center justify-between">
+    <section className="flex flex-col gap-3 border-t border-emerald-900/60 bg-emerald-950/20 px-4 py-4">
+      <div className="flex items-center justify-between">
         <h3 className="text-xs font-bold tracking-widest text-emerald-400 uppercase">
           Transport
         </h3>
@@ -98,7 +98,7 @@ export function TransportPanel({
         </button>
       </div>
 
-      <div className="mb-3">
+      <div>
         <label className="block text-[10px] text-slate-400">
           Target Village
         </label>
@@ -117,11 +117,11 @@ export function TransportPanel({
       </div>
 
       {selectedVillage && (
-        <div className="mb-3 rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
-          <div className="text-slate-400">
+        <div className="rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
+          {/*<div className="text-slate-400">
             Target: {selectedVillage.name} ({selectedVillage.coordinates.x},{" "}
             {selectedVillage.coordinates.y})
-          </div>
+          </div>*/}
           <TravelEta
             toX={selectedVillage.coordinates.x}
             toY={selectedVillage.coordinates.y}
@@ -130,57 +130,89 @@ export function TransportPanel({
         </div>
       )}
 
-      <div className="mb-3">
+      <div>
         <div className="mb-1 text-[10px] font-medium text-slate-400">
           Troops
         </div>
         <div className="flex gap-1">
           <div className="flex-1">
-            <label className="block text-[10px] text-slate-400">Swordsmen</label>
-            <NumberInput value={swordsmen} onChange={setSwordsmen} max={troops.swordsmen} />
+            <label className="block text-[10px] text-slate-400">
+              Swordsmen
+            </label>
+            <NumberInput
+              value={swordsmen}
+              onChange={setSwordsmen}
+              max={troops.swordsmen}
+            />
           </div>
           <div className="flex-1">
             <label className="block text-[10px] text-slate-400">Archers</label>
-            <NumberInput value={archers} onChange={setArchers} max={troops.archers} />
+            <NumberInput
+              value={archers}
+              onChange={setArchers}
+              max={troops.archers}
+            />
           </div>
           <div className="flex-1">
             <label className="block text-[10px] text-slate-400">Settlers</label>
-            <NumberInput value={settlers} onChange={setSettlers} max={troops.settlers} />
+            <NumberInput
+              value={settlers}
+              onChange={setSettlers}
+              max={troops.settlers}
+            />
           </div>
         </div>
       </div>
 
-      <div className="mb-3">
-        <div className="mb-1 flex items-center justify-between text-[10px]">
+      <div>
+        <div className="mb-1 flex items-center justify-between text-[12px]">
           <span className="font-medium text-slate-400">Resources</span>
           {carryCapacity > 0 && (
             <span
               className={
                 resourcesUsed > carryCapacity
                   ? "font-medium text-red-400"
-                  : "text-slate-500"
+                  : "text-slate-200"
               }
             >
               {resourcesUsed} / {carryCapacity}
             </span>
           )}
         </div>
+        <div className="border-t border-slate-700 pt-1" />
+
         <div className="flex gap-1">
           <div className="flex-1">
             <label className="block text-[10px] text-slate-400">Wood</label>
-            <NumberInput value={wood} onChange={setWood} max={maxFor(resources.wood, "wood")} />
+            <NumberInput
+              value={wood}
+              onChange={setWood}
+              max={maxFor(resources.wood, "wood")}
+            />
           </div>
           <div className="flex-1">
             <label className="block text-[10px] text-slate-400">Clay</label>
-            <NumberInput value={clay} onChange={setClay} max={maxFor(resources.clay, "clay")} />
+            <NumberInput
+              value={clay}
+              onChange={setClay}
+              max={maxFor(resources.clay, "clay")}
+            />
           </div>
           <div className="flex-1">
             <label className="block text-[10px] text-slate-400">Iron</label>
-            <NumberInput value={iron} onChange={setIron} max={maxFor(resources.iron, "iron")} />
+            <NumberInput
+              value={iron}
+              onChange={setIron}
+              max={maxFor(resources.iron, "iron")}
+            />
           </div>
           <div className="flex-1">
             <label className="block text-[10px] text-slate-400">Crop</label>
-            <NumberInput value={crop} onChange={setCrop} max={maxFor(resources.crop, "crop")} />
+            <NumberInput
+              value={crop}
+              onChange={setCrop}
+              max={maxFor(resources.crop, "crop")}
+            />
           </div>
         </div>
       </div>

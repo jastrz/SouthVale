@@ -14,11 +14,6 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
-    public Task<Village?> GetWithBuildingsAsync(Guid id, CancellationToken ct = default) =>
-        db.Villages
-            .Include(v => v.Buildings)
-            .FirstOrDefaultAsync(v => v.Id == id, ct);
-
     public Task<Village?> GetWithActiveOrdersAsync(Guid id, CancellationToken ct = default) =>
         db.Villages
             .Include(v => v.BuildOrders)
@@ -51,14 +46,9 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
         db.Villages
             .Include(v => v.TrainOrders)
             .FirstOrDefaultAsync(v => v.TrainOrders.Any(o => o.Id == orderId), ct);
-
-    public Task<Village?> GetWithAttackOrdersAsyncByOrder(Guid orderId, CancellationToken ct = default) =>
-        db.Villages
-            .Include(v => v.TroopMovements)
-            .FirstOrDefaultAsync(v => v.TroopMovements.Any(o => o.Id == orderId), ct);
+    
 
     // By playerId
-
     public async Task<IReadOnlyList<Village>> GetSummariesByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
         await db.Villages
             .AsNoTracking()

@@ -1,8 +1,5 @@
 import { create } from "zustand";
-import type {
-  MapVillage,
-  VillageListItemDto,
-} from "../api/types";
+import type { MapVillage, VillageListItemDto } from "../api/types";
 import type { ViewMode } from "../types/view";
 
 /**
@@ -30,7 +27,6 @@ export interface GameState {
   setTargetVillage: (village: MapVillage | null) => void;
   setSelectedTile: (tile: { x: number; y: number } | null) => void;
   setCurrentView: (view: ViewMode) => void;
-
 }
 
 export const useGameStateStore = create<GameState>((set) => ({
@@ -69,11 +65,19 @@ export const useGameStateStore = create<GameState>((set) => ({
   setCurrentView: (view) => set({ currentView: view }),
 
   clear: () =>
-    set({ villages: {}, activeVillageId: null, hoveredVillage: null, targetVillage: null, selectedTile: null }),
+    set({
+      villages: {},
+      activeVillageId: null,
+      hoveredVillage: null,
+      targetVillage: null,
+      selectedTile: null,
+    }),
 }));
 
 // Convenience selectors — keep components from re-rendering on unrelated changes.
-export const selectActiveVillage = (s: GameState): VillageListItemDto | undefined =>
+export const selectActiveVillage = (
+  s: GameState,
+): VillageListItemDto | undefined =>
   s.activeVillageId ? s.villages[s.activeVillageId] : undefined;
 
 export const selectVillage =
