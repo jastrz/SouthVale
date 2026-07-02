@@ -70,7 +70,7 @@ public class BarbarianTickService(
 
     private async Task TryAttack(Village b, Random rng, CancellationToken ct)
     {
-        if (b.Troops.TotalCount == 0) return;
+        if (b.Troops.IsEmpty()) return;
         if (b.LastAttackAt.HasValue &&
             DateTime.UtcNow - b.LastAttackAt.Value < BarbarianConfig.AttackCooldown)
             return;
@@ -86,8 +86,8 @@ public class BarbarianTickService(
         var target = targets[rng.Next(targets.Count)];
 
         var troops = new List<TroopEntry>();
-        if (b.Troops.Swordsmen > 0) troops.Add(new TroopEntry(TroopType.Swordsman, b.Troops.Swordsmen / 2));
-        if (b.Troops.Archers > 0) troops.Add(new TroopEntry(TroopType.Archer, b.Troops.Archers / 2));
+        if (b.Troops.Swordsmen > 0) troops.Add(new TroopEntry(TroopType.Swordsman, (int)Math.Ceiling(b.Troops.Swordsmen / 2.0)));
+        if (b.Troops.Archers > 0) troops.Add(new TroopEntry(TroopType.Archer, (int)Math.Ceiling(b.Troops.Archers / 2.0)));
 
         await mediator.Send(new CreateAttackOrderCommand(b.Id, troops, target.Id), ct);
         b.LastAttackAt = DateTime.UtcNow;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGameStateStore } from "../store/gameStateStore";
 import type { MapVillage } from "../api/types";
 import { tooltipBase } from "../styles/styles";
@@ -11,6 +11,8 @@ export function VillageTooltip() {
     x: 0,
     y: 0,
   });
+  const [offsetY, setOffsetY] = useState(14);
+  const tipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
@@ -20,12 +22,20 @@ export function VillageTooltip() {
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, []);
 
+  useEffect(() => {
+    const el = tipRef.current;
+    if (!el) { setOffsetY(14); return; }
+    const h = el.getBoundingClientRect().height;
+    setOffsetY(mousePos.y + h + 14 > window.innerHeight ? -(h + 14) : 14);
+  }, [mousePos, hoveredVillage]);
+
   if (!hoveredVillage) return null;
 
   return (
     <div
+      ref={tipRef}
       className={`pointer-events-none fixed z-50 ${tooltipBase}`}
-      style={{ left: mousePos.x + 14, top: mousePos.y + 14 }}
+      style={{ left: mousePos.x + 14, top: mousePos.y + offsetY }}
     >
       <TooltipBody village={hoveredVillage} />
     </div>
