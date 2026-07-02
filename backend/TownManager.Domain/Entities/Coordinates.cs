@@ -16,6 +16,8 @@ public class Coordinates : IEquatable<Coordinates>, IEquatable<(int x, int y)>
         Y = y;
     }
 
+    public override string ToString() => $"({X}|{Y})";
+
     public bool Equals(Coordinates? other) => other is not null && (X == other.X && Y == other.Y);
     public bool Equals((int x, int y) other) => (X == other.x && Y == other.y);
     public override int GetHashCode() => HashCode.Combine(X, Y);

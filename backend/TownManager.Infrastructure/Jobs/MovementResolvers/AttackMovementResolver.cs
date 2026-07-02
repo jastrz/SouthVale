@@ -36,8 +36,30 @@ public class AttackMovementResolver(
         var targetVillage = await villageRepo.GetForCombatAsync(movement.TargetVillageId!.Value, ct);
         if (targetVillage is null)
         {
-            logger.LogWarning("Target village {TargetVillageId} not found for attack movement {MovementId}",
+            logger.LogWarning("Target village {TargetVillageId} not found for attack movement {MovementId} — returning troops",
                 movement.TargetVillageId, movement.Id);
+
+            var home = await villageRepo.GetWithMovementOrdersAsync(movement.VillageId, ct);
+            if (home is not null)
+            {
+                var travelTime = movement.ArrivesAt - movement.DepartureAt;
+                var returnMovement = TroopMovement.Create(
+                    new Troops(movement.Troops.Swordsmen, movement.Troops.Archers, movement.Troops.Settlers),
+                    Resources.Zero, movement.VillageId,
+                    travelTime, DateTime.UtcNow, MovementType.Return);
+                home.TroopMovements.Add(returnMovement);
+
+                await reportRepo.AddAsync(
+                    ReportFactory.AttackCancelledReport(village.PlayerId, village.Name, movement.TargetVillageId.ToString()!), ct);
+                
+                await db.SaveChangesAsync(ct);
+
+                scheduler.ScheduleMovementResolution(returnMovement.Id, travelTime);
+
+                var userId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
+                if (userId is not null)
+                    await notifications.ReportCreatedAsync(userId, ct);
+            }
             return;
         }
 
@@ -85,12 +107,13 @@ public class AttackMovementResolver(
             {
                 await notifications.VillageUpdatedAsync(sourceUserId, village.Id, ct);
                 await notifications.ReportCreatedAsync(sourceUserId, ct);
+                if (destroyBarbarian)
+                    await notifications.VillageDestroyedAsync(sourceUserId, ct);
             }
 
             if (!isBarbarianTarget && targetVillage.PlayerId != village.PlayerId)
             {
                 var targetUserId = await playerRepo.GetUserIdByPlayerIdAsync(targetVillage.PlayerId, ct);
-                // target is a real player but may not be connected
                 if (targetUserId is not null)
                 {
                     await notifications.VillageUpdatedAsync(targetUserId, targetVillage.Id, ct);
@@ -107,7 +130,11 @@ public class AttackMovementResolver(
 
             var sourceUserId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
             if (sourceUserId is not null)
+            {
                 await notifications.ReportCreatedAsync(sourceUserId, ct);
+                if (destroyBarbarian)
+                    await notifications.VillageDestroyedAsync(sourceUserId, ct);
+            }
 
             if (!isBarbarianTarget && targetVillage.PlayerId != village.PlayerId)
             {

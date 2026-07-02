@@ -6,5 +6,6 @@ public enum ReportType
     Defense,
     Settle,
     Return,
-    Transport
+    AttackCancelled,
+    Transport,
 }

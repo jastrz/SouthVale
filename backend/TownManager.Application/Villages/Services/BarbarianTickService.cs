@@ -80,7 +80,7 @@ public class BarbarianTickService(
         if (hasOutgoingAttack) return;
 
         var nearby = await villageRepo.GetForMapWithinRadius(b.Coordinates, BarbarianConfig.AttackRange, ct);
-        var targets = nearby.Where(v => v.PlayerId != BarbarianConfig.BarbarianPlayerId && v.Id != b.Id).ToList();
+        var targets = nearby.Where(v => v.PlayerId != BarbarianConfig.BarbarianPlayerId && v.Id != b.Id && v.Troops.TotalCount > b.Troops.TotalCount).ToList();
         if (targets.Count == 0) return;
 
         var target = targets[rng.Next(targets.Count)];

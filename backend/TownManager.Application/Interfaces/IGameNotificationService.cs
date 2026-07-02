@@ -6,4 +6,5 @@ public interface IGameNotificationService
     Task VillagesChangedAsync(string userId, CancellationToken ct = default);
     Task MovementsChangedAsync(string userId, CancellationToken ct = default);
     Task ReportCreatedAsync(string userId, CancellationToken ct = default);
+    Task VillageDestroyedAsync(string userId, CancellationToken ct = default);
 }

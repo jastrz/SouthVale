@@ -33,6 +33,10 @@ export function useSignalR() {
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     });
 
+    connection.on("VillageDestroyed", () => {
+      queryClient.refetchQueries({ queryKey: ["map"] });
+    });
+
     connection.start().catch(() => {
       /* connection will be retried by SignalR's auto-reconnect */
     });

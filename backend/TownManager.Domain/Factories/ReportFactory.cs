@@ -94,6 +94,18 @@ public static class ReportFactory
         };
     }
 
+    public static Report AttackCancelledReport(Guid playerId, string sourceVillage, string targetName)
+    {
+        return new Report
+        {
+            Id = Guid.NewGuid(),
+            PlayerId = playerId,
+            Type = ReportType.AttackCancelled,
+            Title = $"Attack cancelled — target destroyed",
+            Body = $"Source: {sourceVillage}\nTarget: {targetName}\n\nTarget was destroyed before the attack arrived. Troops returned home.",
+        };
+    }
+
     public static Report TransportReport(Guid playerId, string fromVillage, string toVillage,
         Troops troops, Resources resources)
     {

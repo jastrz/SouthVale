@@ -96,8 +96,10 @@ public static class DependencyInjection
             options.SchedulePollingInterval = TimeSpan.FromSeconds(1);
             options.WorkerCount = 5;
         });
-
-        services.AddHostedService<BarbarianJobScheduler>();
+        
+        services.AddHostedService(sp => new BarbarianJobScheduler(                                                                              
+         sp.GetRequiredService<IServiceScopeFactory>(),                                                                                      
+         sp.GetRequiredService<IRecurringJobManager>()) { TickAtStart = true }); 
 
         return services;
     }

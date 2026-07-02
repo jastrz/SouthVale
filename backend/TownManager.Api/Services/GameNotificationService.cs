@@ -17,4 +17,7 @@ public class GameNotificationService(IHubContext<GameHub> hub) : IGameNotificati
 
     public Task ReportCreatedAsync(string userId, CancellationToken ct = default) =>
         hub.Clients.User(userId).SendAsync("ReportCreated", ct);
+
+    public Task VillageDestroyedAsync(string userId, CancellationToken ct = default) =>
+        hub.Clients.User(userId).SendAsync("VillageDestroyed", ct);
 }
