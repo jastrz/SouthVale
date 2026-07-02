@@ -101,15 +101,17 @@ public class BarbarianTickService(
         var occupied = new HashSet<Coordinates>(
             await villageRepo.GetAllCoordinatesAsync(ct));
 
-        for (var i = 0; i < deficit; i++)
-        {
-            Coordinates coords;
-            do
-            {
-                coords = new Coordinates(rng.Next(0, BarbarianConfig.MapSize),
-                    rng.Next(0, BarbarianConfig.MapSize));
-            } while (!occupied.Add(coords));
+        var spawns = (
+            from x in Enumerable.Range(0, BarbarianConfig.MapSize)
+            from y in Enumerable.Range(0, BarbarianConfig.MapSize)
+            select new Coordinates(x, y)
+        ).Where(c => !occupied.Contains(c))
+         .OrderBy(_ => rng.Next())
+         .Take(deficit)
+         .ToList();
 
+        foreach (var coords in spawns)
+        {
             var rc = BarbarianConfig.StartingResources;
             villageRepo.Add(new Village
             {
