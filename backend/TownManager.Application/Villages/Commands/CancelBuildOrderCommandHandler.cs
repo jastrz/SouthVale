@@ -48,6 +48,9 @@ public class CancelBuildOrderCommandHandler(IVillageRepository repo, IJobSchedul
 
         await repo.SaveChangesAsync(ct);
 
+        VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "cancel-build",
+            new { order.BuildingType, order.TargetLevel });
+
         for (int i = 0; i < remaining.Count; i++)
         {
             var delay = remaining[i].CompletesAt - DateTime.UtcNow;

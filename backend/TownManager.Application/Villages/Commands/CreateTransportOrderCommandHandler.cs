@@ -79,6 +79,9 @@ public class CreateTransportOrderCommandHandler(
 
         scheduler.ScheduleMovementResolution(movement.Id, travelTime);
 
+        VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "transport",
+            new { Target = targetVillage.Name, TargetId = request.TargetVillageId, Troops = troops, Resources = sentResources });
+
         return Result.Success();
     }
 }

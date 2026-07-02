@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Villages;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Factories;
@@ -62,6 +63,9 @@ public class AttackMovementResolver(
                 ReportFactory.DefenseReport(targetVillage.PlayerId, targetVillage.Name,
                     village.Name, village.Player.Username,
                     movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
+
+        VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "attack-resolved",
+            new { Target = targetVillage.Name, TargetId = targetVillage.Id, AttackerWon = !combatResult.AttackerTroops.IsEmpty(), TargetDestroyed = destroyBarbarian });
 
         if (!combatResult.AttackerTroops.IsEmpty())
         {

@@ -55,6 +55,9 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
 
         await repo.SaveChangesAsync(ct);
 
+        VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "train",
+            new { Orders = request.Orders.Select(o => new { o.TroopType, o.Count }) });
+
         foreach (var order in newOrders)
         {
             var firstUnitDelay = order.StartsAt - DateTime.UtcNow + order.TimePerUnit;

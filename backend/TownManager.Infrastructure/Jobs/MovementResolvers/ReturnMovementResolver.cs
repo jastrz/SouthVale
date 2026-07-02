@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Villages;
 using TownManager.Domain.Factories;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
@@ -43,6 +44,9 @@ public class ReturnMovementResolver(
                 fromPlayer = from.Player.Username;
             }
         }
+
+        VillageActivity.Log?.Invoke(home.PlayerId.ToString(), home.Name, "return",
+            new { Origin = fromName, movement.Troops, Loot = loot });
 
         await reportRepo.AddAsync(
             ReportFactory.ReturnReport(home.PlayerId, home.Name, fromName, fromPlayer, movement.Troops, loot), ct);

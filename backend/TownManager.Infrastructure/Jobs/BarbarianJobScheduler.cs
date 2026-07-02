@@ -10,9 +10,9 @@ public class BarbarianJobScheduler(IServiceScopeFactory scopeFactory, IRecurring
 {
     public async Task StartAsync(CancellationToken ct)
     {
-        using var scope = scopeFactory.CreateScope();
-        var tick = scope.ServiceProvider.GetRequiredService<IBarbarianTickService>();
-        await tick.ExecuteAsync(ct);
+        // using var scope = scopeFactory.CreateScope();
+        // var tick = scope.ServiceProvider.GetRequiredService<IBarbarianTickService>();
+        // await tick.ExecuteAsync(ct);
 
         jobs.AddOrUpdate<BarbarianTickJob>("barbarian-tick",
             j => j.ExecuteAsync(CancellationToken.None), BarbarianConfig.TickIntervalCron);

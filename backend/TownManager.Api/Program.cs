@@ -3,6 +3,7 @@ using Serilog;
 using TownManager.Api;
 using TownManager.Api.Endpoints;
 using TownManager.Application;
+using TownManager.Application.Villages;
 using TownManager.Infrastructure;
 
 Log.Logger = new LoggerConfiguration()
@@ -11,7 +12,15 @@ Log.Logger = new LoggerConfiguration()
         e.Properties.TryGetValue("RequestPath", out var path) &&
         path.ToString().Contains("/hangfire"))
     .WriteTo.Console(outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.Logger(lc => lc
+        .Filter.ByIncludingOnly(e => e.Properties.ContainsKey("VillageActivity"))
+        .WriteTo.File($"logs/village-activity-{DateTime.UtcNow:yyyyMMdd-HHmmss}.log",
+            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"))
     .CreateLogger();
+
+VillageActivity.Log = (playerId, villageName, action, details) =>
+    Log.ForContext("VillageActivity", true)
+       .Information("{Player} {Action} in {Village}: {@Details}", playerId, action, villageName, details);
 
 try
 {

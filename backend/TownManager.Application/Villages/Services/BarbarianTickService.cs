@@ -5,6 +5,7 @@ using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
+using static TownManager.Application.Villages.VillageActivity;
 
 namespace TownManager.Application.Villages.Services;
 
@@ -122,6 +123,8 @@ public class BarbarianTickService(
                     .Select(kv => Building.Create(kv.Key, kv.Value))
                     .ToList()
             });
+
+            Log?.Invoke(BarbarianConfig.BarbarianPlayerId.ToString(), coords.ToString()!, "barbarian-spawn", null);
         }
 
         await villageRepo.SaveChangesAsync(ct);

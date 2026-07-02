@@ -10,7 +10,7 @@ public static class BarbarianConfig
 
     public const int MaxBuildingLevel = 5;
     public const int AttackRange = 25;
-    public const int TargetPopulation = 30;
+    public const int TargetPopulation = 15;
     
     // TODO: move to map config later
     public const int MapSize = 60;
@@ -18,8 +18,8 @@ public static class BarbarianConfig
     public static readonly Troops StartingTroops = new(50, 50, 0);
     public static readonly Troops MaxTroops = new(200, 200, 0);
     public static readonly Resources StartingResources = new(500, 500, 500, 500);
-    public static readonly TimeSpan AttackCooldown = TimeSpan.FromMinutes(1);
-    public const string TickIntervalCron = "*/10 * * * *";
+    public static readonly TimeSpan AttackCooldown = TimeSpan.FromMinutes(15);
+    public const string TickIntervalCron = "*/1 * * * *";
 
     public static readonly Dictionary<BuildingType, int> StartingBuildings = new()
     {

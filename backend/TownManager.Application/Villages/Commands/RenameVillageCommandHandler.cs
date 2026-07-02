@@ -23,6 +23,9 @@ public class RenameVillageCommandHandler(IPlayerRepository playerRepo, IVillageR
         village.Name = request.NewName;
         await villageRepo.SaveChangesAsync(ct);
 
+        VillageActivity.Log?.Invoke(player.Id.ToString(), request.NewName, "rename",
+            new { OldName = village.Name });
+
         return Result.Success();
     }
 }

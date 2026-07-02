@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Villages;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
@@ -45,6 +46,9 @@ public class TransportMovementResolver(
                 movement.Troops, movement.CarriedResources ?? Resources.Zero), ct);
 
         await db.SaveChangesAsync(ct);
+
+        VillageActivity.Log?.Invoke(originVillage.PlayerId.ToString(), originVillage.Name, "transport-resolved",
+            new { Target = targetVillage.Name, movement.Troops, Resources = movement.CarriedResources });
 
         var userId = await playerRepo.GetUserIdByPlayerIdAsync(targetVillage.PlayerId, ct);
         if (userId is not null)

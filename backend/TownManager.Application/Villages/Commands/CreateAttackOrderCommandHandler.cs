@@ -62,6 +62,9 @@ public class CreateAttackOrderCommandHandler(
         // Schedule resolution when attack arrives
         scheduler.ScheduleMovementResolution(order.Id, travelTime);
 
+        VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "attack",
+            new { Target = targetVillage.Name, TargetId = request.TargetVillageId, Troops = troops });
+
         return Result.Success();
     }
 }

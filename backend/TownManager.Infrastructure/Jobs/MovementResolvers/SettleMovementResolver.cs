@@ -1,10 +1,11 @@
 using Microsoft.Extensions.Logging;
-using TownManager.Domain.Factories;
 using TownManager.Application.Interfaces;
-using TownManager.Infrastructure.Persistence;
+using TownManager.Application.Villages;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
+using TownManager.Domain.Factories;
+using TownManager.Infrastructure.Persistence;
 
 namespace TownManager.Infrastructure.Jobs.MovementResolvers;
 
@@ -67,6 +68,9 @@ public class SettleMovementResolver(
 
             scheduler.ScheduleMovementResolution(returnMovement.Id, travelTime);
 
+            VillageActivity.Log?.Invoke(origin.PlayerId.ToString(), origin.Name, "settle-fail",
+                new { movement.TargetCoordinates });
+
             return;
         }
 
@@ -89,6 +93,9 @@ public class SettleMovementResolver(
             await notifications.VillagesChangedAsync(userId2, ct);
             await notifications.ReportCreatedAsync(userId2, ct);
         }
+
+        VillageActivity.Log?.Invoke(origin.PlayerId.ToString(), origin.Name, "settle-success",
+            new { NewVillage = newVillage.Name, movement.TargetCoordinates });
 
         logger.LogInformation("New village {VillageName} created at {Coords} by player {PlayerId}",
             newVillage.Name, movement.TargetCoordinates, origin.PlayerId);

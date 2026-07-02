@@ -43,6 +43,9 @@ public class CreateSettleOrderCommandHandler(
 
         scheduler.ScheduleMovementResolution(movement.Id, travelTime);
 
+        VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "settle",
+            new { Target = request.Target });
+
         var userId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
         if (userId is not null)
             await notifications.VillageUpdatedAsync(userId, village.Id, ct);

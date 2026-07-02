@@ -43,6 +43,9 @@ public class CancelTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
 
         await repo.SaveChangesAsync(ct);
 
+        VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "cancel-train",
+            new { Type = order.Type, CancelledUnits = uncompleted });
+
         for (int i = 0; i < remaining.Count; i++)
         {
             var firstUnitDelay = remaining[i].StartsAt - DateTime.UtcNow + remaining[i].TimePerUnit;
