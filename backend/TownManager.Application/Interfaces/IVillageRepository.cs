@@ -31,6 +31,10 @@ public interface IVillageRepository
 
     Task<int?> GetMaxBuildOrderTargetAsync(Guid villageId, BuildingType type, CancellationToken ct = default);
 
+    Task<IReadOnlyList<Village>> GetBarbarianVillagesAsync(Guid barbarianPlayerId, CancellationToken ct = default);
+    Task<List<Coordinates>> GetAllCoordinatesAsync(CancellationToken ct = default);
+
+    void Remove(Village village);
     void Add(Village village);
     Task SaveChangesAsync(CancellationToken ct = default);
 }

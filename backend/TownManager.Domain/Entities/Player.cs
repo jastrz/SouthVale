@@ -9,7 +9,7 @@ public class Player : Entity
 {
     public required string Username { get; init; }
     public ICollection<Village> Villages { get; set; } = [];
-    public required string UserId { get; init; }
+    public string? UserId { get; init; }
     
     public static Player Create(string username, string applicationUserId, Village starterVillage) => new()
     {

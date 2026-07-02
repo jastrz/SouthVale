@@ -97,6 +97,8 @@ public static class DependencyInjection
             options.WorkerCount = 5;
         });
 
+        services.AddHostedService<BarbarianJobScheduler>();
+
         return services;
     }
 }

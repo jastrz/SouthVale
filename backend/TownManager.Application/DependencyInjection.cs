@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using TownManager.Application.Common;
+using TownManager.Application.Villages.Services;
 
 namespace TownManager.Application;
 
@@ -20,6 +21,8 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(assembly);
+
+        services.AddScoped<IBarbarianTickService, BarbarianTickService>();
 
         return services;
     }

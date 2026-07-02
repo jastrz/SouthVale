@@ -49,12 +49,15 @@ public class AttackMovementResolver(
         targetVillage.Troops = combatResult.DefenderTroops;
         targetVillage.Resources = targetVillage.Resources.Subtract(combatResult.AttackerLoot);
 
+        var isBarbarianTarget = targetVillage.VillageType == VillageType.Barbarian;
+        var destroyBarbarian = isBarbarianTarget && combatResult.DefenderTroops.IsEmpty();
+
         await reportRepo.AddAsync(
             ReportFactory.AttackReport(village.PlayerId, village.Name, village.Player.Username,
                 targetVillage.Name, targetVillage.Player.Username,
                 movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
 
-        if (targetVillage.PlayerId != village.PlayerId)
+        if (!isBarbarianTarget && targetVillage.PlayerId != village.PlayerId)
             await reportRepo.AddAsync(
                 ReportFactory.DefenseReport(targetVillage.PlayerId, targetVillage.Name,
                     village.Name, village.Player.Username,
@@ -65,11 +68,12 @@ public class AttackMovementResolver(
             var slowestSpeed = TroopsConfig.GetSlowestSpeed(combatResult.AttackerTroops);
             var travelTime = TravelTimeCalculator.Calculate(targetVillage.Coordinates, village.Coordinates, slowestSpeed);
 
-            var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.VillageId,
+            var returnMovement = TroopMovement.Create(combatResult.AttackerTroops, combatResult.AttackerLoot, movement.TargetVillageId!.Value,
                 travelTime, DateTime.UtcNow, MovementType.Return);
 
             village.TroopMovements.Add(returnMovement);
 
+            if (destroyBarbarian) villageRepo.Remove(targetVillage);
             await db.SaveChangesAsync(ct);
 
             var sourceUserId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
@@ -79,9 +83,10 @@ public class AttackMovementResolver(
                 await notifications.ReportCreatedAsync(sourceUserId, ct);
             }
 
-            if (targetVillage.PlayerId != village.PlayerId)
+            if (!isBarbarianTarget && targetVillage.PlayerId != village.PlayerId)
             {
                 var targetUserId = await playerRepo.GetUserIdByPlayerIdAsync(targetVillage.PlayerId, ct);
+                // target is a real player but may not be connected
                 if (targetUserId is not null)
                 {
                     await notifications.VillageUpdatedAsync(targetUserId, targetVillage.Id, ct);
@@ -93,13 +98,14 @@ public class AttackMovementResolver(
         }
         else
         {
+            if (destroyBarbarian) villageRepo.Remove(targetVillage);
             await db.SaveChangesAsync(ct);
 
             var sourceUserId = await playerRepo.GetUserIdByPlayerIdAsync(village.PlayerId, ct);
             if (sourceUserId is not null)
                 await notifications.ReportCreatedAsync(sourceUserId, ct);
 
-            if (targetVillage.PlayerId != village.PlayerId)
+            if (!isBarbarianTarget && targetVillage.PlayerId != village.PlayerId)
             {
                 var targetUserId = await playerRepo.GetUserIdByPlayerIdAsync(targetVillage.PlayerId, ct);
                 if (targetUserId is not null)

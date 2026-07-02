@@ -114,6 +114,19 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .Where(o => o.VillageId == villageId && o.BuildingType == type)
             .MaxAsync(o => (int?)o.TargetLevel, ct);
 
+    public async Task<List<Coordinates>> GetAllCoordinatesAsync(CancellationToken ct = default) =>
+        await db.Villages.Select(v => v.Coordinates).ToListAsync(ct);
+
+    public async Task<IReadOnlyList<Village>> GetBarbarianVillagesAsync(Guid barbarianPlayerId, CancellationToken ct = default) =>
+        await db.Villages
+            .Include(v => v.Buildings)
+            .Include(v => v.TroopMovements)
+            .Include(v => v.BuildOrders)
+            .Include(v => v.TrainOrders)
+            .Where(v => v.PlayerId == barbarianPlayerId)
+            .ToListAsync(ct);
+
+    public void Remove(Village village) => db.Villages.Remove(village);
     public void Add(Village village) => db.Villages.Add(village);
     public Task SaveChangesAsync(CancellationToken ct = default) => db.SaveChangesAsync(ct);
 }

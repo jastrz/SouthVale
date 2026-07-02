@@ -4,7 +4,7 @@ namespace TownManager.Application.Dtos;
 
 public record PlayerVillageDto(
     Guid Id,
-    Guid playerId,
+    Guid PlayerId,
     string Name,
     string PlayerName,
     Coordinates Coordinates,

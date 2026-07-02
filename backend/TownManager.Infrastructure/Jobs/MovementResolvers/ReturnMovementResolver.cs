@@ -33,14 +33,14 @@ public class ReturnMovementResolver(
             home.Resources = home.Resources.Add(loot);
 
         var fromName = home.Name;
-        var fromPlayer = home.Player?.Username ?? "";
+        var fromPlayer = home.Player.Username;
         if (movement.TargetVillageId.HasValue && movement.TargetVillageId != movement.VillageId)
         {
             var from = await villageRepo.GetForCombatAsync(movement.TargetVillageId.Value, ct);
             if (from is not null)
             {
                 fromName = from.Name;
-                fromPlayer = from.Player?.Username ?? "";
+                fromPlayer = from.Player.Username;
             }
         }
 

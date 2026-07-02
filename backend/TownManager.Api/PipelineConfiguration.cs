@@ -30,6 +30,10 @@ public static class PipelineConfiguration
                 seeder.SeedAsync().GetAwaiter().GetResult();
                 Log.Information("Db seeded.");
             }
+
+            var barbarianSeeder = new BarbarianSeeder(db);
+            barbarianSeeder.SeedAsync().GetAwaiter().GetResult();
+            Log.Information("Barbarian player ready.");
         }
 
         app.UseHttpsRedirection();

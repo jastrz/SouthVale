@@ -9,12 +9,13 @@ namespace TownManager.Domain.Entities.Villages;
 public class Village : Entity
 {
     public string Name { get; set; } = string.Empty;
+    public VillageType VillageType { get; set; }
 
     // Current state
     public Resources Resources { get; set; } = Resources.Zero;
     public Troops Troops { get; set; } = Troops.Zero;
     public DateTime LastTickAt { get; set; } = DateTime.UtcNow;
-    
+
     // Map
     public Coordinates Coordinates { get; init; } = new(0, 0);
 
@@ -29,11 +30,15 @@ public class Village : Entity
     // FK
     public Guid PlayerId { get; set; }
     public Player Player { get; set; } = null!;
-    
+
+
+    public DateTime? LastAttackAt { get; set; }
+
     public static Village CreateStarter(string villageName, Coordinates coordinates) => new()
     {
         Id = Guid.NewGuid(),
         Name = villageName,
+        VillageType = VillageType.Player,
         Resources = new Resources(500, 500, 500, 500),
         Troops = Troops.Zero,
         LastTickAt = DateTime.UtcNow,
@@ -48,7 +53,7 @@ public class Village : Entity
         ],
         Coordinates = coordinates
     };
-    
+
     public void ApplyProduction(BuildingEffects effects)
     {
         var elapsed = DateTime.UtcNow - LastTickAt;
