@@ -11,6 +11,6 @@ export function createTerrainTile(
   sprite.y = y * TILE_SIZE;
   sprite.width = TILE_SIZE;
   sprite.height = TILE_SIZE;
-  sprite.scale.set(TILE_SIZE / (16 - 1));
+  sprite.scale.set(TILE_SIZE / (64 - 1));
   return sprite;
 }

@@ -3,7 +3,7 @@ import type { Application, FederatedPointerEvent } from "pixi.js";
 import type { MapVillage, VillageDto } from "../../api/types";
 import { tween } from "../animation/";
 import type { TweenHandle } from "../animation/";
-import { CAMERA, TILE_SIZE, COLORS, GRID } from "../config";
+import { CAMERA, TILE_SIZE, COLORS, GRID, ZOOM } from "../config";
 import { TileLayer, PropsLayer, VillageLayer } from "./layers";
 import { type TileData, gridSize } from "../tileData";
 
@@ -61,14 +61,26 @@ export class MapScene {
     });
     this.root.on("pointerup", (e: FederatedPointerEvent) => {
       if (e.target !== this.root) return;
-      if (Math.hypot(e.global.x - ptrDown.x, e.global.y - ptrDown.y) >= GRID.clickDragThreshold) return;
+      if (
+        Math.hypot(e.global.x - ptrDown.x, e.global.y - ptrDown.y) >=
+        GRID.clickDragThreshold
+      )
+        return;
       const local = e.getLocalPosition(this.root);
       const x = Math.floor(local.x / TILE_SIZE);
       const y = Math.floor(local.y / TILE_SIZE);
       this.selectedTile = { x, y };
       this.selectionFill.clear();
-      this.selectionFill.rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-      this.selectionFill.fill({ color: COLORS.selectionFill, alpha: GRID.selectionFillAlpha });
+      this.selectionFill.rect(
+        x * TILE_SIZE,
+        y * TILE_SIZE,
+        TILE_SIZE,
+        TILE_SIZE,
+      );
+      this.selectionFill.fill({
+        color: COLORS.selectionFill,
+        alpha: GRID.selectionFillAlpha,
+      });
       onTileClick?.(x, y);
     });
 
@@ -79,8 +91,17 @@ export class MapScene {
       const y = Math.floor(local.y / TILE_SIZE);
       this.hoveredTile = { x, y };
       this.hoverHighlight.clear();
-      this.hoverHighlight.rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-      this.hoverHighlight.stroke({ width: GRID.hoverOutlineWidth, color: COLORS.hoverOutline, alpha: GRID.hoverOutlineAlpha });
+      this.hoverHighlight.rect(
+        x * TILE_SIZE,
+        y * TILE_SIZE,
+        TILE_SIZE,
+        TILE_SIZE,
+      );
+      this.hoverHighlight.stroke({
+        width: GRID.hoverOutlineWidth,
+        color: COLORS.hoverOutline,
+        alpha: GRID.hoverOutlineAlpha,
+      });
     });
 
     this.root.on("pointerleave", () => {
@@ -88,6 +109,8 @@ export class MapScene {
       this.hoverHighlight.clear();
       this.onVillageHover?.(null);
     });
+
+    this.root.scale.set(ZOOM.default);
 
     this.center();
   }

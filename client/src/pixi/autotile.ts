@@ -1,14 +1,12 @@
-import { ATLAS } from "./atlas";
+import { ATLAS_GROUND } from "./atlas";
 import type { TileData } from "./tileData";
 
 /**
- * For a grass tile at (x, y), check the 4 cardinal neighbors and return
- * the correct grass edge/corner texture so grass auto-tiles around water.
+ * For a grass tile at (x, y), check the 8 neighbors and return
+ * the correct ground edge/corner texture from ATLAS_GROUND so
+ * ground auto-tiles around water.
  *
- * Corners (two adjacent cardinal sides) → TL/TR/BL/BR
- * Edges (one side)                    → TC/BC/ML/MR
- * No water neighbors                  → MC (full grass)
- *
+ * Returns [col, row] in the ground atlas.
  */
 export function autotile(
   grid: TileData[][],
@@ -35,22 +33,53 @@ export function autotile(
   const se = isWater(x + 1, y + 1);
 
   // Outer corners
-  if (n && w) return ATLAS.GRASS_TL;
-  if (n && e) return ATLAS.GRASS_TR;
-  if (s && w) return ATLAS.GRASS_BL;
-  if (s && e) return ATLAS.GRASS_BR;
+  if (n && w) return ATLAS_GROUND.GRASS_TL;
+  if (n && e) return ATLAS_GROUND.GRASS_TR;
+  if (s && w) return ATLAS_GROUND.GRASS_BL;
+  if (s && e) return ATLAS_GROUND.GRASS_BR;
 
   // Edges
-  if (n) return ATLAS.GRASS_BC;
-  if (s) return ATLAS.GRASS_TC;
-  if (w) return ATLAS.GRASS_MR;
-  if (e) return ATLAS.GRASS_ML;
+  if (n) return ATLAS_GROUND.GRASS_BM;
+  if (s) return ATLAS_GROUND.GRASS_TC;
+  if (w) return ATLAS_GROUND.GRASS_MR;
+  if (e) return ATLAS_GROUND.GRASS_ML;
 
   // Inner corners
-  if (nw && !n && !w) return ATLAS.GRASS_IC_BR;
-  if (ne && !n && !e) return ATLAS.GRASS_IC_BL;
-  if (sw && !s && !w) return ATLAS.GRASS_IC_TR;
-  if (se && !s && !e) return ATLAS.GRASS_IC_TL;
+  if (nw && !n && !w) return ATLAS_GROUND.GRASS_IC_BR;
+  if (ne && !n && !e) return ATLAS_GROUND.GRASS_IC_BL;
+  if (sw && !s && !w) return ATLAS_GROUND.GRASS_IC_TR;
+  if (se && !s && !e) return ATLAS_GROUND.GRASS_IC_TL;
 
-  return ATLAS.GRASS_MC;
+  // Center — randomly pick one of three variants
+  const mc = [
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC1,
+    ATLAS_GROUND.GRASS_MC2,
+    // ATLAS_GROUND.GRASS_MC3,
+  ];
+  return mc[Math.floor(Math.random() * mc.length)];
 }

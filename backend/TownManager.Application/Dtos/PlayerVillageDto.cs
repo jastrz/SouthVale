@@ -1,4 +1,5 @@
 using TownManager.Domain.Entities;
+using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Dtos;
 
@@ -8,5 +9,6 @@ public record PlayerVillageDto(
     string Name,
     string PlayerName,
     Coordinates Coordinates,
-    int Population
+    int Population,
+    VillageType VillageType
 );

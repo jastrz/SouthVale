@@ -1,7 +1,7 @@
 import { Container, Sprite, Rectangle, Point } from "pixi.js";
 import type { Application, FederatedPointerEvent } from "pixi.js";
 import { TILE_SIZE } from "../config";
-import { tile, ATLAS } from "../atlas";
+import { groundTile, treeTile, ATLAS_GROUND, ATLAS_TREES } from "../atlas";
 import { autotile } from "../autotile";
 import { createTerrainTile } from "../entities/TerrainTile";
 import { attachZoom } from "../input";
@@ -9,13 +9,25 @@ import { type TileData, gridSize } from "../tileData";
 
 export type Tool = "grass" | "water" | "tree" | "erase";
 
-const TREE_KEYS: Record<number, readonly [number, number]> = {
-  1: ATLAS.TREES_SMALL,
-  2: ATLAS.TREE_SINGLE,
-  3: ATLAS.TREES_DOUBLE,
-  4: ATLAS.TREES_SINGLE2,
-  5: ATLAS.TREES_DOUBLE2,
-};
+const BUSH_TILES = [
+  ATLAS_TREES.BUSH_RED,
+  ATLAS_TREES.BUSH_YELLOW,
+  ATLAS_TREES.BUSH_LIGHT_GREEN,
+  ATLAS_TREES.BUSH_DARK_GREEN,
+] as const;
+
+const TREE_TILES = [
+  ATLAS_TREES.TREE_RED,
+  ATLAS_TREES.TREE_YELLOW,
+  ATLAS_TREES.TREE_DARK_GREEN,
+  ATLAS_TREES.TREE_LIGHT_GREEN,
+  ATLAS_TREES.TREE2_DARK_GREEN,
+  ATLAS_TREES.TREE2_LIGHT_GREEN,
+] as const;
+
+function pick(pool: readonly (readonly [number, number])[]) {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 /**
  * Tile-map editor scene. Left-click paints with the selected tool, right-drag
@@ -202,6 +214,7 @@ export class EditorScene {
           kind: "tree",
           variant: Math.floor(Math.random() * 5) + 1,
         };
+        if (td.decoration.variant <= 2) td.decoration.kind = "bush";
         break;
       case "erase":
         td.decoration = null;
@@ -233,25 +246,22 @@ export class EditorScene {
 
   private placeTerrain(x: number, y: number): void {
     const td = this.grid[y][x];
-    const key =
-      td.terrain === "water" ? ATLAS.WATER : autotile(this.grid, x, y);
-    const sprite = createTerrainTile(x, y, tile(...key));
+    const sprite = createTerrainTile(
+      x, y,
+      td.terrain === "water"
+        ? groundTile(...ATLAS_GROUND.WATER)
+        : groundTile(...autotile(this.grid, x, y)),
+    );
     this.root.addChild(sprite);
     this.terrainSprites[y][x] = sprite;
   }
 
   private placeDecoration(x: number, y: number): void {
     const deco = this.grid[y][x]?.decoration;
-    if (!deco || deco.kind !== "tree") {
-      this.decorSprites[y][x] = null;
-      return;
-    }
-    const key = TREE_KEYS[deco.variant];
-    if (!key) {
-      this.decorSprites[y][x] = null;
-      return;
-    }
-    const sprite = createTerrainTile(x, y, tile(...key));
+    if (!deco) { this.decorSprites[y][x] = null; return; }
+    const pool = deco.kind === "tree" ? TREE_TILES : deco.kind === "bush" ? BUSH_TILES : null;
+    if (!pool) { this.decorSprites[y][x] = null; return; }
+    const sprite = createTerrainTile(x, y, treeTile(...pick(pool)));
     this.root.addChild(sprite);
     this.decorSprites[y][x] = sprite;
   }
@@ -267,16 +277,18 @@ export class EditorScene {
 
   private refreshTile(x: number, y: number): void {
     const td = this.grid[y][x];
-    const key =
-      td.terrain === "water" ? ATLAS.WATER : autotile(this.grid, x, y);
-    this.terrainSprites[y][x].texture = tile(...key);
+    this.terrainSprites[y][x].texture =
+      td.terrain === "water"
+        ? groundTile(...ATLAS_GROUND.WATER)
+        : groundTile(...autotile(this.grid, x, y));
     const existing = this.decorSprites[y][x];
-    if (td.decoration && td.decoration.kind === "tree") {
-      const dk = TREE_KEYS[td.decoration.variant];
+    const deco = td.decoration;
+    const pool = deco?.kind === "tree" ? TREE_TILES : deco?.kind === "bush" ? BUSH_TILES : null;
+    if (pool) {
       if (existing) {
-        existing.texture = tile(...dk);
+        existing.texture = treeTile(...pick(pool));
       } else {
-        const sprite = createTerrainTile(x, y, tile(...dk));
+        const sprite = createTerrainTile(x, y, treeTile(...pick(pool)));
         this.root.addChild(sprite);
         this.decorSprites[y][x] = sprite;
       }
@@ -291,9 +303,10 @@ export class EditorScene {
 
   private refreshTerrain(x: number, y: number): void {
     const td = this.grid[y][x];
-    const key =
-      td.terrain === "water" ? ATLAS.WATER : autotile(this.grid, x, y);
-    this.terrainSprites[y][x].texture = tile(...key);
+    this.terrainSprites[y][x].texture =
+      td.terrain === "water"
+        ? groundTile(...ATLAS_GROUND.WATER)
+        : groundTile(...autotile(this.grid, x, y));
   }
 
   private centerView(app: Application): void {

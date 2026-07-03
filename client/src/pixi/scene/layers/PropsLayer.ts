@@ -1,15 +1,27 @@
 import { Container } from "pixi.js";
 import { createTerrainTile } from "../../entities/TerrainTile";
 import { type TileData, gridSize } from "../../tileData";
-import { tile, ATLAS } from "../../atlas";
+import { treeTile, ATLAS_TREES } from "../../atlas";
 
-const TREE_KEYS: Record<number, readonly [number, number]> = {
-  1: ATLAS.TREES_SMALL,
-  2: ATLAS.TREE_SINGLE,
-  3: ATLAS.TREES_DOUBLE,
-  4: ATLAS.TREES_SINGLE2,
-  5: ATLAS.TREES_DOUBLE2,
-};
+const BUSH_TILES = [
+  // ATLAS_TREES.BUSH_RED,
+  ATLAS_TREES.BUSH_YELLOW,
+  ATLAS_TREES.BUSH_LIGHT_GREEN,
+  ATLAS_TREES.BUSH_DARK_GREEN,
+] as const;
+
+const TREE_TILES = [
+  // ATLAS_TREES.TREE_RED,
+  // ATLAS_TREES.TREE_YELLOW,
+  ATLAS_TREES.TREE_DARK_GREEN,
+  ATLAS_TREES.TREE_LIGHT_GREEN,
+  ATLAS_TREES.TREE2_DARK_GREEN,
+  ATLAS_TREES.TREE2_LIGHT_GREEN,
+] as const;
+
+function pick(pool: readonly (readonly [number, number])[]) {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 export class PropsLayer extends Container {
   constructor(grid: TileData[][]) {
@@ -19,10 +31,15 @@ export class PropsLayer extends Container {
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         const deco = grid[y]?.[x]?.decoration;
-        if (!deco || deco.kind !== "tree") continue;
-        const key = TREE_KEYS[deco.variant];
-        if (!key) continue;
-        this.addChild(createTerrainTile(x, y, tile(...key)));
+        if (!deco) continue;
+        const pool =
+          deco.kind === "tree"
+            ? TREE_TILES
+            : deco.kind === "bush"
+              ? BUSH_TILES
+              : null;
+        if (!pool) continue;
+        this.addChild(createTerrainTile(x, y, treeTile(...pick(pool))));
       }
     }
   }

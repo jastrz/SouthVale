@@ -173,6 +173,7 @@ export interface PlayerVillageDto {
   playerName: string;
   coordinates: Coordinates;
   population: number;
+  villageType: "Player" | "Barbarian";
 }
 
 export interface GetMapRequest {

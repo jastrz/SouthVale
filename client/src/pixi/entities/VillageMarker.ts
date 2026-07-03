@@ -1,15 +1,19 @@
 import { Container, Graphics, Sprite } from "pixi.js";
 import type { MapVillage } from "../../api/types";
 import { COLORS, TILE_SIZE, VILLAGE_SCALE } from "../config";
-import { tile, ATLAS } from "../atlas";
+import { castleTexture } from "../atlas";
 
 export function createVillageMarker(
   village: MapVillage,
   isActive: boolean,
 ): Container {
-  const coord =
-    village.kind === "enemy" ? ATLAS.VILLAGE_ENEMY : ATLAS.VILLAGE_OWN;
-  const sprite = new Sprite(tile(coord[0], coord[1]));
+  const isOwn = village.kind === "own";
+  const sprite = new Sprite(
+    castleTexture(
+      "villageType" in village ? village.villageType : "Player",
+      isOwn,
+    ),
+  );
   sprite.anchor.set(0.5);
   sprite.scale.set(VILLAGE_SCALE);
 

@@ -36,7 +36,7 @@ export function MovementsPanel({
   const incoming = movements.filter(
     (m) =>
       m.status === "InFlight" &&
-      (m.targetVillageId === villageId ||
+      ((m.targetVillageId === villageId && m.type !== "Return") ||
         (m.type === "Return" && m.originVillageId === villageId)),
   );
 

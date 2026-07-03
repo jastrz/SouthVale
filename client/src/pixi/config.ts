@@ -1,10 +1,11 @@
 export const TILE_SIZE = 40;
-export const VILLAGE_SCALE = 2;
+export const VILLAGE_SCALE = 0.12;
 
 export const ZOOM = {
   min: 0.5,
-  max: 3,
+  max: 5,
   step: 0.1,
+  default: 3,
 } as const;
 
 export const CAMERA = {

@@ -20,7 +20,7 @@ public class GetPlayerVillagesQueryHandler(
         var villages = await villageRepo.GetSummariesByPlayerAsync(player.Id, ct);
 
         var dtos = villages
-            .Select(v => new PlayerVillageDto(v.Id, v.PlayerId, v.Name, player.Username, v.Coordinates, v.Troops.TotalCount))
+            .Select(v => new PlayerVillageDto(v.Id, v.PlayerId, v.Name, player.Username, v.Coordinates, v.Troops.TotalCount, v.VillageType))
             .ToList();
 
         return Result<IReadOnlyList<PlayerVillageDto>>.Success(dtos);

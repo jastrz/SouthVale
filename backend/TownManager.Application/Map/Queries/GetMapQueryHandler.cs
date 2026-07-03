@@ -14,7 +14,7 @@ public class GetMapQueryHandler(IVillageRepository villageRepo)
 
         var dtos = villages
             .Select(v => new PlayerVillageDto(
-                v.Id, v.PlayerId, v.Name, v.Player.Username, v.Coordinates, v.Troops.TotalCount))
+                v.Id, v.PlayerId, v.Name, v.Player.Username, v.Coordinates, v.Troops.TotalCount, v.VillageType))
             .ToList();
 
         return Result<IReadOnlyList<PlayerVillageDto>>.Success(dtos);

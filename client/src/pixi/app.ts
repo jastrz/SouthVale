@@ -1,10 +1,10 @@
 import { Application } from "pixi.js";
 import { COLORS } from "./config";
-import { loadAtlas } from "./atlas";
+import { loadAtlas, loadGroundAtlas, loadTreesAtlas, loadCastleTextures } from "./atlas";
 
 /**
  * Creates a Pixi Application sized to the given container, appends its
- * canvas to the container, loads the tile atlas, and returns the ready app.
+ * canvas to the container, loads the tile atlases, and returns the ready app.
  */
 export async function createApplication(
   container: HTMLElement,
@@ -12,6 +12,11 @@ export async function createApplication(
   const app = new Application();
   await app.init({ resizeTo: container, background: COLORS.background });
   container.appendChild(app.canvas);
-  await loadAtlas("/tiles/tilesheet.png");
+  await Promise.all([
+    loadAtlas("/tiles/tilesheet.png"),
+    loadGroundAtlas("/tiles/ground.png"),
+    loadTreesAtlas("/tiles/trees_all.png"),
+    loadCastleTextures(),
+  ]);
   return app;
 }
