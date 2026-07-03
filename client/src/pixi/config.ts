@@ -1,5 +1,6 @@
 export const TILE_SIZE = 40;
 export const VILLAGE_SCALE = 0.12;
+export const PROPS_JITTER = 10;
 
 export const ZOOM = {
   min: 0.5,

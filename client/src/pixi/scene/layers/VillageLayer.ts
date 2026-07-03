@@ -3,16 +3,7 @@ import type { MapVillage } from "../../../api/types";
 import { createVillageMarker } from "../../entities/VillageMarker";
 
 /**
- * Renders every village the client knows about on the world map, with
- * a single uniform API. Own and enemy markers live in the same layer;
- * the `MapVillage.kind` discriminator drives both the visual style
- * (see `createVillageMarker`) and the interactivity attached here.
- *
- * - `onSelect` fires on tap; consumers decide whether to make a
- *   village active, queue an attack, etc. (enemies simply don't get
- *   passed to `setActiveVillage` by the renderer).
- * - `onHover` fires on pointerover/pointerout with the village (or
- *   `null`) so the React side can show the right tooltip.
+ * Renders every village the client knows about on the world map.
  */
 export class VillageLayer extends Container {
   constructor() {
@@ -28,7 +19,10 @@ export class VillageLayer extends Container {
     onHover?: (village: MapVillage | null) => void,
   ): void {
     this.removeChildren().forEach((c) => c.destroy());
-    for (const v of villages) {
+    const sorted = [...villages].sort(
+      (a, b) => a.coordinates.y - b.coordinates.y,
+    );
+    for (const v of sorted) {
       const isActive = v.kind === "own" && v.id === activeOwnId;
       const isTarget = v.id === targetId;
       const marker = createVillageMarker(v, isActive, isTarget);

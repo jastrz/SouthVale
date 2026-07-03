@@ -5,10 +5,12 @@ export function createTerrainTile(
   x: number,
   y: number,
   texture: Texture,
+  xn = 0,
+  yn = 0,
 ): Sprite {
   const sprite = new Sprite(texture);
-  sprite.x = x * TILE_SIZE;
-  sprite.y = y * TILE_SIZE;
+  sprite.x = x * TILE_SIZE + xn;
+  sprite.y = y * TILE_SIZE + yn;
   sprite.width = TILE_SIZE;
   sprite.height = TILE_SIZE;
   sprite.scale.set(TILE_SIZE / (64 - 1));
