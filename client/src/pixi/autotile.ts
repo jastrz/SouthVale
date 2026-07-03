@@ -50,36 +50,17 @@ export function autotile(
   if (sw && !s && !w) return ATLAS_GROUND.GRASS_IC_TR;
   if (se && !s && !e) return ATLAS_GROUND.GRASS_IC_TL;
 
-  // Center — randomly pick one of three variants
-  const mc = [
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC1,
-    ATLAS_GROUND.GRASS_MC2,
-    // ATLAS_GROUND.GRASS_MC3,
+  // weighted random pick
+  const weights: { tile: readonly [number, number]; weight: number }[] = [
+    { tile: ATLAS_GROUND.GRASS_MC1, weight: 50 },
+    { tile: ATLAS_GROUND.GRASS_MC2, weight: 1 },
+    { tile: ATLAS_GROUND.GRASS_MC3, weight: 1 },
   ];
-  return mc[Math.floor(Math.random() * mc.length)];
+  const total = weights.reduce((s, w) => s + w.weight, 0);
+  let r = Math.random() * total;
+  for (const { tile, weight } of weights) {
+    r -= weight;
+    if (r <= 0) return tile;
+  }
+  return weights[weights.length - 1].tile;
 }
