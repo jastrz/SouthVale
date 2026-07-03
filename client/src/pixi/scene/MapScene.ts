@@ -122,7 +122,20 @@ export class MapScene {
     onHover?: (village: MapVillage | null) => void,
   ): void {
     this.onVillageHover = onHover ?? null;
-    this.villages.setVillages(villages, activeOwnId, onSelect, onHover);
+    this.villages.setVillages(
+      villages,
+      activeOwnId,
+      onSelect,
+      onHover
+        ? (v) => {
+            if (v) {
+              this.hoveredTile = null;
+              this.hoverHighlight.clear();
+            }
+            onHover(v);
+          }
+        : undefined,
+    );
   }
 
   clearSelectedTile(): void {
