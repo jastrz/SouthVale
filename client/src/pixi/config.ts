@@ -26,6 +26,8 @@ export const COLORS = {
   enemyVillage: 0xff3344,
   enemyVillageHalo: 0xaa2233,
   selectionFill: 0xffffff,
+  targetFill: 0xff4444,
+  targetHaloAlpha: 0.3,
   hoverOutline: 0xffffff,
 } as const;
 

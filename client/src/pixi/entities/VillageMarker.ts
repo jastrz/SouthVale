@@ -1,15 +1,20 @@
 import { Container, Graphics, Sprite } from "pixi.js";
 import type { MapVillage } from "../../api/types";
 import { COLORS, TILE_SIZE, VILLAGE_SCALE } from "../config";
-import { castleTexture } from "../atlas";
+import { villageTexture } from "../atlas";
+
+function createHalo(color: number, alpha: number): Graphics {
+  return new Graphics().circle(0, 0, 22).fill({ color, alpha });
+}
 
 export function createVillageMarker(
   village: MapVillage,
   isActive: boolean,
+  isTarget: boolean,
 ): Container {
   const isOwn = village.kind === "own";
   const sprite = new Sprite(
-    castleTexture(
+    villageTexture(
       "villageType" in village ? village.villageType : "Player",
       isOwn,
     ),
@@ -23,10 +28,11 @@ export function createVillageMarker(
   container.y = village.coordinates.y * TILE_SIZE + TILE_SIZE / 2;
 
   if (isActive) {
-    const halo = new Graphics()
-      .circle(0, 0, 22)
-      .fill({ color: COLORS.villageHaloActive, alpha: 0.3 });
-    container.addChild(halo);
+    container.addChild(createHalo(COLORS.villageHaloActive, 0.3));
+  }
+
+  if (isTarget) {
+    container.addChild(createHalo(COLORS.targetFill, COLORS.targetHaloAlpha));
   }
 
   return container;

@@ -1,27 +1,7 @@
 import { Container } from "pixi.js";
 import { createTerrainTile } from "../../entities/TerrainTile";
 import { type TileData, gridSize } from "../../tileData";
-import { treeTile, ATLAS_TREES } from "../../atlas";
-
-const BUSH_TILES = [
-  // ATLAS_TREES.BUSH_RED,
-  ATLAS_TREES.BUSH_YELLOW,
-  ATLAS_TREES.BUSH_LIGHT_GREEN,
-  ATLAS_TREES.BUSH_DARK_GREEN,
-] as const;
-
-const TREE_TILES = [
-  // ATLAS_TREES.TREE_RED,
-  // ATLAS_TREES.TREE_YELLOW,
-  ATLAS_TREES.TREE_DARK_GREEN,
-  ATLAS_TREES.TREE_LIGHT_GREEN,
-  ATLAS_TREES.TREE2_DARK_GREEN,
-  ATLAS_TREES.TREE2_LIGHT_GREEN,
-] as const;
-
-function pick(pool: readonly (readonly [number, number])[]) {
-  return pool[Math.floor(Math.random() * pool.length)];
-}
+import { treeTile, BUSH_TILES, TREE_TILES, pickTile } from "../../atlas";
 
 export class PropsLayer extends Container {
   constructor(grid: TileData[][]) {
@@ -39,7 +19,7 @@ export class PropsLayer extends Container {
               ? BUSH_TILES
               : null;
         if (!pool) continue;
-        this.addChild(createTerrainTile(x, y, treeTile(...pick(pool))));
+        this.addChild(createTerrainTile(x, y, treeTile(...pickTile(pool))));
       }
     }
   }

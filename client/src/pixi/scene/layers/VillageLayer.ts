@@ -23,13 +23,15 @@ export class VillageLayer extends Container {
   setVillages(
     villages: readonly MapVillage[],
     activeOwnId: string | null,
+    targetId: string | null,
     onSelect?: (village: MapVillage) => void,
     onHover?: (village: MapVillage | null) => void,
   ): void {
     this.removeChildren().forEach((c) => c.destroy());
     for (const v of villages) {
       const isActive = v.kind === "own" && v.id === activeOwnId;
-      const marker = createVillageMarker(v, isActive);
+      const isTarget = v.id === targetId;
+      const marker = createVillageMarker(v, isActive, isTarget);
       marker.eventMode = "static";
       marker.cursor = "pointer";
       if (onSelect) {

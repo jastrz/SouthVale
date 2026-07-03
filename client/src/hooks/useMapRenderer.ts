@@ -110,6 +110,7 @@ export function useMapRenderer(
     sceneRef.current?.setVillages(
       allVillages,
       activeVillageId,
+      targetVillage?.id ?? null,
       // Own villages become the active selection; enemy villages set
       // the attack target.
       (village) => {
@@ -125,6 +126,7 @@ export function useMapRenderer(
   }, [
     allVillages,
     activeVillageId,
+    targetVillage,
     pixiReady,
     setActiveVillage,
     setHoveredVillage,
@@ -132,10 +134,17 @@ export function useMapRenderer(
     setSelectedTile,
   ]);
 
-  // Clear tile visual when a village is selected
+  // Clear tile visual only when a village is freshly selected,
+  // not when it's deselected (e.g. by clicking an empty tile).
+  const prevActiveRef = useRef(activeVillageId);
+  const prevTargetRef = useRef(targetVillage);
   useEffect(() => {
     if (!pixiReady) return;
-    if (activeVillageId || targetVillage) {
+    const gainedActive = activeVillageId && activeVillageId !== prevActiveRef.current;
+    const gainedTarget = targetVillage && targetVillage !== prevTargetRef.current;
+    prevActiveRef.current = activeVillageId;
+    prevTargetRef.current = targetVillage;
+    if (gainedActive || gainedTarget) {
       sceneRef.current?.clearSelectedTile();
     }
   }, [activeVillageId, targetVillage, pixiReady]);

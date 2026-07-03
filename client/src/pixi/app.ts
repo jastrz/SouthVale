@@ -1,6 +1,11 @@
 import { Application } from "pixi.js";
 import { COLORS } from "./config";
-import { loadAtlas, loadGroundAtlas, loadTreesAtlas, loadCastleTextures } from "./atlas";
+import {
+  loadAtlas,
+  loadGroundAtlas,
+  loadTreesAtlas,
+  loadVillageTextures,
+} from "./atlas";
 
 /**
  * Creates a Pixi Application sized to the given container, appends its
@@ -16,7 +21,7 @@ export async function createApplication(
     loadAtlas("/tiles/tilesheet.png"),
     loadGroundAtlas("/tiles/ground.png"),
     loadTreesAtlas("/tiles/trees_all.png"),
-    loadCastleTextures(),
+    loadVillageTextures(),
   ]);
   return app;
 }

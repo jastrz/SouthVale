@@ -6,7 +6,8 @@ type MapJson = {
   cols: number;
   rows: number;
   terrain: string; // row-major, G=grass W=water
-  trees: [number, number, number][]; // [x, y, variant]
+  trees?: [number, number, number][]; // [x, y, variant] — legacy
+  decorations?: [number, number, number, string][]; // [x, y, variant, kind]
 };
 
 /**
@@ -39,9 +40,10 @@ export async function loadMap(url: string): Promise<TileData[][]> {
     }
   }
 
-  for (const [x, y, variant] of json.trees ?? []) {
+  for (const entry of json.decorations ?? json.trees ?? []) {
+    const [x, y, variant, kind] = entry;
     if (y < rows && x < cols) {
-      grid[y][x].decoration = { kind: "tree", variant };
+      grid[y][x].decoration = { kind: kind as "tree" | "bush", variant };
     }
   }
 

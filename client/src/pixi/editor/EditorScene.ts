@@ -1,33 +1,13 @@
 import { Container, Sprite, Rectangle, Point } from "pixi.js";
 import type { Application, FederatedPointerEvent } from "pixi.js";
 import { TILE_SIZE } from "../config";
-import { groundTile, treeTile, ATLAS_GROUND, ATLAS_TREES } from "../atlas";
+import { groundTile, treeTile, ATLAS_GROUND, BUSH_TILES, TREE_TILES, pickTile } from "../atlas";
 import { autotile } from "../autotile";
 import { createTerrainTile } from "../entities/TerrainTile";
 import { attachZoom } from "../input";
 import { type TileData, gridSize } from "../tileData";
 
-export type Tool = "grass" | "water" | "tree" | "erase";
-
-const BUSH_TILES = [
-  ATLAS_TREES.BUSH_RED,
-  ATLAS_TREES.BUSH_YELLOW,
-  ATLAS_TREES.BUSH_LIGHT_GREEN,
-  ATLAS_TREES.BUSH_DARK_GREEN,
-] as const;
-
-const TREE_TILES = [
-  ATLAS_TREES.TREE_RED,
-  ATLAS_TREES.TREE_YELLOW,
-  ATLAS_TREES.TREE_DARK_GREEN,
-  ATLAS_TREES.TREE_LIGHT_GREEN,
-  ATLAS_TREES.TREE2_DARK_GREEN,
-  ATLAS_TREES.TREE2_LIGHT_GREEN,
-] as const;
-
-function pick(pool: readonly (readonly [number, number])[]) {
-  return pool[Math.floor(Math.random() * pool.length)];
-}
+export type Tool = "grass" | "water" | "tree" | "bush" | "erase";
 
 /**
  * Tile-map editor scene. Left-click paints with the selected tool, right-drag
@@ -210,11 +190,10 @@ export class EditorScene {
         td.decoration = null;
         break;
       case "tree":
-        td.decoration = {
-          kind: "tree",
-          variant: Math.floor(Math.random() * 5) + 1,
-        };
-        if (td.decoration.variant <= 2) td.decoration.kind = "bush";
+        td.decoration = { kind: "tree", variant: 0 };
+        break;
+      case "bush":
+        td.decoration = { kind: "bush", variant: 0 };
         break;
       case "erase":
         td.decoration = null;
@@ -261,7 +240,7 @@ export class EditorScene {
     if (!deco) { this.decorSprites[y][x] = null; return; }
     const pool = deco.kind === "tree" ? TREE_TILES : deco.kind === "bush" ? BUSH_TILES : null;
     if (!pool) { this.decorSprites[y][x] = null; return; }
-    const sprite = createTerrainTile(x, y, treeTile(...pick(pool)));
+    const sprite = createTerrainTile(x, y, treeTile(...pickTile(pool)));
     this.root.addChild(sprite);
     this.decorSprites[y][x] = sprite;
   }
@@ -286,9 +265,9 @@ export class EditorScene {
     const pool = deco?.kind === "tree" ? TREE_TILES : deco?.kind === "bush" ? BUSH_TILES : null;
     if (pool) {
       if (existing) {
-        existing.texture = treeTile(...pick(pool));
+        existing.texture = treeTile(...pickTile(pool));
       } else {
-        const sprite = createTerrainTile(x, y, treeTile(...pick(pool)));
+        const sprite = createTerrainTile(x, y, treeTile(...pickTile(pool)));
         this.root.addChild(sprite);
         this.decorSprites[y][x] = sprite;
       }

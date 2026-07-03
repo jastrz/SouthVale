@@ -118,6 +118,7 @@ export class MapScene {
   setVillages(
     villages: readonly MapVillage[],
     activeOwnId: string | null,
+    targetId: string | null,
     onSelect?: (village: MapVillage) => void,
     onHover?: (village: MapVillage | null) => void,
   ): void {
@@ -125,6 +126,7 @@ export class MapScene {
     this.villages.setVillages(
       villages,
       activeOwnId,
+      targetId,
       onSelect,
       onHover
         ? (v) => {

@@ -52,7 +52,7 @@ export function autotile(
 
   // weighted random pick
   const weights: { tile: readonly [number, number]; weight: number }[] = [
-    { tile: ATLAS_GROUND.GRASS_MC1, weight: 50 },
+    { tile: ATLAS_GROUND.GRASS_MC1, weight: 40 },
     { tile: ATLAS_GROUND.GRASS_MC2, weight: 1 },
     { tile: ATLAS_GROUND.GRASS_MC3, weight: 1 },
   ];

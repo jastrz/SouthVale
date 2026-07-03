@@ -156,7 +156,7 @@ let playerVillage: Texture;
 let enemyVillage: Texture;
 let barbarianVillage: Texture;
 
-export async function loadCastleTextures(): Promise<void> {
+export async function loadVillageTextures(): Promise<void> {
   const [player, enemy, barbarian] = await Promise.all([
     Assets.load("/villages/player_village.png"),
     Assets.load("/villages/enemy_village.png"),
@@ -167,7 +167,24 @@ export async function loadCastleTextures(): Promise<void> {
   barbarianVillage = new Texture({ source: barbarian.source });
 }
 
-export function castleTexture(
+export const BUSH_TILES = [
+  ATLAS_TREES.BUSH_YELLOW,
+  ATLAS_TREES.BUSH_LIGHT_GREEN,
+  ATLAS_TREES.BUSH_DARK_GREEN,
+] as const;
+
+export const TREE_TILES = [
+  ATLAS_TREES.TREE_DARK_GREEN,
+  ATLAS_TREES.TREE_LIGHT_GREEN,
+  ATLAS_TREES.TREE2_DARK_GREEN,
+  ATLAS_TREES.TREE2_LIGHT_GREEN,
+] as const;
+
+export function pickTile(pool: readonly (readonly [number, number])[]) {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+export function villageTexture(
   villageType: "Player" | "Barbarian",
   isOwn: boolean,
 ): Texture {

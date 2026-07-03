@@ -5,7 +5,7 @@ import type { Tool } from "../pixi/editor/EditorScene";
 import { loadMap } from "../pixi/mapLoader";
 import type { TileData } from "../pixi/tileData";
 
-const TOOLS: Tool[] = ["grass", "water", "tree", "erase"];
+const TOOLS: Tool[] = ["grass", "water", "tree", "bush", "erase"];
 
 export function MapEditorPage() {
   const divRef = useRef<HTMLDivElement>(null);
@@ -54,14 +54,14 @@ export function MapEditorPage() {
         row.map((td) => (td.terrain === "water" ? "W" : "G")).join(""),
       )
       .join("");
-    const trees: [number, number, number][] = [];
+    const decorations: [number, number, number, string][] = [];
     for (let y = 0; y < rows; y++)
       for (let x = 0; x < cols; x++) {
         const d = grid[y][x].decoration;
-        if (d?.kind === "tree") trees.push([x, y, d.variant]);
+        if (d) decorations.push([x, y, d.variant, d.kind]);
       }
     const blob = new Blob(
-      [JSON.stringify({ cols, rows, terrain, trees }, null, 2)],
+      [JSON.stringify({ cols, rows, terrain, decorations }, null, 2)],
       { type: "application/json" },
     );
     const url = URL.createObjectURL(blob);
@@ -94,9 +94,11 @@ export function MapEditorPage() {
             };
           }
         }
-        for (const [x, y, variant] of data.trees ?? [])
+        for (const entry of data.decorations ?? data.trees ?? []) {
+          const [x, y, variant, kind] = entry;
           if (y < rows && x < cols)
-            grid[y][x].decoration = { kind: "tree", variant };
+            grid[y][x].decoration = { kind: kind ?? "tree", variant };
+        }
         sceneRef.current?.loadGrid(grid);
         setWidth(cols);
         setHeight(rows);
