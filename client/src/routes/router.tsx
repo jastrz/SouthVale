@@ -9,6 +9,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { useAuthStore } from "../store/authStore";
 import { RootLayout } from "../layouts/RootLayout";
+import { FrontpageLayout } from "../layouts/FrontpageLayout";
 import { MapEditorPage } from "../pages/MapEditorPage";
 
 const rootRoute = createRootRoute({
@@ -26,8 +27,14 @@ const indexRoute = createRoute({
   component: GamePage,
 });
 
-const loginRoute = createRoute({
+const frontpageRoute = createRoute({
   getParentRoute: () => rootRoute,
+  id: "frontpage",
+  component: FrontpageLayout,
+});
+
+const loginRoute = createRoute({
+  getParentRoute: () => frontpageRoute,
   path: "/login",
   beforeLoad: () => {
     if (useAuthStore.getState().token) {
@@ -38,7 +45,7 @@ const loginRoute = createRoute({
 });
 
 const registerRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => frontpageRoute,
   path: "/register",
   beforeLoad: () => {
     if (useAuthStore.getState().token) {
@@ -54,7 +61,11 @@ const mapEditorRoute = createRoute({
   component: MapEditorPage,
 });
 
-const children = [indexRoute, loginRoute, registerRoute, mapEditorRoute];
+const children = [
+  indexRoute,
+  frontpageRoute.addChildren([loginRoute, registerRoute]),
+  mapEditorRoute,
+];
 
 const routeTree = rootRoute.addChildren(children);
 

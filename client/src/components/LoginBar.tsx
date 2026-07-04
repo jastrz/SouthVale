@@ -22,6 +22,11 @@ export function LoginBar() {
     <div className="flex items-center gap-2">
       {token ? (
         <>
+          <img
+            src="/characters/character_040.png"
+            alt=""
+            className="h-8 w-auto"
+          />
           <span className="max-w-30 truncate text-slate-200">
             {username ?? email}
           </span>
