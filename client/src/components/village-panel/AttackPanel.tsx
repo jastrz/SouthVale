@@ -58,7 +58,7 @@ export function AttackPanel({
   targetVillageId: string;
   maxSwordsmen: number;
   maxArchers: number;
-  mutation: UseMutationResult<unknown, Error, AttackRequest, unknown>;
+  mutation: UseMutationResult<unknown, unknown, AttackRequest, unknown>;
   onClearTarget: () => void;
 }) {
   const [swordsmen, setSwordsmen] = useState(0);

@@ -264,7 +264,7 @@ export function BuildingsPanel({
     targetLevel: number;
     completesAt: string;
   }[];
-  mutation: UseMutationResult<unknown, Error, BuildRequest, unknown>;
+  mutation: UseMutationResult<unknown, unknown, BuildRequest, unknown>;
 }) {
   useTick();
 

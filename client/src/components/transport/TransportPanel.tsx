@@ -20,7 +20,7 @@ export function TransportPanel({
   villageId: string;
   troops: { swordsmen: number; archers: number; settlers: number };
   resources: ResourcesDto;
-  mutation: UseMutationResult<unknown, Error, TransportRequest, unknown>;
+  mutation: UseMutationResult<unknown, unknown, TransportRequest, unknown>;
   onClose: () => void;
 }) {
   const { data: myVillages } = useMyVillages();

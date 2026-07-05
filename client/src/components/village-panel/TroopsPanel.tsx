@@ -1,8 +1,9 @@
 import { useState } from "react";
-import type { UseMutationResult } from "@tanstack/react-query";
 import { TROOP_LABELS } from "../../config/game";
 import { TROOP_ICONS } from "../../lib/helpers";
 import { Icon } from "../Icon";
+
+import type { UseMutationResult } from "@tanstack/react-query";
 
 import type {
   TroopType,
@@ -78,7 +79,7 @@ function TrainingForm({
   mutation,
 }: {
   resources: ResourcesDto;
-  mutation: UseMutationResult<unknown, Error, TrainRequest, unknown>;
+  mutation: UseMutationResult<unknown, unknown, TrainRequest, unknown>;
 }) {
   const { data: gameConfig } = useGameConfig();
   const [orders, setOrders] = useState<Record<string, number>>({});
@@ -206,7 +207,7 @@ export function TroopsPanel({
   swordsmen: number;
   archers: number;
   settlers: number;
-  mutation: UseMutationResult<unknown, Error, TrainRequest, unknown>;
+  mutation: UseMutationResult<unknown, unknown, TrainRequest, unknown>;
 }) {
   const { data: gameConfig } = useGameConfig();
   const troopList: [string, TroopType, number, string][] = [

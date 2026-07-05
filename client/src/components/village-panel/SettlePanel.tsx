@@ -13,7 +13,7 @@ export function SettlePanel({
   targetX: number;
   targetY: number;
   settlers: number;
-  mutation: UseMutationResult<unknown, Error, SettleRequest, unknown>;
+  mutation: UseMutationResult<unknown, unknown, SettleRequest, unknown>;
   onClearTarget: () => void;
 }) {
   const { getSpeed } = useTravelTime();
