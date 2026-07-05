@@ -6,19 +6,17 @@ import axios from "axios";
 import "./index.css";
 import { router } from "./routes/router";
 import { queryClient } from "./lib/query-client";
+import { Toaster } from "sonner";
 import { AuthCacheInvalidator } from "./components/AuthCacheInvalidator";
 import { useAuthStore } from "./store/authStore";
 import { useSignalR } from "./hooks/useSignalR";
 
-function App() {
+export function App() {
   useSignalR();
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(!!useAuthStore.getState().token);
 
   useEffect(() => {
-    if (useAuthStore.getState().token) {
-      setReady(true);
-      return;
-    }
+    if (ready) return;
 
     axios
       .post(
@@ -33,7 +31,7 @@ function App() {
         /* no valid refresh token — stay logged out */
       })
       .finally(() => setReady(true));
-  }, []);
+  }, [ready]);
 
   if (!ready) return null;
 
@@ -41,6 +39,7 @@ function App() {
     <>
       <AuthCacheInvalidator />
       <RouterProvider router={router} />
+      <Toaster richColors theme="dark" position="bottom-right" />
     </>
   );
 }

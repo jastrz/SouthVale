@@ -288,13 +288,6 @@ export function BuildingsPanel({
           />
         ))}
       </div>
-      {mutation.isError && (
-        <p className="mt-2 text-xs text-red-400">
-          {mutation.error instanceof Error
-            ? mutation.error.message
-            : "Upgrade failed"}
-        </p>
-      )}
     </section>
   );
 }

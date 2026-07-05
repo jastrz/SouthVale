@@ -191,13 +191,6 @@ function TrainingForm({
       >
         {mutation.isPending ? "Training…" : "Train"}
       </button>
-      {mutation.isError && (
-        <p className="mt-1 text-xs text-red-400">
-          {mutation.error instanceof Error
-            ? mutation.error.message
-            : "Training failed"}
-        </p>
-      )}
     </div>
   );
 }

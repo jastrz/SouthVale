@@ -51,13 +51,6 @@ export function SettlePanel({
       >
         {mutation.isPending ? "Sending…" : settlers < 1 ? "No settlers" : "Send Settler"}
       </button>
-      {mutation.isError && (
-        <p className="mt-1 text-xs text-red-400">
-          {mutation.error instanceof Error
-            ? mutation.error.message
-            : "Settle failed"}
-        </p>
-      )}
     </section>
   );
 }

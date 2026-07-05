@@ -16,11 +16,11 @@ export function GamePage() {
       <div className="flex h-full">
         <OverviewPanel />
         <div className="flex flex-1 min-w-0 items-start overflow-y-auto">
-          <div className="flex w-full h-full flex-col pt-12">
+          <div className="flex w-full h-full flex-col">
             {currentView === "map" ? (
               <MapCanvas />
             ) : (
-              <div className="mx-auto flex w-full max-w-5xl h-full flex-col gap-2 p-4 pt-20">
+              <div className="mx-auto flex w-full max-w-5xl h-full flex-col gap-2 p-4 pt-32">
                 {currentView === "notifications" ? (
                   <NotificationsPanel />
                 ) : (

@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "../../lib/axios";
 import { queryClient } from "../../lib/query-client";
 import {
@@ -78,14 +79,19 @@ export const useVillageStatus = () =>
         .then((r) => r.data),
   });
 
+const onError = (e: unknown) =>
+  toast.error(e instanceof Error ? e.message : "Action failed");
+
 export const useBuild = (villageId: string) =>
   useMutation({
     mutationFn: (data: BuildRequest) =>
       api.post(`/gameplay/village/${villageId}/build`, data),
     onSuccess: () => {
+      toast.success("Upgrade queued");
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["villageStatus"] });
     },
+    onError,
   });
 
 export const useTrain = (villageId: string) =>
@@ -93,9 +99,11 @@ export const useTrain = (villageId: string) =>
     mutationFn: (data: TrainRequest) =>
       api.post(`/gameplay/village/${villageId}/train`, data),
     onSuccess: () => {
+      toast.success("Training started");
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["villageStatus"] });
     },
+    onError,
   });
 
 export const useAttack = (villageId: string) =>
@@ -103,9 +111,11 @@ export const useAttack = (villageId: string) =>
     mutationFn: (data: AttackRequest) =>
       api.post(`/gameplay/village/${villageId}/attack`, data),
     onSuccess: () => {
+      toast.success("Attack sent");
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["movements"] });
     },
+    onError,
   });
 
 export const useTransport = (villageId: string) =>
@@ -113,9 +123,11 @@ export const useTransport = (villageId: string) =>
     mutationFn: (data: TransportRequest) =>
       api.post(`/gameplay/village/${villageId}/transport`, data),
     onSuccess: () => {
+      toast.success("Transport sent");
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["movements"] });
     },
+    onError,
   });
 
 export const useSettle = (villageId: string) =>
@@ -123,9 +135,11 @@ export const useSettle = (villageId: string) =>
     mutationFn: async (data: SettleRequest) =>
       api.post(`/gameplay/village/${villageId}/settle`, data),
     onSuccess: () => {
+      toast.success("Settler dispatched");
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["movements"] });
     },
+    onError,
   });
 
 export const useCancelBuild = (villageId: string) =>

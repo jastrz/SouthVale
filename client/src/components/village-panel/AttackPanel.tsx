@@ -132,13 +132,6 @@ export function AttackPanel({
           {mutation.isPending ? "Sending…" : "Send Attack"}
         </button>
       </div>
-      {mutation.isError && (
-        <p className="mt-1 text-xs text-red-400">
-          {mutation.error instanceof Error
-            ? mutation.error.message
-            : "Attack failed"}
-        </p>
-      )}
     </section>
   );
 }

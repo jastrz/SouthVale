@@ -229,13 +229,6 @@ export function TransportPanel({
       >
         {mutation.isPending ? "Sending…" : "Send Transport"}
       </button>
-      {mutation.isError && (
-        <p className="mt-1 text-xs text-red-400">
-          {mutation.error instanceof Error
-            ? mutation.error.message
-            : "Transport failed"}
-        </p>
-      )}
     </section>
   );
 }
