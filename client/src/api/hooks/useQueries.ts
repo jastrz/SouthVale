@@ -1,20 +1,21 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/axios";
 import { queryClient } from "../../lib/query-client";
-import type {
-  BuildRequest,
-  TrainRequest,
-  AttackRequest,
-  TransportRequest,
-  SettleRequest,
-  VillageListItemDto,
-  VillageDto,
-  PlayerVillageDto,
-  GetMapRequest,
-  MovementDto,
-  GameConfigDto,
-  ReportsResult,
-  VillageStatusDto,
+import {
+  type BuildRequest,
+  type TrainRequest,
+  type AttackRequest,
+  type TransportRequest,
+  type SettleRequest,
+  type VillageListItemDto,
+  type VillageDto,
+  type PlayerVillageDto,
+  type GetMapRequest,
+  type MovementDto,
+  type GameConfigDto,
+  type ReportsResult,
+  type VillageStatusDto,
+  type LeaderboardResult,
 } from "../types";
 
 export const useGameConfig = () =>
@@ -180,4 +181,16 @@ export const useMarkReportRead = () =>
     mutationFn: (reportId: string) =>
       api.post(`/gameplay/me/reports/${reportId}/read`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reports"] }),
+  });
+
+export const useLeaderboard = (page = 1) =>
+  useQuery({
+    queryKey: ["leaderboard", page],
+    queryFn: () =>
+      api
+        .get<LeaderboardResult>("/gameplay/leaderboard", {
+          params: { page, pageSize: 20 },
+        })
+        .then((r) => r.data),
+    placeholderData: (prev) => prev,
   });

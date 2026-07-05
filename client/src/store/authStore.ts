@@ -12,13 +12,17 @@ function load<T>(key: string): T | null {
 function save(key: string, value: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch { /* quota exceeded, ignore */ }
+  } catch {
+    /* quota exceeded, ignore */
+  }
 }
 
 function remove(key: string) {
   try {
     localStorage.removeItem(key);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 interface AuthState {

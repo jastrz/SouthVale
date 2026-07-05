@@ -181,7 +181,12 @@ export interface GetMapRequest {
   radius: number;
 }
 
-export type ReportType = "Attack" | "Defense" | "Settle" | "Return" | "Transport";
+export type ReportType =
+  | "Attack"
+  | "Defense"
+  | "Settle"
+  | "Return"
+  | "Transport";
 
 export interface ReportDto {
   id: string;
@@ -195,6 +200,18 @@ export interface ReportDto {
 export interface ReportsResult {
   reports: ReportDto[];
   unreadCount: number;
+  totalCount: number;
+}
+
+export interface LeaderboardEntryDto {
+  playerId: string;
+  username: string;
+  score: number;
+  rank: number;
+}
+
+export interface LeaderboardResult {
+  items: LeaderboardEntryDto[];
   totalCount: number;
 }
 

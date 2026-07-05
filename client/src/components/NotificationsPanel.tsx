@@ -13,7 +13,7 @@ export function NotificationsPanel() {
   const totalPages = Math.ceil((data?.totalCount ?? 0) / 10);
 
   return (
-    <div className="flex w-full max-w-2xl h-full flex-col gap-2 p-4 pt-24">
+    <>
       <div className="flex items-center">
         <div className="flex-1" />
         <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
@@ -44,6 +44,6 @@ export function NotificationsPanel() {
       {totalPages > 1 && (
         <Pagination page={page} totalPages={totalPages} onChange={setPage} />
       )}
-    </div>
+    </>
   );
 }

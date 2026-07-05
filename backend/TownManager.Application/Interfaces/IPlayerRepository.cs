@@ -11,4 +11,5 @@ public interface IPlayerRepository
     Task<string?> GetUserIdByPlayerIdAsync(Guid playerId, CancellationToken ct = default);
     Task<string?> GetUserIdByVillageIdAsync(Guid villageId, CancellationToken ct = default);
     void Add(Player player);
+    Task<IReadOnlyList<Player>> GetAllPlayersWithTroopDataAsync(CancellationToken ct = default);
 }

@@ -168,7 +168,6 @@ export async function loadVillageTextures(): Promise<void> {
 }
 
 export const BUSH_TILES = [
-  ATLAS_TREES.BUSH_YELLOW,
   ATLAS_TREES.BUSH_LIGHT_GREEN,
   ATLAS_TREES.BUSH_DARK_GREEN,
 ] as const;

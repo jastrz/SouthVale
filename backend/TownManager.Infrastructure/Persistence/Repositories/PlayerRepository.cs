@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 
 namespace TownManager.Infrastructure.Persistence.Repositories;
@@ -25,4 +26,12 @@ internal sealed class PlayerRepository(AppDbContext db) : IPlayerRepository
         db.Players.Where(p => p.Villages.Any(v => v.Id == villageId)).Select(p => p.UserId).FirstOrDefaultAsync(ct);
 
     public void Add(Player player) => db.Players.Add(player);
+
+    public async Task<IReadOnlyList<Player>> GetAllPlayersWithTroopDataAsync(CancellationToken ct = default) =>
+        await db.Players
+            .AsNoTracking()
+            .Include(p => p.Villages)
+                .ThenInclude(v => v.TroopMovements)
+            .Where(p => p.Id != BarbarianConfig.BarbarianPlayerId)
+            .ToListAsync(ct);
 }

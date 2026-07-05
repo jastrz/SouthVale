@@ -1,1 +1,1 @@
-export type ViewMode = "map" | "notifications";
+export type ViewMode = "map" | "notifications" | "leaderboard";

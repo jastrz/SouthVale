@@ -48,6 +48,12 @@ export function TopBar() {
         >
           Notifications
         </Tab>
+        <Tab
+          active={currentView === "leaderboard"}
+          onClick={() => setCurrentView("leaderboard")}
+        >
+          Leaderboard
+        </Tab>
       </nav>
     </div>
   );
