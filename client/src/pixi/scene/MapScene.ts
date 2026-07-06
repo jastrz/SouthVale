@@ -1,11 +1,12 @@
-import { Container, Graphics, Rectangle } from "pixi.js";
+import { Container, Graphics, Rectangle, TilingSprite } from "pixi.js";
 import type { Application, FederatedPointerEvent } from "pixi.js";
 import type { MapVillage, VillageDto } from "../../api/types";
 import { tween } from "../animation/";
 import type { TweenHandle } from "../animation/";
-import { CAMERA, TILE_SIZE, COLORS, GRID, ZOOM } from "../config";
+import { CAMERA, TILE_SIZE, COLORS, GRID, ZOOM, panelWidth } from "../config";
 import { TileLayer, PropsLayer, VillageLayer } from "./layers";
 import { type TileData, gridSize } from "../tileData";
+import { groundTile, ATLAS_GROUND } from "../atlas";
 
 type Bounds = { xMin: number; xMax: number; yMin: number; yMax: number };
 
@@ -49,6 +50,7 @@ export class MapScene {
     this.root.hitArea = new Rectangle(0, 0, cols * TILE_SIZE, rows * TILE_SIZE);
 
     this.app.stage.addChild(this.root);
+    this.createBackground(grid);
     this.root.addChild(this.tiles);
     this.root.addChild(this.props);
     this.root.addChild(this.selectionFill);
@@ -113,6 +115,21 @@ export class MapScene {
     this.root.scale.set(ZOOM.default);
 
     this.center();
+  }
+
+  private createBackground(grid: TileData[][]): void {
+    const { cols, rows } = gridSize(grid);
+    const worldW = cols * TILE_SIZE;
+    const worldH = rows * TILE_SIZE;
+    const pad = Math.max(worldW, worldH, 100 * TILE_SIZE);
+    const bg = new TilingSprite({
+      texture: groundTile(...ATLAS_GROUND.GRASS_MC1),
+      width: worldW + pad,
+      height: worldH + pad,
+      tileScale: { x: TILE_SIZE / 64, y: TILE_SIZE / 64 },
+    });
+    bg.position.set(-pad / 2, -pad / 2);
+    this.root.addChildAt(bg, 0);
   }
 
   setVillages(
@@ -253,13 +270,16 @@ export class MapScene {
     const { cols, rows } = gridSize(this.grid);
     const worldW = cols * TILE_SIZE * this.root.scale.x;
     const worldH = rows * TILE_SIZE * this.root.scale.y;
-    const canvasW = this.app.screen.width;
-    const canvasH = this.app.screen.height;
+    const cw = this.app.screen.width;
+    const ch = this.app.screen.height;
+    const pw = panelWidth() + 200;
+    const cx = (cw - worldW) / 2;
+    const cy = (ch - worldH) / 2;
     return {
-      xMin: worldW >= canvasW ? canvasW - worldW : (canvasW - worldW) / 2,
-      xMax: worldW >= canvasW ? 0 : (canvasW - worldW) / 2,
-      yMin: worldH >= canvasH ? canvasH - worldH : (canvasH - worldH) / 2,
-      yMax: worldH >= canvasH ? 0 : (canvasH - worldH) / 2,
+      xMin: Math.min(cx, -(worldW - cw) - pw),
+      xMax: Math.max(cx, pw),
+      yMin: Math.min(cy, -(worldH - ch) - 80),
+      yMax: Math.max(cy, 80),
     };
   }
 

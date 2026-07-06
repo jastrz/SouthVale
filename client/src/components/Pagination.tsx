@@ -18,7 +18,7 @@ export function Pagination({
       >
         Prev
       </button>
-      <span className="text-xs text-slate-400">
+      <span className="text-xs text-slate-300">
         {page} / {totalPages}
       </span>
       <button

@@ -1,5 +1,4 @@
 import { Application } from "pixi.js";
-import { COLORS } from "./config";
 import {
   loadAtlas,
   loadGroundAtlas,
@@ -15,7 +14,7 @@ export async function createApplication(
   container: HTMLElement,
 ): Promise<Application> {
   const app = new Application();
-  await app.init({ resizeTo: container, background: COLORS.background });
+  await app.init({ resizeTo: container });
   container.appendChild(app.canvas);
   await Promise.all([
     loadAtlas("/tiles/tilesheet.png"),

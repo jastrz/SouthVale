@@ -17,11 +17,13 @@ export function Report({ report }: ReportProps) {
 
   return (
     <div
-      onClick={() => { if (!report.isRead) markOne.mutate(report.id); }}
+      onClick={() => {
+        if (!report.isRead) markOne.mutate(report.id);
+      }}
       className={`cursor-pointer rounded border px-3 py-2 text-xs ${
         report.isRead
-          ? "border-slate-800 bg-slate-900/50 text-slate-400"
-          : "border-slate-700 bg-slate-800/50 text-slate-200"
+          ? "border-slate-800 bg-slate-800/80 text-slate-400"
+          : "border-slate-700 bg-slate-800/95 text-slate-200"
       }`}
     >
       <div className="flex items-center justify-between">

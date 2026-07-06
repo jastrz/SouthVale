@@ -217,7 +217,7 @@ export function TroopsPanel({
   ];
 
   return (
-    <section className="border-b border-slate-800 px-4 py-3">
+    <section className="px-4 py-3">
       <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
         Troops
       </h3>

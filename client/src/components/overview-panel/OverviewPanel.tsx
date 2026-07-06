@@ -59,8 +59,8 @@ export function OverviewPanel() {
 
   return (
     <PanelContainer>
-      <div className="flex h-full w-72 flex-col border-r border-slate-800 bg-slate-950/90 font-sans text-white backdrop-blur-sm">
-        <header className="border-b border-slate-800 px-4 py-2">
+      <div className="flex h-full w-full flex-col font-sans text-white">
+        <header className="px-4 py-2">
           <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
             Your Villages
           </h2>

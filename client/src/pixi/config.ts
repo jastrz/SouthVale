@@ -38,3 +38,18 @@ export const GRID = {
   selectionFillAlpha: 0.2,
   clickDragThreshold: 5,
 } as const;
+
+export const PANEL = {
+  minRem: 18,
+  maxRem: 22,
+  preferredVw: 18,
+} as const;
+
+export function panelWidth(): number {
+  const minPx = PANEL.minRem * 16;
+  const maxPx = PANEL.maxRem * 16;
+  const preferredPx = window.innerWidth * (PANEL.preferredVw / 100);
+  return Math.min(Math.max(preferredPx, minPx), maxPx);
+}
+
+export const PANEL_CLAMP = `clamp(${PANEL.minRem}rem,${PANEL.preferredVw}vw,${PANEL.maxRem}rem)`;

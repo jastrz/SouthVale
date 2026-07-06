@@ -12,33 +12,35 @@ export function LeaderboardPanel() {
 
   return (
     <div className="flex flex-col gap-3">
-      <table className="w-full text-left text-xs">
-        <thead>
-          <tr className="text-slate-500 uppercase tracking-wider">
-            <th className="pb-2 pr-4">#</th>
-            <th className="pb-2">Player</th>
-            <th className="pb-2 text-right">Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.items.map((entry) => (
-            <tr
-              key={entry.playerId}
-              className="border-t border-slate-700 text-slate-200"
-            >
-              <td className="py-1.5 pr-4 text-slate-500">{entry.rank}</td>
-              <td
-                className={`py-1.5 ${entry.username === username ? "text-amber-300" : ""}`}
-              >
-                {entry.username}
-              </td>
-              <td className="py-1.5 text-right">
-                {entry.score.toLocaleString()}
-              </td>
+      <div className="rounded-lg overflow-hidden">
+        <table className="w-full text-left text-xs">
+          <thead>
+            <tr className="text-slate-400 uppercase tracking-wider bg-slate-800/80">
+              <th className="pl-2 pr-4 py-2">#</th>
+              <th>Player</th>
+              <th className="pr-2 text-right">Score</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data?.items.map((entry) => (
+              <tr
+                key={entry.playerId}
+                className="border-t border-slate-700 bg-slate-800/80 text-white"
+              >
+                <td className="py-1.5 px-2">{entry.rank}</td>
+                <td
+                  className={`py-1.5 ${entry.username === username ? "text-amber-600" : ""}`}
+                >
+                  {entry.username}
+                </td>
+                <td className="py-1.5 px-2 text-right">
+                  {entry.score.toLocaleString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {!data && (
         <p className="text-center text-xs text-slate-500">Loading...</p>

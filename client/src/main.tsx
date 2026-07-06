@@ -39,7 +39,7 @@ export function App() {
     <>
       <AuthCacheInvalidator />
       <RouterProvider router={router} />
-      <Toaster richColors theme="dark" position="bottom-right" />
+      <Toaster richColors theme="dark" position="bottom-center" />
     </>
   );
 }

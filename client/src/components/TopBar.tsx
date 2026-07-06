@@ -22,7 +22,7 @@ export function TopBar() {
   const unreadCount = reportsData?.unreadCount ?? 0;
 
   return (
-    <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 flex flex-col items-center gap-1">
+    <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex flex-col items-center gap-1">
       <div className="pointer-events-auto flex items-center gap-4 rounded-b-lg border border-t-0 border-slate-800 bg-slate-950/70 px-4 py-2 text-xs shadow-lg">
         <LoginBar />
 
