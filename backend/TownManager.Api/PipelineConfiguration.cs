@@ -36,13 +36,8 @@ public static class PipelineConfiguration
             Log.Information("Barbarian player ready.");
         }
 
-        app.UseHttpsRedirection();
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-            app.MapScalarApiReference();
-        }
+        app.MapOpenApi();
+        app.MapScalarApiReference();
 
         app.UseCors();
         app.UseAuthentication();
