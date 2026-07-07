@@ -31,7 +31,7 @@ export function NotificationsPanel() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+      <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
         {reports.length === 0 && (
           <p className="mt-8 text-center text-xs text-slate-500">
             No reports yet.
