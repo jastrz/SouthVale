@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
+    <Watch Remove="logs\**" />
   </ItemGroup>
 
 </Project>

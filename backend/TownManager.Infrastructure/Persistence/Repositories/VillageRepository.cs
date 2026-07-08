@@ -19,6 +19,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .Include(v => v.BuildOrders)
             .Include(v => v.TrainOrders)
             .Include(v => v.Buildings)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
     public Task<Village?> GetForCombatAsync(Guid id, CancellationToken ct = default) =>
@@ -32,6 +33,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .Include(v => v.TroopMovements)
             .Include(v => v.Player)
             .Include(v => v.Buildings)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
     // By Hangire orderId
@@ -68,6 +70,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .Include(v => v.BuildOrders)
             .Include(v => v.TrainOrders)
             .Include(v => v.Buildings)
+            .AsSplitQuery()
             .Where(v => v.PlayerId == playerId)
             .ToListAsync(ct);
 
@@ -123,6 +126,7 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .Include(v => v.TroopMovements)
             .Include(v => v.BuildOrders)
             .Include(v => v.TrainOrders)
+            .AsSplitQuery()
             .Where(v => v.PlayerId == barbarianPlayerId)
             .ToListAsync(ct);
 

@@ -1,5 +1,6 @@
 using Hangfire;
 using Serilog;
+using Serilog.Events;
 using TownManager.Api;
 using TownManager.Api.Endpoints;
 using TownManager.Application;
@@ -10,10 +11,13 @@ Directory.CreateDirectory("logs");
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
     .Filter.ByExcluding(e =>
         e.Properties.TryGetValue("RequestPath", out var path) &&
         path.ToString().Contains("/hangfire"))
-    .WriteTo.Console(outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
     .WriteTo.Logger(lc => lc
         .Filter.ByIncludingOnly(e => e.Properties.ContainsKey("VillageActivity"))
         .WriteTo.File($"logs/village-activity-{DateTime.UtcNow:yyyyMMdd-HHmmss}.log",
