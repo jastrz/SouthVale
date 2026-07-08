@@ -6,6 +6,8 @@ using TownManager.Application;
 using TownManager.Application.Villages;
 using TownManager.Infrastructure;
 
+Directory.CreateDirectory("logs");
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .Filter.ByExcluding(e =>

@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         _factory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
+                builder.UseSetting("ConnectionStrings:Postgres", connectionString);
                 builder.ConfigureServices(services =>
                 {
                     services.RemoveAll<DbContextOptions<AppDbContext>>();
@@ -47,6 +49,11 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.EnsureDeletedAsync();
         await db.Database.MigrateAsync();
+
+        var hangfireStorage = new PostgreSqlStorage(
+            connectionString,
+            new PostgreSqlStorageOptions { PrepareSchemaIfNecessary = true });
+        using var _ = hangfireStorage.GetConnection();
 
         Client = _factory.CreateClient();
     }
