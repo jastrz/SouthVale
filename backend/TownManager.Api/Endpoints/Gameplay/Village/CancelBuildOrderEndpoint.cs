@@ -19,6 +19,7 @@ public class CancelBuildOrderEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Cancel a build order")
         .WithDescription("Cancels a queued build order and refunds the resources.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 }

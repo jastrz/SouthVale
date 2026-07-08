@@ -20,6 +20,7 @@ public class GetLeaderboardEndpoint : IEndpoint
         .WithName("GetLeaderboard")
         .WithTags("Gameplay")
         .WithSummary("Get player leaderboard")
-        .WithDescription("Returns players ranked by total troop count.");
+        .WithDescription("Returns players ranked by total troop count.")
+        .RequireRateLimiting("Gameplay");
     }
 }

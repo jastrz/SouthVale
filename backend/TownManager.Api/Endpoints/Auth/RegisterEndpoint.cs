@@ -34,6 +34,7 @@ public class RegisterEndpoint : IEndpoint
         .WithTags("Auth")
         .WithSummary("Register a new user")
         .WithDescription("Creates a new user account with the provided email, password, and username, and returns a JWT access token.")
+        .RequireRateLimiting("Auth")
         .AllowAnonymous();
     }
 }

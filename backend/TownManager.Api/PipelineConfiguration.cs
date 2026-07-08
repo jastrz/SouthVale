@@ -40,6 +40,7 @@ public static class PipelineConfiguration
         app.MapScalarApiReference();
 
         app.UseCors();
+        app.UseRateLimiter();
         app.UseAuthentication();
         app.UseAuthorization();
 

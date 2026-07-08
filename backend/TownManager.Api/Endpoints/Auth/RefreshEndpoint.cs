@@ -46,6 +46,7 @@ public class RefreshEndpoint : IEndpoint
         .WithTags("Auth")
         .WithSummary("Refresh access token")
         .WithDescription("Validates the refresh_token cookie and issues a new access token + rotates the refresh token.")
+        .RequireRateLimiting("Auth")
         .AllowAnonymous();
     }
 }

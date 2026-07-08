@@ -25,6 +25,7 @@ public class MarkReportReadEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Mark a single report as read")
         .WithDescription("Marks a specific report as read for the current player.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 }

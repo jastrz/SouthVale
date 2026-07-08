@@ -19,7 +19,8 @@ public class GetMapEndpoint : IEndpoint
         .WithName("GetMap")
         .WithTags("Gameplay")
         .WithSummary("Get current map")
-        .WithDescription("Returns all villages within requested radius from requested coordinates.");
+        .WithDescription("Returns all villages within requested radius from requested coordinates.")
+        .RequireRateLimiting("Gameplay");
     }
 }
 

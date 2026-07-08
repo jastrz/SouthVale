@@ -19,6 +19,7 @@ public class CancelTrainOrderEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Cancel a training order")
         .WithDescription("Cancels a queued training order and refunds the uncompleted portion.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 }

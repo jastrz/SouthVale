@@ -27,6 +27,7 @@ public class GetReportsEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Get reports for current player")
         .WithDescription("Returns movement and combat reports for the authenticated player, newest first.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 }

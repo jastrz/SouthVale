@@ -13,6 +13,7 @@ public class LogoutEndpoint : IEndpoint
         .WithTags("Auth")
         .WithSummary("Log out")
         .WithDescription("Clears the refresh token cookie.")
+        .RequireRateLimiting("Auth")
         .AllowAnonymous();
     }
 }

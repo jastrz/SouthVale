@@ -34,6 +34,7 @@ public class LoginEndpoint : IEndpoint
         .WithTags("Auth")
         .WithSummary("Log in a user")
         .WithDescription("Authenticates a user with email and password and returns a JWT access token.")
+        .RequireRateLimiting("Auth")
         .AllowAnonymous();
     }
 }

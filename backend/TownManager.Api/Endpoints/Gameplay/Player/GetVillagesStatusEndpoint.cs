@@ -24,6 +24,7 @@ public class GetVillagesStatusEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Get active order counts per village")
         .WithDescription("Returns build and train order counts for all villages owned by the authenticated player.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 }

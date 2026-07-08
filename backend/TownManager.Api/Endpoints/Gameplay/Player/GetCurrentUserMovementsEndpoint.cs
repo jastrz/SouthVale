@@ -24,6 +24,7 @@ public class GetCurrentUserMovementsEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Get current user movements")
         .WithDescription("Returns all active unit movements for the authenticated player.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 }

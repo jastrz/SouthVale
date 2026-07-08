@@ -29,6 +29,7 @@ public class SendTransportEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Send a transport from a village")
         .WithDescription("Sends troops and resources from one of your villages to another.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 

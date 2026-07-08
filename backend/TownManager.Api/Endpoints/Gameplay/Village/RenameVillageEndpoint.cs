@@ -26,6 +26,7 @@ public class RenameVillageEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Rename a village")
         .WithDescription("Renames a village owned by the authenticated player.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 

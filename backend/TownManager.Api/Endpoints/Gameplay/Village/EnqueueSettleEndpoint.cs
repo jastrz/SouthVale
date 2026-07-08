@@ -24,6 +24,7 @@ public class EnqueueSettleEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Queue a settlement order")
         .WithDescription("Enqueues a settle order that will found a new village at the given map coordinates once processed.")
+        .RequireRateLimiting("Gameplay")
         .RequireAuthorization();
     }
 

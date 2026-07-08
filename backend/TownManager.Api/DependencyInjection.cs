@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using TownManager.Api.Configuration;
 using TownManager.Api.ExceptionHandling;
 using TownManager.Api.Services;
@@ -37,6 +39,26 @@ public static class DependencyInjection
 
         services.AddSingleton<IConnectedUserTracker, Hubs.ConnectedUserTracker>();
         services.AddSingleton<IGameNotificationService, GameNotificationService>();
+
+        services.AddRateLimiter(options =>
+        {
+            options.AddFixedWindowLimiter("Auth", opt =>
+            {
+                opt.PermitLimit = 10;
+                opt.Window = TimeSpan.FromMinutes(1);
+                opt.QueueLimit = 0;
+            });
+
+            options.AddFixedWindowLimiter("Gameplay", opt =>
+            {
+                opt.PermitLimit = 100;
+                opt.Window = TimeSpan.FromMinutes(1);
+                opt.QueueLimit = 0;
+            });
+
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+        });
 
         var allowedOrigins = configuration
             .GetSection("Cors:AllowedOrigins")

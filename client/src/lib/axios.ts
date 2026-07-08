@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "sonner";
 import { useAuthStore } from "../store/authStore";
 
 export const api = axios.create({
@@ -34,7 +35,10 @@ api.interceptors.response.use(
       error.response?.status !== 401 ||
       error.config?.url?.startsWith("/auth/")
     ) {
-      if (error.response?.data?.detail) {
+      if (error.response?.status === 429) {
+        toast.error("Too many requests. Retry in a minute.");
+        error.message = error.response.data.title;
+      } else if (error.response?.data?.detail) {
         error.message = error.response.data.detail;
       }
       return Promise.reject(error);
