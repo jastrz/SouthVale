@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Scalar.AspNetCore;
 using Serilog;
+using TownManager.Application.Map.Services;
 using TownManager.Api.Hubs;
 using TownManager.Infrastructure.Data;
 using TownManager.Infrastructure.Identity;
@@ -34,6 +36,12 @@ public static class PipelineConfiguration
             var barbarianSeeder = new BarbarianSeeder(db);
             barbarianSeeder.SeedAsync().GetAwaiter().GetResult();
             Log.Information("Barbarian player ready.");
+
+            var llmLogger = scope.ServiceProvider.GetRequiredService<ILogger<LlmPlayerSeeder>>();
+            var mapService = scope.ServiceProvider.GetRequiredService<IMapService>();
+            var llmSeeder = new LlmPlayerSeeder(userManager, db, mapService, llmLogger);
+            llmSeeder.SeedAsync().GetAwaiter().GetResult();
+            Log.Information("LLM players ready.");
         }
 
         app.MapOpenApi();

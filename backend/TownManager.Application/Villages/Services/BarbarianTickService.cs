@@ -1,5 +1,6 @@
 using MediatR;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Map.Services;
 using TownManager.Application.Villages.Commands;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
@@ -16,6 +17,7 @@ public interface IBarbarianTickService
 
 public class BarbarianTickService(
     IVillageRepository villageRepo,
+    IMapService mapService,
     IMediator mediator) : IBarbarianTickService
 {
     public async Task ExecuteAsync(CancellationToken ct)
@@ -98,19 +100,9 @@ public class BarbarianTickService(
         var deficit = BarbarianConfig.TargetPopulation - currentCount;
         if (deficit <= 0) return;
 
-        var occupied = new HashSet<Coordinates>(
-            await villageRepo.GetAllCoordinatesAsync(ct));
+        var free = await mapService.GetFreeTilesAsync(deficit, ct);
 
-        var spawns = (
-            from x in Enumerable.Range(0, BarbarianConfig.MapSize)
-            from y in Enumerable.Range(0, BarbarianConfig.MapSize)
-            select new Coordinates(x, y)
-        ).Where(c => !occupied.Contains(c))
-         .OrderBy(_ => rng.Next())
-         .Take(deficit)
-         .ToList();
-
-        foreach (var coords in spawns)
+        foreach (var coords in free)
         {
             var rc = BarbarianConfig.StartingResources;
             villageRepo.Add(new Village

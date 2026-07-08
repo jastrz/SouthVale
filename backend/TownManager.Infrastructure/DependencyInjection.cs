@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Config;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Jobs;
 using TownManager.Infrastructure.Jobs.MovementResolvers;
@@ -97,9 +98,17 @@ public static class DependencyInjection
             options.WorkerCount = 5;
         });
         
+        var llmConfig = configuration.GetSection(LlmPlayerConfig.SectionName).Get<LlmPlayerConfig>() ?? new();
+        services.AddSingleton(llmConfig);
+
         services.AddHostedService(sp => new BarbarianJobScheduler(                                                                              
          sp.GetRequiredService<IServiceScopeFactory>(),                                                                                      
          sp.GetRequiredService<IRecurringJobManager>()) { TickAtStart = true }); 
+
+        services.AddHostedService(sp => new LlmPlayerJobScheduler(
+         sp.GetRequiredService<IServiceScopeFactory>(),
+         sp.GetRequiredService<IRecurringJobManager>(),
+         sp.GetRequiredService<LlmPlayerConfig>()) { TickAtStart = true });
 
         return services;
     }

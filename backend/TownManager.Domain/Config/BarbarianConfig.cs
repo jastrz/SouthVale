@@ -12,9 +12,6 @@ public static class BarbarianConfig
     public const int AttackRange = 15;
     public const int TargetPopulation = 15;
     
-    // TODO: move to map config later
-    public const int MapSize = 60;
-    
     public static readonly Troops StartingTroops = new(15, 15, 0);
     public static readonly Troops MaxTroops = new(200, 200, 0);
     public static readonly Resources StartingResources = new(500, 500, 500, 500);
@@ -29,6 +26,5 @@ public static class BarbarianConfig
         [BuildingType.Granary] = 2,
         [BuildingType.WoodCutter] = 2,
         [BuildingType.CropField] = 2,
-        [BuildingType.Barracks] = 2,
     };
 }

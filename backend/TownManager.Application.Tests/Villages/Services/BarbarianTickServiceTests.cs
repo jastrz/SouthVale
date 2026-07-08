@@ -2,6 +2,7 @@ using MediatR;
 using NSubstitute;
 using Xunit;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Map.Services;
 using TownManager.Application.Villages.Commands;
 using TownManager.Application.Villages.Services;
 using TownManager.Domain.Config;
@@ -21,10 +22,10 @@ public class BarbarianTickServiceTests
     {
         _repo = Substitute.For<IVillageRepository>();
         _mediator = Substitute.For<IMediator>();
-        _service = new BarbarianTickService(_repo, _mediator);
+        var mapService = Substitute.For<IMapService>();
+        mapService.GetFreeTilesAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns([]);
+        _service = new BarbarianTickService(_repo, mapService, _mediator);
 
-        // Replenish is called on every tick; keep it out of the way.
-        _repo.GetAllCoordinatesAsync(CancellationToken.None).ReturnsForAnyArgs(new List<Coordinates>());
         _repo.SaveChangesAsync(CancellationToken.None).ReturnsForAnyArgs(Task.CompletedTask);
     }
 
