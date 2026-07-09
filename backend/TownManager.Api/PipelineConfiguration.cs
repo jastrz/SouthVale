@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Scalar.AspNetCore;
 using Serilog;
 using TownManager.Application.Map.Services;

@@ -1,9 +1,13 @@
+using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using TownManager.Application.Common;
 using TownManager.Application.Dtos;
+using TownManager.Application.GameConfig.Queries;
 using TownManager.Application.Interfaces;
 using TownManager.Application.Villages.Commands;
 using TownManager.Domain.Config;
@@ -13,6 +17,10 @@ using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Players.Services;
 
+// Logging terminology:
+//   tick  = one full service cycle (processes all bots)
+//   pass  = one bot's LLM call + action execution
+//   action = single command sent to the game (build, train, attack, etc.)
 public class LlmPlayerService(
     IPlayerRepository playerRepo,
     IVillageRepository villageRepo,
@@ -21,12 +29,18 @@ public class LlmPlayerService(
     LlmPlayerConfig config,
     ILogger<LlmPlayerService> logger) : ILlmPlayerService
 {
-    private static readonly HttpClient Http = new();
+    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromMinutes(5) };
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         WriteIndented = false,
     };
+    private static int _totalTicks;
+    private static int _totalReceived;
+    private static int _totalSucceeded;
+    private static int _totalFailed;
+    private static int _totalTickErrors;
+    private static double _totalSeconds;
 
     public async Task ExecuteAsync(CancellationToken ct)
     {
@@ -36,26 +50,59 @@ public class LlmPlayerService(
             return;
         }
 
+        var tickNum = _totalTicks + 1;
+        LlmActivity.Log?.Invoke("system", $"─── Tick #{tickNum} ───", config.Model,
+            new { time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") });
+
         var bots = await playerRepo.GetBotPlayersAsync(ct);
         logger.LogInformation("LLM tick: processing {Count} bot players", bots.Count);
 
+        var sw = Stopwatch.StartNew();
+        var totalReceived = 0;
+        var totalSucceeded = 0;
+        var totalFailed = 0;
+        var totalTickErrors = 0;
         foreach (var bot in bots)
         {
+            logger.LogInformation("LLM pass {Username}:", bot.Username);
+            LlmActivity.Log?.Invoke(bot.Username, "pass", config.Model, null);
             try
             {
-                await ProcessBot(bot, ct);
+                var (r, s, f, te) = await ProcessBot(bot, ct);
+                totalReceived += r;
+                totalSucceeded += s;
+                totalFailed += f;
+                totalTickErrors += te;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "LLM tick failed for bot {Username}", bot.Username);
+                logger.LogError(ex, "LLM pass {Username} crashed", bot.Username);
+                LlmActivity.Log?.Invoke(bot.Username, "pass-crash", config.Model, new { error = ex.Message });
             }
         }
+        sw.Stop();
+
+        _totalTicks++;
+        _totalReceived += totalReceived;
+        _totalSucceeded += totalSucceeded;
+        _totalFailed += totalFailed;
+        _totalTickErrors += totalTickErrors;
+        _totalSeconds += sw.Elapsed.TotalSeconds;
+
+        logger.LogInformation("LLM tick summary: {Received} commands, {Succeeded} ok, {Failed} failed, {TickErrors} tick errors, {Duration}s",
+            totalReceived, totalSucceeded, totalFailed, totalTickErrors, sw.Elapsed.TotalSeconds.ToString("F1"));
+        logger.LogInformation("LLM runtime: {Ticks} ticks, {Received} commands, {Succeeded} ok, {Failed} failed, {TickErrors} tick errors, {Duration}s total",
+            _totalTicks, _totalReceived, _totalSucceeded, _totalFailed, _totalTickErrors, Math.Round(_totalSeconds, 1));
+        LlmActivity.Log?.Invoke("system", "tick-summary", config.Model,
+            new { duration_s = Math.Round(sw.Elapsed.TotalSeconds, 1), received = totalReceived, succeeded = totalSucceeded, failed = totalFailed, tick_errors = totalTickErrors });
+        LlmActivity.Log?.Invoke("system", "runtime-summary", config.Model,
+            new { ticks = _totalTicks, duration_s = Math.Round(_totalSeconds, 1), received = _totalReceived, succeeded = _totalSucceeded, failed = _totalFailed, tick_errors = _totalTickErrors });
     }
 
-    private async Task ProcessBot(Player bot, CancellationToken ct)
+    private async Task<(int received, int succeeded, int failed, int tickErrors)> ProcessBot(Player bot, CancellationToken ct)
     {
         var villages = await villageRepo.GetWithOrdersByPlayerAsync(bot.Id, ct);
-        if (villages.Count == 0) return;
+        if (villages.Count == 0) return (0, 0, 0, 0);
 
         var villageIds = villages.Select(v => v.Id).ToList();
         var movements = await movementRepo.GetInFlightForPlayerAsync(bot.Id, villageIds, ct);
@@ -63,31 +110,51 @@ public class LlmPlayerService(
             villages.Any(v => v.Id == m.TargetVillageId.Value) && m.Type == MovementType.Attack);
 
         var nearby = await GetNearbyVillages(villages, ct);
-        var prompt = BuildPrompt(bot, villages, incomingAttacks, nearby);
+        var prompt = await BuildPrompt(bot, villages, incomingAttacks, nearby, ct);
         LlmActivity.PromptLog?.Invoke(bot.Username, prompt);
         var actions = await CallLlmApi(bot.Username, prompt, ct);
 
-        if (actions is null || actions.Length == 0)
+        if (actions is null)
         {
-            logger.LogInformation("LLM player {Username}: no actions returned", bot.Username);
-            return;
+            logger.LogWarning("LLM pass {Username}: API error", bot.Username);
+            LlmActivity.Log?.Invoke(bot.Username, "pass-error", config.Model, new { reason = "api-error" });
+            return (0, 0, 0, 1);
         }
 
-        logger.LogInformation("LLM player {Username}: executing {Count} actions",
-            bot.Username, actions.Length);
+        if (actions.Length == 0)
+        {
+            logger.LogWarning("LLM pass {Username}: empty response (parse error or no content)", bot.Username);
+            LlmActivity.Log?.Invoke(bot.Username, "pass-error", config.Model, new { reason = "empty-response" });
+            return (0, 0, 0, 1);
+        }
 
+        LlmActivity.Log?.Invoke(bot.Username, "pass-start", config.Model,
+            new { villages = villages.Count, incoming = incomingAttacks });
+        logger.LogInformation("LLM pass {Username}: {Count} actions", bot.Username, actions.Length);
+
+        var succeeded = 0;
+        var failed = 0;
         foreach (var action in actions)
-            await ExecuteAction(bot, villages, action, ct);
+        {
+            var r = await ExecuteAction(bot, villages, action, ct);
+            if (r) succeeded++; else failed++;
+        }
+        logger.LogInformation("LLM pass {Username}: {Received} actions, {Succeeded} ok, {Failed} failed",
+            bot.Username, actions.Length, succeeded, failed);
+        LlmActivity.Log?.Invoke(bot.Username, "pass-end", config.Model,
+            new { received = actions.Length, succeeded, failed });
+        return (actions.Length, succeeded, failed, 0);
     }
 
     private async Task<List<Village>> GetNearbyVillages(IReadOnlyList<Village> villages, CancellationToken ct)
     {
-        var seen = new HashSet<Guid> { };
+        var ownIds = villages.Select(v => v.Id).ToHashSet();
+        var seen = new HashSet<Guid>(ownIds);
         var result = new List<Village>();
 
         foreach (var v in villages)
         {
-            var nearby = await villageRepo.GetForMapWithinRadius(v.Coordinates, 15, ct);
+            var nearby = await villageRepo.GetForMapWithinRadius(v.Coordinates, 25, ct);
             foreach (var n in nearby)
             {
                 if (seen.Add(n.Id))
@@ -98,15 +165,15 @@ public class LlmPlayerService(
         return result;
     }
 
-    private string BuildPrompt(Player bot, IReadOnlyList<Village> villages,
-        int incomingAttacks, List<Village> nearby)
+    private async Task<string> BuildPrompt(Player bot, IReadOnlyList<Village> villages,
+        int incomingAttacks, List<Village> nearby, CancellationToken ct)
     {
 
         var personalityDesc = bot.BotPersonality switch
         {
             BotPersonality.Aggressive => "You prioritize military strength. Train troops and attack weaker neighbors only. Expand through conquest, settling and some economy. ",
-            BotPersonality.Defensive => "You prioritize defense. Maintain a strong garrison, and only attack when you have overwhelming advantage. Protect your villages.",
-            BotPersonality.Economic => "You prioritize resource production and expansion. Upgrade resource buildings, train settlers, and found new villages. Avoid unnecessary wars.",
+            BotPersonality.Defensive => "You prioritize defense. Maintain a strong garrison, and only attack when you have overwhelming advantage. Protect your villages and settle new.",
+            BotPersonality.Economic => "You prioritize resource production and expansion. Upgrade resource buildings, train settlers, and found new villages. Avoid unnecessary wars, but keep some defense.",
             _ => "Play strategically.",
         };
 
@@ -115,7 +182,7 @@ You are a player in browser strategy game. Your personality: {bot.BotPersonality
 {personalityDesc}
 
 === GAME CONFIG ===
-{GetGameConfigJson()}
+{await GetGameConfigInfo(ct)}
 
 === YOUR VILLAGES ===
 """;
@@ -160,8 +227,9 @@ Respond with a JSON array of actions. Each action is an object:
 { "action": "transport", "village_id": "guid", "target_village_id": "guid", "troops": { "Swordsman": 5 }, "resources": { "wood": 100, "clay": 100, "iron": 100, "crop": 100 } }
 { "action": "settle", "village_id": "guid", "target": { "x": 10, "y": 10 } }
 
-Building types: WoodCutter, ClayPit, IronMine, CropField, Warehouse, Granary, Barracks
+Building types: WoodCutter, ClayPit, IronMine, CropField, Warehouse, Granary
 Troop types: Swordsman, Archer, Settler
+Combat roles: Swordsman = high attack (good for offense), Archer = high defense. Same cost. Mix them according to your role.
 
 RESOURCE RULES:
 - Each action costs resources (see building/troop costs in game config).
@@ -173,55 +241,72 @@ RESOURCE RULES:
 IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.
 - Max {{config.MaxActionsPerTick}} actions per tick.
-- Use settle command - it's worth it!
+- Always use existing settlers with settle command.
 - Respond with ONLY the JSON array, no other text. Never add any new fields outside of provided game config.
 """;
 
         return prompt;
     }
 
-    private string GetGameConfigJson()
+    private async Task<string> GetGameConfigInfo(CancellationToken ct)
     {
-        var buildings = BuildingConfig.Levels.ToDictionary(
-            kvp => kvp.Key.ToString(),
-            kvp => kvp.Value.Select(l => new
+        var cfg = (await mediator.Send(new GetGameConfigQuery(), ct)).Value!;
+        var sb = new StringBuilder();
+        sb.AppendLine("Buildings:");
+        foreach (var (type, levels) in cfg.Buildings)
+        {
+            sb.Append($"  {type}:");
+            foreach (var l in levels)
             {
-                level = l.Level,
-                cost = new { wood = l.UpgradeCost.Wood, clay = l.UpgradeCost.Clay, iron = l.UpgradeCost.Iron, crop = l.UpgradeCost.Crop },
-                time_minutes = Math.Round(l.UpgradeTime.TotalMinutes, 1),
-                produces = l.Effects.ProductionPerHour,
-            }));
-
-        var troops = TroopsConfig.All.ToDictionary(
-            kvp => kvp.Key.ToString(),
-            kvp => new
-            {
-                cost = new { wood = kvp.Value.TrainingCost.Wood, clay = kvp.Value.TrainingCost.Clay, iron = kvp.Value.TrainingCost.Iron, crop = kvp.Value.TrainingCost.Crop },
-                time_seconds = kvp.Value.TrainingTime.TotalSeconds,
-                attack = kvp.Value.Stats.Attack,
-                defense = kvp.Value.Stats.Defense,
-                speed = kvp.Value.Stats.Speed,
-                upkeep = kvp.Value.Stats.Upkeep,
-            });
-
-        return JsonSerializer.Serialize(new { buildings, troops }, JsonOpts);
+                var c = l.UpgradeCost;
+                sb.Append($" lv{l.Level}({c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Crop}Crop,{l.UpgradeTime.TotalMinutes:F0}m");
+                if (l.ProductionPerHour is { } p && p.Wood + p.Clay + p.Iron + p.Crop > 0)
+                    sb.Append($" -> {(p.Wood > 0 ? $"+{p.Wood}Wood/h " : "")}{(p.Clay > 0 ? $"+{p.Clay}Clay/h " : "")}{(p.Iron > 0 ? $"+{p.Iron}Iron/h " : "")}{(p.Crop > 0 ? $"+{p.Crop}Crop/h" : "")}".TrimEnd());
+                if (l.TrainingSpeedMultiplier > 0) sb.Append($" train×{l.TrainingSpeedMultiplier}");
+                sb.Append(')');
+            }
+            sb.AppendLine();
+        }
+        sb.AppendLine("Troops:");
+        foreach (var (type, t) in cfg.Troops)
+        {
+            var c = t.TrainingCost;
+            sb.AppendLine($"  {type}: {c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Crop}Crop, {t.TrainingTime.TotalSeconds:F0}s atk={t.Attack} def={t.Defense} speed={t.Speed} carry={t.CarryCapacity} upkeep={t.Upkeep}");
+        }
+        return sb.ToString();
     }
 
     private async Task<LlmAction[]?> CallLlmApi(string username, string prompt, CancellationToken ct)
     {
-        var body = new
-        {
-            model = config.Model,
-            messages = new[]
+        var body = config.EnableThinking
+            ? new
             {
-                new { role = "system", content = prompt },
-            },
-            temperature = 0.7,
-            max_tokens = 4096,
-            thinking = new { type = "disabled" },
-        };
+                model = config.Model,
+                messages = new[]
+                {
+                    new { role = "system", content = prompt },
+                },
+                temperature = 0.7,
+                max_tokens = config.ThinkingTokens,
+                thinking = new { type = "enabled" },
+                stream = false,
+                reasoningEffort = "medium"
+            }
+            : (object)new
+            {
+                model = config.Model,
+                messages = new[]
+                {
+                    new { role = "system", content = prompt },
+                },
+                temperature = 0.7,
+                max_tokens = config.NonThinkingTokens,
+                thinking = new { type = "disabled" },
+                stream = false,
+                reasoningEffort = "medium"
+            };
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{config.ApiUrl.TrimEnd('/')}/v1/chat/completions")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{config.ApiUrl.TrimEnd('/')}")
         {
             Content = JsonContent.Create(body, options: JsonOpts),
         };
@@ -233,12 +318,15 @@ IMPORTANT:
 
         if (!response.IsSuccessStatusCode)
         {
-            logger.LogWarning("LLM API error: {Body}", rawBody);
+            LlmActivity.Log?.Invoke(username, "api-error", config.Model,
+                new { status = (int)response.StatusCode, response = rawBody });
+            logger.LogWarning("LLM API error ({Status})", (int)response.StatusCode);
             return null;
         }
 
         var parsed = JsonSerializer.Deserialize<OpenAiResponse>(rawBody, JsonOpts);
-        var content = parsed?.Choices?.FirstOrDefault()?.Message?.Content;
+        var msg = parsed?.Choices?.FirstOrDefault()?.Message;
+        var content = msg?.Content ?? msg?.ReasoningContent;
         if (string.IsNullOrEmpty(content))
         {
             LlmActivity.Log?.Invoke(username, "empty-response", config.Model, null);
@@ -249,6 +337,10 @@ IMPORTANT:
         // logger.LogInformation("LLM response from {Username}: {Content}", username, content);
 
         var cleaned = StripMarkdown(content);
+        var start = cleaned.IndexOf('[');
+        var end = cleaned.LastIndexOf(']');
+        if (start >= 0 && end > start)
+            cleaned = cleaned[start..(end + 1)];
 
         try
         {
@@ -260,79 +352,114 @@ IMPORTANT:
         catch (JsonException ex)
         {
             LlmActivity.Log?.Invoke(username, "parse-error", config.Model, new { response = content });
-            logger.LogError(ex, "Failed to parse LLM response: {Content}", content);
+            logger.LogError(ex, "Failed to parse LLM response");
             return [];
         }
     }
 
-    private async Task ExecuteAction(Player bot, IReadOnlyList<Village> villages, LlmAction action, CancellationToken ct)
+    private async Task<bool> ExecuteAction(Player bot, IReadOnlyList<Village> villages, LlmAction action, CancellationToken ct)
     {
+        var details = new Dictionary<string, object?> { ["action"] = action.Action, ["village_id"] = action.VillageId };
+        Result? result = null;
         try
         {
             switch (action.Action)
             {
                 case "build" when action.BuildingType is not null:
                 {
-                    if (!Enum.TryParse<BuildingType>(action.BuildingType, out var bt)) return;
-                    await mediator.Send(new CreateBuildOrderCommand(action.VillageId, bt), ct);
-                    logger.LogInformation("LLM {User}: build {Bt} in village {VId}", bot.Username, bt, action.VillageId);
+                    if (!Enum.TryParse<BuildingType>(action.BuildingType, out var bt))
+                    {
+                        logger.LogWarning("LLM action {User}: unknown building type '{Type}'", bot.Username, action.BuildingType);
+                        return false;
+                    }
+                    details["building"] = action.BuildingType;
+                    result = await mediator.Send(new CreateBuildOrderCommand(action.VillageId, bt), ct);
                     break;
                 }
                 case "train" when action.Troops is not null:
                 {
-                    var entries = action.Troops
-                        .Where(t => t.Value > 0)
-                        .Select(t => Enum.TryParse<TroopType>(t.Key, out var tt) ? (tt, t.Value) : default)
-                        .Where(x => x.tt != default)
-                        .Select(x => new TroopEntry(x.tt, x.Value))
-                        .ToList();
-                    if (entries.Count > 0)
-                        await mediator.Send(new CreateTrainOrderCommand(action.VillageId, entries), ct);
-                    logger.LogInformation("LLM {User}: trained in village {VId}", bot.Username, action.VillageId);
+                    var entries = ParseTroops(action.Troops);
+                    if (entries.Count == 0)
+                    {
+                        logger.LogWarning("LLM action {User}: train with no valid troop types", bot.Username);
+                        return false;
+                    }
+                    details["troops"] = action.Troops;
+                    result = await mediator.Send(new CreateTrainOrderCommand(action.VillageId, entries), ct);
                     break;
                 }
                 case "attack" when action.Troops is not null && action.TargetVillageId.HasValue:
                 {
-                    var entries = action.Troops
-                        .Where(t => t.Value > 0)
-                        .Select(t => Enum.TryParse<TroopType>(t.Key, out var tt) ? (tt, t.Value) : default)
-                        .Where(x => x.tt != default)
-                        .Select(x => new TroopEntry(x.tt, x.Value))
-                        .ToList();
-                    if (entries.Count > 0)
-                        await mediator.Send(new CreateAttackOrderCommand(action.VillageId, entries, action.TargetVillageId.Value), ct);
-                    logger.LogInformation("LLM {User}: attacked {Target} from {VId}", bot.Username, action.TargetVillageId, action.VillageId);
+                    var entries = ParseTroops(action.Troops);
+                    if (entries.Count == 0)
+                    {
+                        logger.LogWarning("LLM action {User}: attack with no valid troop types", bot.Username);
+                        return false;
+                    }
+                    details["troops"] = action.Troops;
+                    details["target"] = action.TargetVillageId;
+                    result = await mediator.Send(new CreateAttackOrderCommand(action.VillageId, entries, action.TargetVillageId.Value), ct);
                     break;
                 }
                 case "transport" when action.Troops is not null && action.TargetVillageId.HasValue:
                 {
-                    var entries = action.Troops
-                        .Where(t => t.Value > 0)
-                        .Select(t => Enum.TryParse<TroopType>(t.Key, out var tt) ? (tt, t.Value) : default)
-                        .Where(x => x.tt != default)
-                        .Select(x => new TroopEntry(x.tt, x.Value))
-                        .ToList();
+                    var entries = ParseTroops(action.Troops);
                     var res = action.Resources ?? new ResourcesDto(0, 0, 0, 0);
-                    await mediator.Send(new CreateTransportOrderCommand(action.VillageId, action.TargetVillageId.Value, entries,
+                    details["troops"] = action.Troops;
+                    details["target"] = action.TargetVillageId;
+                    details["resources"] = res;
+                    result = await mediator.Send(new CreateTransportOrderCommand(action.VillageId, action.TargetVillageId.Value, entries,
                         new ResourcesDto(res.Wood, res.Clay, res.Iron, res.Crop)), ct);
-                    logger.LogInformation("LLM {User}: transport from {VId} to {Target}", bot.Username, action.VillageId, action.TargetVillageId);
                     break;
                 }
                 case "settle" when action.Target is not null:
                 {
-                    await mediator.Send(new CreateSettleOrderCommand(action.VillageId,
+                    details["target_coords"] = action.Target;
+                    result = await mediator.Send(new CreateSettleOrderCommand(action.VillageId,
                         new Coordinates(action.Target.X, action.Target.Y)), ct);
-                    logger.LogInformation("LLM {User}: settle to ({X},{Y}) from {VId}", bot.Username,
-                        action.Target.X, action.Target.Y, action.VillageId);
                     break;
                 }
+                default:
+                    logger.LogWarning("LLM action {User}: unknown action '{Action}'", bot.Username, action.Action);
+                    return false;
             }
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "LLM action failed for {User}: {Action}", bot.Username, action.Action);
+            details["error"] = ex.Message;
+            if (config.LogActionsConsole)
+                logger.LogWarning(ex, "LLM action {User}: {Action} failed: {@Details}", bot.Username, action.Action, details);
+            if (config.LogActionsFile)
+                LlmActivity.Log?.Invoke(bot.Username, "action-error", config.Model, details);
+            return false;
+        }
+
+        if (result is null) return false;
+        if (result.Succeeded)
+        {
+            if (config.LogActionsConsole)
+                logger.LogInformation("LLM action {User}: {Action}: {@Details}", bot.Username, action.Action, details);
+            if (config.LogActionsFile)
+                LlmActivity.Log?.Invoke(bot.Username, "action-success", config.Model, details);
+            return true;
+        }
+        else
+        {
+            details["errors"] = result.Errors;
+            if (config.LogActionsConsole)
+                logger.LogWarning("LLM action {User}: {Action} rejected: {@Details}", bot.Username, action.Action, details);
+            if (config.LogActionsFile)
+                LlmActivity.Log?.Invoke(bot.Username, "action-failure", config.Model, details);
+            return false;
         }
     }
+
+    private static List<TroopEntry> ParseTroops(Dictionary<string, int> dict) =>
+        dict.Where(kv => kv.Value > 0)
+            .Select(kv => (success: Enum.TryParse<TroopType>(kv.Key, out var tt), tt, kv.Value))
+            .Where(x => x.success)
+            .Select(x => new TroopEntry(x.tt, x.Value))
+            .ToList();
 
     private static string StripMarkdown(string text)
     {
@@ -361,6 +488,7 @@ IMPORTANT:
     private record OpenAiMessage
     {
         public string? Content { get; init; }
+        public string? ReasoningContent { get; init; }
     }
 }
 

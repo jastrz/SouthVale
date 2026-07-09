@@ -2,6 +2,7 @@ using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Entities.Villages;
 using TownManager.Infrastructure.Persistence;
 
 namespace TownManager.Infrastructure.Jobs;
@@ -41,8 +42,16 @@ public class BuildOrderResolutionJob(
             return;
         }
 
-        var building = village.Buildings.First(b => b.Type == order.BuildingType);
-        building.Level = order.TargetLevel;
+        Building? building = village.Buildings.FirstOrDefault(b => b.Type == order.BuildingType);
+
+        if (building == null)
+        {
+            village.Buildings.Add(Building.Create(order.BuildingType, 1));
+        }
+        else
+        {
+            building.Level = order.TargetLevel;
+        }
 
         village.BuildOrders.Remove(order);
 

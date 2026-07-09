@@ -75,7 +75,7 @@ public class SettleMovementResolver(
         }
 
         var newVillage = Village.CreateStarter(
-            $"{origin.Name} Settlement",
+            $"{origin.Player?.Username ?? "Player"}'s village ({movement.TargetCoordinates.X}|{movement.TargetCoordinates.Y})",
             movement.TargetCoordinates);
 
         newVillage.PlayerId = origin.PlayerId;

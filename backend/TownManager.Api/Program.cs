@@ -20,7 +20,7 @@ Log.Logger = new LoggerConfiguration()
         e.Properties.TryGetValue("RequestPath", out var path) &&
         path.ToString().Contains("/hangfire"))
     .WriteTo.Logger(lc => lc
-        .Filter.ByExcluding(e => e.Properties.ContainsKey("LlmPrompt"))
+        .Filter.ByExcluding(e => e.Properties.ContainsKey("LlmPrompt") || e.Properties.ContainsKey("LlmActivity"))
         .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"))
     .WriteTo.Logger(lc => lc
         .Filter.ByIncludingOnly(e => e.Properties.ContainsKey("VillageActivity"))

@@ -40,10 +40,10 @@ public static class TroopsConfig
         [TroopType.Swordsman] = new(
             TroopType.Swordsman,
             // new Resources(120, 100, 150, 30),
-            new Resources(0,0,0,0),
+            new Resources(1,1,1,1),
             
-            TimeSpan.FromSeconds(30),
-            new TroopStats(attack: 65, defense: 35, carryCapacity: 50, speed: 6, upkeep: 1)
+            TimeSpan.FromSeconds(10),
+            new TroopStats(attack: 60, defense: 30, carryCapacity: 50, speed: 6, upkeep: 1)
         ),
 
         [TroopType.Archer] = new(
@@ -57,7 +57,7 @@ public static class TroopsConfig
 
         [TroopType.Settler] = new(
             TroopType.Settler,
-            new Resources(1, 1, 1, 1),
+            new Resources(100, 100, 100, 100),
             TimeSpan.FromSeconds(20),
             new TroopStats(attack: 0, defense: 0, carryCapacity: 0, speed: 5, upkeep: 0)
         ),

@@ -1,26 +1,37 @@
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using TownManager.Application.Villages.Services;
 using TownManager.Domain.Config;
 
 namespace TownManager.Infrastructure.Jobs;
 
-public class BarbarianJobScheduler(IServiceScopeFactory scopeFactory, IRecurringJobManager jobs) : IHostedService
+public class BarbarianJobScheduler(IServiceScopeFactory scopeFactory, IRecurringJobManager jobs,
+    IHostApplicationLifetime appLifetime, ILogger<BarbarianJobScheduler> logger) : IHostedService
 {
     public bool TickAtStart { get; set; } = false;
-    
-    public async Task StartAsync(CancellationToken ct)
+
+    public Task StartAsync(CancellationToken ct)
     {
         if (TickAtStart)
         {
-            using var scope = scopeFactory.CreateScope();
-            var tick = scope.ServiceProvider.GetRequiredService<IBarbarianTickService>();
-            await tick.ExecuteAsync(ct);
+            appLifetime.ApplicationStarted.Register(() =>
+            {
+                _ = Task.Run(async () =>
+                {
+                    using var scope = scopeFactory.CreateScope();
+                    var tick = scope.ServiceProvider.GetRequiredService<IBarbarianTickService>();
+                    try { await tick.ExecuteAsync(ct); }
+                    catch (Exception ex) { logger.LogError(ex, "Barbarian tick at startup failed"); }
+                }, ct);
+            });
         }
 
         jobs.AddOrUpdate<BarbarianTickJob>("barbarian-tick",
-            j => j.ExecuteAsync(CancellationToken.None), BarbarianConfig.TickIntervalCron);
+            j => j.ExecuteAsync(ct), BarbarianConfig.TickIntervalCron);
+
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken ct) => Task.CompletedTask;

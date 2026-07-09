@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Hangfire.PostgreSql;
+using Hangfire.PostgreSql.Factories;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,7 +52,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         await db.Database.MigrateAsync();
 
         var hangfireStorage = new PostgreSqlStorage(
-            connectionString,
+            new NpgsqlConnectionFactory(connectionString, new PostgreSqlStorageOptions { PrepareSchemaIfNecessary = true }),
             new PostgreSqlStorageOptions { PrepareSchemaIfNecessary = true });
         using var _ = hangfireStorage.GetConnection();
 

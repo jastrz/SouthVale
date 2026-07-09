@@ -12,15 +12,10 @@ public class LlmPlayerConfig
     public string ApiKey { get; set; } = "";
     public string Model { get; set; } = "";
     public string TickIntervalCron { get; set; } = "*/15 * * * *";
-    public int MaxActionsPerTick { get; set; } = 10;
-
-    public List<BotSeed> Seeds { get; set; } = [];
-
-    public class BotSeed
-    {
-        public string Username { get; set; } = "";
-        public string Email { get; set; } = "";
-        public BotPersonality Personality { get; set; }
-        public string VillageName { get; set; } = "";
-    }
+    public int MaxActionsPerTick { get; set; } = 20;
+    public bool EnableThinking { get; set; } = true;
+    public int ThinkingTokens { get; set; } = 1024 * 16;
+    public int NonThinkingTokens { get; set; } = 1024 * 4;
+    public bool LogActionsConsole { get; set; } = true;
+    public bool LogActionsFile { get; set; } = true;
 }

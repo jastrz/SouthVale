@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Config;
@@ -101,14 +103,23 @@ public static class DependencyInjection
         var llmConfig = configuration.GetSection(LlmPlayerConfig.SectionName).Get<LlmPlayerConfig>() ?? new();
         services.AddSingleton(llmConfig);
 
-        services.AddHostedService(sp => new BarbarianJobScheduler(                                                                              
-         sp.GetRequiredService<IServiceScopeFactory>(),                                                                                      
-         sp.GetRequiredService<IRecurringJobManager>()) { TickAtStart = true }); 
+        var features = configuration.GetSection(FeatureFlags.SectionName).Get<FeatureFlags>() ?? new();
+        services.AddSingleton(features);
 
-        services.AddHostedService(sp => new LlmPlayerJobScheduler(
-         sp.GetRequiredService<IServiceScopeFactory>(),
-         sp.GetRequiredService<IRecurringJobManager>(),
-         sp.GetRequiredService<LlmPlayerConfig>()) { TickAtStart = true });
+        if (features.UseBarbarians)
+            services.AddHostedService(sp => new BarbarianJobScheduler(
+                sp.GetRequiredService<IServiceScopeFactory>(),
+                sp.GetRequiredService<IRecurringJobManager>(),
+                sp.GetRequiredService<IHostApplicationLifetime>(),
+                sp.GetRequiredService<ILogger<BarbarianJobScheduler>>()) { TickAtStart = true });
+
+        if (features.UseLlmPlayers)
+            services.AddHostedService(sp => new LlmPlayerJobScheduler(
+                sp.GetRequiredService<IServiceScopeFactory>(),
+                sp.GetRequiredService<IRecurringJobManager>(),
+                sp.GetRequiredService<LlmPlayerConfig>(),
+                sp.GetRequiredService<IHostApplicationLifetime>(),
+                sp.GetRequiredService<ILogger<LlmPlayerJobScheduler>>()) { TickAtStart = true });
 
         return services;
     }
