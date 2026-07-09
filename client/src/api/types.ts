@@ -215,6 +215,13 @@ export interface LeaderboardResult {
   totalCount: number;
 }
 
+export interface AddResourcesRequest {
+  wood: number;
+  clay: number;
+  iron: number;
+  crop: number;
+}
+
 export type MapVillage =
   | ({ kind: "own" } & VillageListItemDto)
   | ({ kind: "enemy" } & PlayerVillageDto);

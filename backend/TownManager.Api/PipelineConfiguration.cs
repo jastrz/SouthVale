@@ -43,6 +43,15 @@ public static class PipelineConfiguration
             Log.Information("LLM players ready.");
         }
 
+        {
+            using var scope = app.Services.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var adminLogger = scope.ServiceProvider.GetRequiredService<ILogger<AdminSeeder>>();
+            var adminSeeder = new AdminSeeder(userManager, roleManager, app.Configuration, adminLogger);
+            adminSeeder.SeedAsync().GetAwaiter().GetResult();
+        }
+
         app.MapOpenApi();
         app.MapScalarApiReference();
 

@@ -14,9 +14,9 @@ public class TokenService(IConfiguration configuration) : ITokenService
     private readonly SymmetricSecurityKey _key = new(
         Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
 
-    public string GenerateAccessToken(string userId, string email)
+    public string GenerateAccessToken(string userId, string email, IList<string>? roles = null)
     {
-        var token = CreateToken(userId, email, DateTime.UtcNow.AddHours(1));
+        var token = CreateToken(userId, email, DateTime.UtcNow.AddHours(1), roles);
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
@@ -49,16 +49,21 @@ public class TokenService(IConfiguration configuration) : ITokenService
         }
     }
 
-    private JwtSecurityToken CreateToken(string userId, string email, DateTime expires)
+    private JwtSecurityToken CreateToken(string userId, string email, DateTime expires, IList<string>? roles = null)
     {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, userId),
+            new(ClaimTypes.Email, email),
+        };
+        if (roles is not null)
+            foreach (var r in roles)
+                claims.Add(new(ClaimTypes.Role, r));
+
         return new JwtSecurityToken(
             issuer: _issuer,
             audience: _audience,
-            claims:
-            [
-                new Claim(ClaimTypes.NameIdentifier, userId),
-                new Claim(ClaimTypes.Email, email),
-            ],
+            claims: claims,
             expires: expires,
             signingCredentials: new SigningCredentials(_key, SecurityAlgorithms.HmacSha256)
         );

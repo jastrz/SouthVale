@@ -40,7 +40,8 @@ public class AuthService(
         await db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
-        var accessToken = tokenService.GenerateAccessToken(user.Id, user.Email!);
+        var roles = await userManager.GetRolesAsync(user);
+        var accessToken = tokenService.GenerateAccessToken(user.Id, user.Email!, roles);
         var refreshToken = tokenService.GenerateRefreshToken(user.Id, user.Email!);
 
         logger.LogInformation("User registered: {Username} ({Email}), village: {Village}", username, email, village.Name);
@@ -59,11 +60,12 @@ public class AuthService(
             return Result<LoginResult>.Failure(["Invalid email or password"]);
 
         var player = await db.Players.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == user.Id, ct);
-        var username = player?.Username ?? "Unknown";
+        var username = player?.Username ?? email.Split('@')[0];
 
         logger.LogInformation("User logged in: {Username} ({Email})", username, email);
 
-        var accessToken = tokenService.GenerateAccessToken(user.Id, user.Email!);
+        var roles = await userManager.GetRolesAsync(user);
+        var accessToken = tokenService.GenerateAccessToken(user.Id, user.Email!, roles);
         var refreshToken = tokenService.GenerateRefreshToken(user.Id, user.Email!);
 
         return Result<LoginResult>.Success(new LoginResult(accessToken, refreshToken, username));

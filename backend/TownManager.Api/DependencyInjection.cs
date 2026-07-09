@@ -26,6 +26,7 @@ public static class DependencyInjection
         });
 
         services.AddIdentityCore<ApplicationUser>()
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>();
 
         services.AddAuthorization();

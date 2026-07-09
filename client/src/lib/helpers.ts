@@ -40,6 +40,17 @@ export function timeRemaining(completesAt: string): number {
   return new Date(completesAt).getTime() - Date.now();
 }
 
+const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+
+export function jwtRole(token: string): string | null {
+  try {
+    const p = JSON.parse(atob(token.split(".")[1]));
+    return p[ROLE_CLAIM] ?? p.role ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // matches server formula: fields/hour -> seconds
 export function travelTime(
   fromX: number,

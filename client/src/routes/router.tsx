@@ -11,6 +11,8 @@ import { useAuthStore } from "../store/authStore";
 import { RootLayout } from "../layouts/RootLayout";
 import { FrontpageLayout } from "../layouts/FrontpageLayout";
 import { MapEditorPage } from "../pages/MapEditorPage";
+import { AdminPage } from "../pages/AdminPage";
+import { jwtRole } from "../lib/helpers";
 
 const rootRoute = createRootRoute({
   component: RootLayout,
@@ -61,10 +63,22 @@ const mapEditorRoute = createRoute({
   component: MapEditorPage,
 });
 
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin",
+  beforeLoad: () => {
+    const token = useAuthStore.getState().token;
+    if (!token) throw redirect({ to: "/login" });
+    if (jwtRole(token) !== "Admin") throw redirect({ to: "/" });
+  },
+  component: AdminPage,
+});
+
 const children = [
   indexRoute,
   frontpageRoute.addChildren([loginRoute, registerRoute]),
   mapEditorRoute,
+  adminRoute,
 ];
 
 const routeTree = rootRoute.addChildren(children);

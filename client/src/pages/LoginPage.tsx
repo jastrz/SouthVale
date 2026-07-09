@@ -5,6 +5,7 @@ import { useLogin } from "../api/hooks/useAuth";
 import { useAuthStore } from "../store/authStore";
 import { loginSchema, type LoginForm, type FormErrors } from "../schemas/auth";
 import { inputBase, inputDefault, inputError } from "../styles/styles";
+import { jwtRole } from "../lib/helpers";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ export function LoginPage() {
     login.mutate(result.data, {
       onSuccess: (response) => {
         setAuth(response.data.accessToken, email, response.data.username);
-        navigate({ to: "/" });
+        navigate({ to: jwtRole(response.data.accessToken) === "Admin" ? "/admin" : "/" });
       },
     });
   };

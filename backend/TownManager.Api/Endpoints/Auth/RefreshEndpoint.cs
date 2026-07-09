@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using TownManager.Application.Interfaces;
+using TownManager.Infrastructure.Identity;
 
 namespace TownManager.Api.Endpoints.Auth;
 
@@ -10,6 +12,7 @@ public class RefreshEndpoint : IEndpoint
         app.MapPost("/auth/refresh", async (
             HttpContext httpContext,
             ITokenService tokenService,
+            UserManager<ApplicationUser> userManager,
             CancellationToken ct) =>
         {
             var refreshToken = httpContext.Request.Cookies["refresh_token"];
@@ -28,7 +31,10 @@ public class RefreshEndpoint : IEndpoint
             if (userId is null || email is null)
                 return Results.Problem(statusCode: 401, title: "Invalid token claims");
 
-            var newAccessToken = tokenService.GenerateAccessToken(userId, email);
+            var user = await userManager.FindByIdAsync(userId);
+            var roles = user is not null ? await userManager.GetRolesAsync(user) : [];
+
+            var newAccessToken = tokenService.GenerateAccessToken(userId, email, roles);
             var newRefreshToken = tokenService.GenerateRefreshToken(userId, email);
 
             httpContext.Response.Cookies.Append("refresh_token", newRefreshToken, new CookieOptions
