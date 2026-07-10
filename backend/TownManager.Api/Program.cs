@@ -6,7 +6,7 @@ using TownManager.Api.Endpoints;
 using TownManager.Application;
 using TownManager.Application.Players;
 using TownManager.Application.Villages;
-using TownManager.Domain.Config;
+using TownManager.Application.Llm;
 using TownManager.Infrastructure;
 
 Directory.CreateDirectory("logs");
@@ -62,14 +62,15 @@ try
     var app = builder.Build()
         .ConfigurePipeline();
 
-    app.UseHangfireDashboard("/hangfire");
+    if (app.Environment.IsDevelopment())
+        app.UseHangfireDashboard("/hangfire");
 
     app.MapEndpoints();
 
     var llmCfg = app.Services.GetRequiredService<LlmPlayerConfig>();
     Log.Information("LLM config: model={Model}, api={Api}, key={Key}",
         llmCfg.Model, llmCfg.ApiUrl,
-        string.IsNullOrEmpty(llmCfg.ApiKey) ? "not set" : $"set ({llmCfg.ApiKey[..8]}...)");
+        string.IsNullOrEmpty(llmCfg.ApiKey) ? "not set" : "set");
 
     if (!string.IsNullOrEmpty(llmCfg.ApiKey))
     {

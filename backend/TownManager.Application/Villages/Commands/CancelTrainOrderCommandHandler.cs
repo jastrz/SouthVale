@@ -5,7 +5,7 @@ using TownManager.Domain.Config;
 
 namespace TownManager.Application.Villages.Commands;
 
-public class CancelTrainOrderCommandHandler(IVillageRepository repo, IJobScheduler scheduler)
+public class CancelTrainOrderCommandHandler(IVillageRepository repo, IJobScheduler scheduler, IPlayerRepository playerRepo)
     : IRequestHandler<CancelTrainOrderCommand, Result>
 {
     public async Task<Result> Handle(CancelTrainOrderCommand request, CancellationToken ct)
@@ -13,6 +13,13 @@ public class CancelTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
         var village = await repo.GetWithTrainOrdersAsync(request.OrderId, ct);
         if (village is null)
             return Result.Failure(["Train order not found."], statusCode: 404);
+
+        var player = await playerRepo.GetByUserIdAsync(request.UserId, ct);
+        if (player is null)
+            return Result.Failure(["Player not found."], statusCode: 404);
+
+        if (village.PlayerId != player.Id)
+            return Result.Failure(["You do not own this village."], statusCode: 403);
 
         var order = village.TrainOrders.FirstOrDefault(o => o.Id == request.OrderId);
         if (order is null)

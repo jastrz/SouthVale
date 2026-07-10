@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Api.Endpoints.Filters;
 using TownManager.Application.Villages.Queries;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
@@ -21,6 +22,7 @@ public class GetVillageEndpoint : IEndpoint
         .WithSummary("Get a village by id")
         .WithDescription("Returns the full state of a village, including resources, buildings, troops, and active build and train orders.")
         .RequireRateLimiting("Gameplay")
-        .AllowAnonymous();
+        .RequireAuthorization()
+        .AddEndpointFilter<VillageOwnershipFilter>();
     }
 }

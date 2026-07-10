@@ -1,7 +1,4 @@
-using TownManager.Domain.Entities;
-using TownManager.Domain.Enums;
-
-namespace TownManager.Domain.Config;
+namespace TownManager.Application.Llm;
 
 // Config stored in dotnet secrets currently
 public class LlmPlayerConfig

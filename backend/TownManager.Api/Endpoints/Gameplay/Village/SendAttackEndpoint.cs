@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Api.Endpoints.Filters;
 using TownManager.Application.Villages.Commands;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
@@ -29,7 +30,8 @@ public class SendAttackEndpoint : IEndpoint
         .WithSummary("Send an attack from a village")
         .WithDescription("Creates an attack order that dispatches the specified troops from the source village to the target village.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .AddEndpointFilter<VillageOwnershipFilter>();
     }
 
     public record SendAttackRequest(IReadOnlyList<TroopEntry> Troops, Guid TargetVillageId);

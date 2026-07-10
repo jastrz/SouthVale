@@ -14,13 +14,16 @@ public class CancelTrainOrderHandlerTests
 {
     private readonly IVillageRepository _repo;
     private readonly IJobScheduler _scheduler;
+    private readonly IPlayerRepository _playerRepo;
     private readonly CancelTrainOrderCommandHandler _handler;
+    private const string PlayerUserId = "test-user";
 
     public CancelTrainOrderHandlerTests()
     {
         _repo = Substitute.For<IVillageRepository>();
         _scheduler = Substitute.For<IJobScheduler>();
-        _handler = new CancelTrainOrderCommandHandler(_repo, _scheduler);
+        _playerRepo = Substitute.For<IPlayerRepository>();
+        _handler = new CancelTrainOrderCommandHandler(_repo, _scheduler, _playerRepo);
     }
 
     [Fact]
@@ -31,9 +34,10 @@ public class CancelTrainOrderHandlerTests
         order.JobId = "job-1";
         village.TrainOrders.Add(order);
         village.Resources = Resources.Zero;
+        SetupPlayerOwns(village);
         _repo.GetWithTrainOrdersAsync(order.Id, CancellationToken.None).Returns(village);
 
-        var result = await _handler.Handle(new(order.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(order.Id, PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.TrainOrders.Should().BeEmpty();
@@ -52,9 +56,10 @@ public class CancelTrainOrderHandlerTests
         order.JobId = "job-1";
         village.TrainOrders.Add(order);
         village.Resources = Resources.Zero;
+        SetupPlayerOwns(village);
         _repo.GetWithTrainOrdersAsync(order.Id, CancellationToken.None).Returns(village);
 
-        var result = await _handler.Handle(new(order.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(order.Id, PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         var cost = TroopsConfig.Get(TroopType.Archer).TrainingCost;
@@ -76,15 +81,16 @@ public class CancelTrainOrderHandlerTests
         village.TrainOrders.Add(order1);
         village.TrainOrders.Add(order2);
         village.TrainOrders.Add(order3);
+        SetupPlayerOwns(village);
         _repo.GetWithTrainOrdersAsync(order2.Id, CancellationToken.None).Returns(village);
 
-        var result = await _handler.Handle(new(order2.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(order2.Id, PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
-        order1.StartsAt.Should().Be(t0); // unchanged
-        order1.CompletesAt.Should().Be(t0.AddSeconds(50)); // unchanged
-        order3.StartsAt.Should().Be(t0.AddSeconds(50)); // shifted up
-        order3.CompletesAt.Should().Be(t0.AddSeconds(100)); // shifted up
+        order1.StartsAt.Should().Be(t0);
+        order1.CompletesAt.Should().Be(t0.AddSeconds(50));
+        order3.StartsAt.Should().Be(t0.AddSeconds(50));
+        order3.CompletesAt.Should().Be(t0.AddSeconds(100));
     }
 
     [Fact]
@@ -99,10 +105,11 @@ public class CancelTrainOrderHandlerTests
         next.JobId = "job-2";
         village.TrainOrders.Add(head);
         village.TrainOrders.Add(next);
+        SetupPlayerOwns(village);
         _repo.GetWithTrainOrdersAsync(head.Id, CancellationToken.None).Returns(village);
 
         var before = DateTime.UtcNow;
-        var result = await _handler.Handle(new(head.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(head.Id, PlayerUserId), CancellationToken.None);
         var after = DateTime.UtcNow;
 
         result.Succeeded.Should().BeTrue();
@@ -122,9 +129,10 @@ public class CancelTrainOrderHandlerTests
         order.JobId = "job-1";
         village.TrainOrders.Add(order);
         village.Resources = Resources.Zero;
+        SetupPlayerOwns(village);
         _repo.GetWithTrainOrdersAsync(order.Id, CancellationToken.None).Returns(village);
 
-        var result = await _handler.Handle(new(order.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(order.Id, PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.TrainOrders.Should().BeEmpty();
@@ -140,10 +148,18 @@ public class CancelTrainOrderHandlerTests
         _repo.GetWithTrainOrdersAsync(Arg.Any<Guid>(), CancellationToken.None)
             .Returns((Village?)null);
 
-        var result = await _handler.Handle(new(Guid.NewGuid()), CancellationToken.None);
+        var result = await _handler.Handle(new(Guid.NewGuid(), PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
         result.StatusCode.Should().Be(404);
+    }
+
+    private void SetupPlayerOwns(Village village)
+    {
+        village.PlayerId = Guid.NewGuid();
+        var player = Substitute.For<Player>();
+        player.Id = village.PlayerId;
+        _playerRepo.GetByUserIdAsync(PlayerUserId, Arg.Any<CancellationToken>()).Returns(player);
     }
 
     private static TrainOrder CreateOrder(TroopType type, int amount, TimeSpan timePerUnit, DateTime startedAt)

@@ -10,10 +10,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Llm;
 using TownManager.Domain.Config;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Jobs;
 using TownManager.Infrastructure.Jobs.MovementResolvers;
+using TownManager.Infrastructure.Llm;
 using TownManager.Infrastructure.Persistence;
 using TownManager.Infrastructure.Persistence.Repositories;
 
@@ -68,7 +70,9 @@ public static class DependencyInjection
         services.AddScoped<IMovementRepository, MovementRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<IJobScheduler, HangfireJobScheduler>();
-        
+
+        services.AddHttpClient<ILlmApiClient, LlmApiClient>(c => c.Timeout = TimeSpan.FromMinutes(5));
+
         services.AddScoped<IMovementResolver, AttackMovementResolver>();
         services.AddScoped<IMovementResolver, ReturnMovementResolver>();
         services.AddScoped<IMovementResolver, SettleMovementResolver>();

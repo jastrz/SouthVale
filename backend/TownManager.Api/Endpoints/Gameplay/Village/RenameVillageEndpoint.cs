@@ -1,5 +1,5 @@
-using System.Security.Claims;
 using MediatR;
+using TownManager.Api.Endpoints.Filters;
 using TownManager.Application.Villages.Commands;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
@@ -12,14 +12,9 @@ public class RenameVillageEndpoint : IEndpoint
             Guid villageId,
             RenameVillageRequest request,
             ISender sender,
-            ClaimsPrincipal user,
             CancellationToken ct) =>
         {
-            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Results.Problem(statusCode: 401, title: "Unauthorized");
-
-            var result = await sender.Send(new RenameVillageCommand(villageId, request.Name, userId), ct);
+            var result = await sender.Send(new RenameVillageCommand(villageId, request.Name), ct);
             return result.ToHttpResponse();
         })
         .WithName("RenameVillage")
@@ -27,7 +22,8 @@ public class RenameVillageEndpoint : IEndpoint
         .WithSummary("Rename a village")
         .WithDescription("Renames a village owned by the authenticated player.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .AddEndpointFilter<VillageOwnershipFilter>();
     }
 
     public record RenameVillageRequest(string Name);

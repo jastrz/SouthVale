@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Api.Endpoints.Filters;
 using TownManager.Application.Dtos;
 using TownManager.Application.Villages.Commands;
 
@@ -30,7 +31,8 @@ public class SendTransportEndpoint : IEndpoint
         .WithSummary("Send a transport from a village")
         .WithDescription("Sends troops and resources from one of your villages to another.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .AddEndpointFilter<VillageOwnershipFilter>();
     }
 
     public record SendTransportRequest(

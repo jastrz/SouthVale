@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,6 +8,7 @@ using TownManager.Application.Common;
 using TownManager.Application.Dtos;
 using TownManager.Application.GameConfig.Queries;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Llm;
 using TownManager.Application.Villages.Commands;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
@@ -27,14 +27,15 @@ public class LlmPlayerService(
     IMovementRepository movementRepo,
     IMediator mediator,
     LlmPlayerConfig config,
+    ILlmApiClient llmApi,
     ILogger<LlmPlayerService> logger) : ILlmPlayerService
 {
-    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromMinutes(5) };
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         WriteIndented = false,
     };
+    
     private static int _totalTicks;
     private static int _totalReceived;
     private static int _totalSucceeded;
@@ -278,63 +279,17 @@ IMPORTANT:
 
     private async Task<LlmAction[]?> CallLlmApi(string username, string prompt, CancellationToken ct)
     {
-        var body = config.EnableThinking
-            ? new
-            {
-                model = config.Model,
-                messages = new[]
-                {
-                    new { role = "system", content = prompt },
-                },
-                temperature = 0.7,
-                max_tokens = config.ThinkingTokens,
-                thinking = new { type = "enabled" },
-                stream = false,
-                reasoningEffort = "medium"
-            }
-            : (object)new
-            {
-                model = config.Model,
-                messages = new[]
-                {
-                    new { role = "system", content = prompt },
-                },
-                temperature = 0.7,
-                max_tokens = config.NonThinkingTokens,
-                thinking = new { type = "disabled" },
-                stream = false,
-                reasoningEffort = "medium"
-            };
+        var apiResult = await llmApi.CallAsync(prompt, ct);
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{config.ApiUrl.TrimEnd('/')}")
-        {
-            Content = JsonContent.Create(body, options: JsonOpts),
-        };
-        request.Headers.Authorization = new("Bearer", config.ApiKey);
-
-        using var response = await Http.SendAsync(request, ct);
-        var rawBody = await response.Content.ReadAsStringAsync(ct);
-        // logger.LogInformation("LLM raw response ({Status}): {Body}", response.StatusCode, rawBody);
-
-        if (!response.IsSuccessStatusCode)
+        if (!apiResult.Success || string.IsNullOrEmpty(apiResult.Content))
         {
             LlmActivity.Log?.Invoke(username, "api-error", config.Model,
-                new { status = (int)response.StatusCode, response = rawBody });
-            logger.LogWarning("LLM API error ({Status})", (int)response.StatusCode);
+                new { status = apiResult.StatusCode, response = apiResult.RawBody });
+            logger.LogWarning("LLM API error ({Status})", apiResult.StatusCode);
             return null;
         }
 
-        var parsed = JsonSerializer.Deserialize<OpenAiResponse>(rawBody, JsonOpts);
-        var msg = parsed?.Choices?.FirstOrDefault()?.Message;
-        var content = msg?.Content ?? msg?.ReasoningContent;
-        if (string.IsNullOrEmpty(content))
-        {
-            LlmActivity.Log?.Invoke(username, "empty-response", config.Model, null);
-            logger.LogWarning("LLM returned empty response");
-            return null;
-        }
-
-        // logger.LogInformation("LLM response from {Username}: {Content}", username, content);
+        var content = apiResult.Content;
 
         var cleaned = StripMarkdown(content);
         var start = cleaned.IndexOf('[');
@@ -475,21 +430,6 @@ IMPORTANT:
         return text.Trim();
     }
 
-    private record OpenAiResponse
-    {
-        public OpenAiChoice[]? Choices { get; init; }
-    }
-
-    private record OpenAiChoice
-    {
-        public OpenAiMessage? Message { get; init; }
-    }
-
-    private record OpenAiMessage
-    {
-        public string? Content { get; init; }
-        public string? ReasoningContent { get; init; }
-    }
 }
 
 public record LlmAction

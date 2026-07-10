@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Common;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Map.Services;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Infrastructure.Persistence;
@@ -13,6 +14,7 @@ public class AuthService(
     UserManager<ApplicationUser> userManager,
     AppDbContext db,
     ITokenService tokenService,
+    IMapService mapService,
     ILogger<AuthService> logger
     ) : IAuthService
 {
@@ -31,7 +33,8 @@ public class AuthService(
         if (!result.Succeeded)
             return Result<LoginResult>.Failure(result.Errors.Select(e => e.Description));
 
-        var village = Village.CreateStarter($"{username}'s village", new Coordinates(0, 0));
+        var coords = (await mapService.GetFreeTilesAsync(1, ct)).FirstOrDefault() ?? new Coordinates(0, 0);
+        var village = Village.CreateStarter($"{username}'s village", coords);
         var player = Player.Create(username, user.Id, village);
 
         db.Players.Add(player);

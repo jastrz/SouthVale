@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Api.Endpoints.Filters;
 using TownManager.Application.Villages.Commands;
 using TownManager.Domain.Entities;
 
@@ -25,7 +26,8 @@ public class EnqueueSettleEndpoint : IEndpoint
         .WithSummary("Queue a settlement order")
         .WithDescription("Enqueues a settle order that will found a new village at the given map coordinates once processed.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .AddEndpointFilter<VillageOwnershipFilter>();
     }
 
     public record EnqueueSettleRequest(Coordinates Target);

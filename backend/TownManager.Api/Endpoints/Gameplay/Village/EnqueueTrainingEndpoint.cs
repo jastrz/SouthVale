@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Api.Endpoints.Filters;
 using TownManager.Application.Villages.Commands;
 
 namespace TownManager.Api.Endpoints.Gameplay.Village;
@@ -22,7 +23,8 @@ public class EnqueueTrainingEndpoint : IEndpoint
         .WithSummary("Queue troop training")
         .WithDescription("Enqueues one or more troop training orders in the village's training queue.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .AddEndpointFilter<VillageOwnershipFilter>();
     }
 
     public record EnqueueTrainingRequest(IReadOnlyList<TroopEntry> Orders);

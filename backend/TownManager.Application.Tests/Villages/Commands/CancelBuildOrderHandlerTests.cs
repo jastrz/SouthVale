@@ -14,13 +14,16 @@ public class CancelBuildOrderHandlerTests
 {
     private readonly IVillageRepository _repo;
     private readonly IJobScheduler _scheduler;
+    private readonly IPlayerRepository _playerRepo;
     private readonly CancelBuildOrderCommandHandler _handler;
+    private const string PlayerUserId = "test-user";
 
     public CancelBuildOrderHandlerTests()
     {
         _repo = Substitute.For<IVillageRepository>();
         _scheduler = Substitute.For<IJobScheduler>();
-        _handler = new CancelBuildOrderCommandHandler(_repo, _scheduler);
+        _playerRepo = Substitute.For<IPlayerRepository>();
+        _handler = new CancelBuildOrderCommandHandler(_repo, _scheduler, _playerRepo);
     }
 
     [Fact]
@@ -31,9 +34,10 @@ public class CancelBuildOrderHandlerTests
         order.JobId = "job-1";
         village.BuildOrders.Add(order);
         village.Resources = Resources.Zero;
+        SetupPlayerOwns(village);
         _repo.GetWithBuildingsAndOrdersAsync(order.Id, CancellationToken.None).Returns(village);
 
-        var result = await _handler.Handle(new(order.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(order.Id, PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.BuildOrders.Should().BeEmpty();
@@ -51,9 +55,10 @@ public class CancelBuildOrderHandlerTests
         var order2 = CreateOrder(BuildingType.IronMine, 3, TimeSpan.FromMinutes(10));
         village.BuildOrders.Add(order1);
         village.BuildOrders.Add(order2);
+        SetupPlayerOwns(village);
         _repo.GetWithBuildingsAndOrdersAsync(order2.Id, CancellationToken.None).Returns(village);
 
-        var result = await _handler.Handle(new(order2.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(order2.Id, PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.BuildOrders.Should().ContainSingle(o => o.Id == order1.Id);
@@ -67,9 +72,10 @@ public class CancelBuildOrderHandlerTests
         var order2 = CreateOrder(BuildingType.IronMine, 3, TimeSpan.FromMinutes(10));
         village.BuildOrders.Add(order1);
         village.BuildOrders.Add(order2);
+        SetupPlayerOwns(village);
         _repo.GetWithBuildingsAndOrdersAsync(order1.Id, CancellationToken.None).Returns(village);
 
-        var result = await _handler.Handle(new(order1.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(order1.Id, PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
     }
@@ -91,9 +97,10 @@ public class CancelBuildOrderHandlerTests
         village.BuildOrders.Add(iron2);
         village.BuildOrders.Add(iron3);
         village.BuildOrders.Add(wood2);
+        SetupPlayerOwns(village);
         _repo.GetWithBuildingsAndOrdersAsync(iron3.Id, CancellationToken.None).Returns(village);
 
-        await _handler.Handle(new(iron3.Id), CancellationToken.None);
+        await _handler.Handle(new(iron3.Id, PlayerUserId), CancellationToken.None);
 
         wood2.StartsAt.Should().Be(t0.AddMinutes(5));
         wood2.CompletesAt.Should().Be(t0.AddMinutes(15));
@@ -115,10 +122,11 @@ public class CancelBuildOrderHandlerTests
         next.JobId = "job-2";
         village.BuildOrders.Add(head);
         village.BuildOrders.Add(next);
+        SetupPlayerOwns(village);
         _repo.GetWithBuildingsAndOrdersAsync(head.Id, CancellationToken.None).Returns(village);
 
         var before = DateTime.UtcNow;
-        var result = await _handler.Handle(new(head.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(head.Id, PlayerUserId), CancellationToken.None);
         var after = DateTime.UtcNow;
 
         result.Succeeded.Should().BeTrue();
@@ -138,9 +146,10 @@ public class CancelBuildOrderHandlerTests
         order.JobId = "job-1";
         village.BuildOrders.Add(order);
         village.Resources = Resources.Zero;
+        SetupPlayerOwns(village);
         _repo.GetWithBuildingsAndOrdersAsync(order.Id, CancellationToken.None).Returns(village);
 
-        var result = await _handler.Handle(new(order.Id), CancellationToken.None);
+        var result = await _handler.Handle(new(order.Id, PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
         village.BuildOrders.Should().BeEmpty();
@@ -156,10 +165,18 @@ public class CancelBuildOrderHandlerTests
         _repo.GetWithBuildingsAndOrdersAsync(Arg.Any<Guid>(), CancellationToken.None)
             .Returns((Village?)null);
 
-        var result = await _handler.Handle(new(Guid.NewGuid()), CancellationToken.None);
+        var result = await _handler.Handle(new(Guid.NewGuid(), PlayerUserId), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
         result.StatusCode.Should().Be(404);
+    }
+
+    private void SetupPlayerOwns(Village village)
+    {
+        village.PlayerId = Guid.NewGuid();
+        var player = Substitute.For<Player>();
+        player.Id = village.PlayerId;
+        _playerRepo.GetByUserIdAsync(PlayerUserId, Arg.Any<CancellationToken>()).Returns(player);
     }
 
     private static BuildOrder CreateOrder(BuildingType type, int level, TimeSpan duration)

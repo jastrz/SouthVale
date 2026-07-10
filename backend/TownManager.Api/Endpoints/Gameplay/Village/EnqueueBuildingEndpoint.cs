@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Api.Endpoints.Filters;
 using TownManager.Application.Villages.Commands;
 using TownManager.Domain.Enums;
 
@@ -23,7 +24,8 @@ public class EnqueueBuildingEndpoint : IEndpoint
         .WithSummary("Queue a building construction")
         .WithDescription("Enqueues a construction order for the specified building type in the village's build queue.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .AddEndpointFilter<VillageOwnershipFilter>();
     }
 
     public record EnqueueBuildingRequest(BuildingType BuildingType);

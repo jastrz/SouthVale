@@ -52,7 +52,7 @@ public static class DependencyInjection
 
             options.AddFixedWindowLimiter("Gameplay", opt =>
             {
-                opt.PermitLimit = 100;
+                opt.PermitLimit = 1000;
                 opt.Window = TimeSpan.FromMinutes(1);
                 opt.QueueLimit = 0;
             });
