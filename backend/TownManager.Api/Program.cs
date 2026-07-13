@@ -68,7 +68,7 @@ try
     app.MapEndpoints();
 
     var llmCfg = app.Services.GetRequiredService<LlmPlayerConfig>();
-    Log.Information("LLM config: model={Model}, api={Api}, key={Key}",
+    Log.Information("LLM config: model={Model}, api={Api}",
         llmCfg.Model, llmCfg.ApiUrl,
         string.IsNullOrEmpty(llmCfg.ApiKey) ? "not set" : "set");
 

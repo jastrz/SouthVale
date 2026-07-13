@@ -1,20 +1,21 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:alpine
     container_name: townmanager-db
     environment:
-      POSTGRES_DB: townmanager
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-townmanager}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   backend:
     image: houkiii/backend:latest
@@ -25,23 +26,48 @@ services:
     ports:
       - "5147:8080"
     environment:
-      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=townmanager;Username=postgres;Password=postgres"
-      Cors__AllowedOrigins__0: "http://localhost:3000"
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-townmanager};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}"
+      Cors__AllowedOrigins__0: ${Cors__AllowedOrigins__0:-http://localhost:3000}
       ASPNETCORE_ENVIRONMENT: Production
+      Jwt__Key: ${Jwt__Key}
+      LlmPlayer__ApiUrl: ${LlmPlayer__ApiUrl:-}
+      LlmPlayer__ApiKey: ${LlmPlayer__ApiKey:-}
+      LlmPlayer__Model: ${LlmPlayer__Model:-}
+      Features__UseBarbarians: ${Features__UseBarbarians:-true}
+      Features__UseLlmPlayers: ${Features__UseLlmPlayers:-false}
+      Admin__Password: ${Admin__Password:-}
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ./backend/TownManager.Api/logs:/app/logs
+    restart: unless-stopped
+
+  client:
+    image: houkiii/client:latest
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+    container_name: townmanager-client
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4
     container_name: townmanager-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
     ports:
       - "5050:80"
     depends_on:
       - postgres
+    restart: unless-stopped
 
 volumes:
   postgres_data:

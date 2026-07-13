@@ -1,6 +1,6 @@
 import { Container, Graphics, Rectangle, TilingSprite } from "pixi.js";
 import type { Application, FederatedPointerEvent } from "pixi.js";
-import type { MapVillage, VillageDto } from "../../api/types";
+import type { Coordinates, MapVillage } from "../../api/types";
 import { tween } from "../animation/";
 import type { TweenHandle } from "../animation/";
 import { CAMERA, TILE_SIZE, COLORS, GRID, ZOOM, panelWidth } from "../config";
@@ -188,7 +188,7 @@ export class MapScene {
    * the camera off-map.
    */
   centerOnVillage(
-    village: VillageDto,
+    village: { coordinates: Coordinates },
     options: { animate?: boolean; duration?: number } = {},
   ): void {
     const wx = village.coordinates.x * TILE_SIZE + TILE_SIZE / 2;

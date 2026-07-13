@@ -38,7 +38,7 @@ public class LlmApiClient(HttpClient http, LlmPlayerConfig config) : ILlmApiClie
                 reasoningEffort = "medium"
             };
 
-        var request = new HttpRequestMessage(HttpMethod.Post, config.ApiUrl.TrimEnd('/'))
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{config.ApiUrl.TrimEnd('/')}/chat/completions")
         {
             Content = JsonContent.Create(body, options: JsonOpts),
         };
