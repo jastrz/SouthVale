@@ -1,6 +1,6 @@
 namespace TownManager.Application.Llm;
 
-// Config stored in dotnet secrets currently
+// In dev, prefer user-secrets for ApiKey: `dotnet user-secrets set "LlmPlayer:ApiKey" ...`
 public class LlmPlayerConfig
 {
     public const string SectionName = "LlmPlayer";

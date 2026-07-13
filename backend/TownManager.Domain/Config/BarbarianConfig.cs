@@ -16,7 +16,6 @@ public static class BarbarianConfig
     public static readonly Troops MaxTroops = new(200, 200, 0);
     public static readonly Resources StartingResources = new(500, 500, 500, 500);
     public static readonly TimeSpan AttackCooldown = TimeSpan.FromHours(2);
-    public const string TickIntervalCron = "*/10 * * * *";
 
     public static readonly Dictionary<BuildingType, int> StartingBuildings = new()
     {

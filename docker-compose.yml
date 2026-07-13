@@ -33,6 +33,8 @@ services:
       LlmPlayer__ApiUrl: ${LlmPlayer__ApiUrl:-}
       LlmPlayer__ApiKey: ${LlmPlayer__ApiKey:-}
       LlmPlayer__Model: ${LlmPlayer__Model:-}
+      Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/10 * * * *}
+      LlmPlayer__TickIntervalCron: ${LlmPlayer__TickIntervalCron:-*/15 * * * *}
       Features__UseBarbarians: ${Features__UseBarbarians:-true}
       Features__UseLlmPlayers: ${Features__UseLlmPlayers:-false}
       Admin__Password: ${Admin__Password:-}
@@ -55,6 +57,26 @@ services:
       - "3000:80"
     depends_on:
       - backend
+    restart: unless-stopped
+
+  backup:
+    image: prodrigestivill/postgres-backup-local:latest
+    container_name: townmanager-backup
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-townmanager}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SCHEDULE: ${BACKUP_SCHEDULE:-@daily}
+      BACKUP_DIR: /backups
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-7}
+      BACKUP_KEEP_WEEKS: ${BACKUP_KEEP_WEEKS:-0}
+      BACKUP_KEEP_MONTHS: ${BACKUP_KEEP_MONTHS:-0}
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   pgadmin:

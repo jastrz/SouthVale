@@ -2,13 +2,14 @@ using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TownManager.Application.Barbarians;
 using TownManager.Application.Villages.Services;
-using TownManager.Domain.Config;
 
 namespace TownManager.Infrastructure.Jobs;
 
 public class BarbarianJobScheduler(IServiceScopeFactory scopeFactory, IRecurringJobManager jobs,
-    IHostApplicationLifetime appLifetime, ILogger<BarbarianJobScheduler> logger) : IHostedService
+    IHostApplicationLifetime appLifetime, ILogger<BarbarianJobScheduler> logger,
+    BarbarianOptions options) : IHostedService
 {
     public bool TickAtStart { get; set; } = false;
 
@@ -29,7 +30,7 @@ public class BarbarianJobScheduler(IServiceScopeFactory scopeFactory, IRecurring
         }
 
         jobs.AddOrUpdate<BarbarianTickJob>("barbarian-tick",
-            j => j.ExecuteAsync(ct), BarbarianConfig.TickIntervalCron);
+            j => j.ExecuteAsync(ct), options.TickIntervalCron);
 
         return Task.CompletedTask;
     }
