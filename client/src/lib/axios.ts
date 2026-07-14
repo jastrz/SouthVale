@@ -72,7 +72,7 @@ api.interceptors.response.use(
     } catch (refreshError) {
       processQueue(null, refreshError);
       useAuthStore.getState().clearAuth();
-      window.location.href = "/login";
+      window.location.href = `${import.meta.env.BASE_URL}login`;
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
