@@ -42,6 +42,7 @@ public class AdminEndpoints : IEndpoint
         .WithName("AdminListVillages")
         .WithTags("Admin")
         .WithSummary("List all villages")
+        .WithDescription("Returns id, name, and coordinates for every village in the database.")
         .RequireAuthorization();
 
         app.MapPost("/admin/village/{id:guid}/resources", async (
@@ -72,6 +73,7 @@ public class AdminEndpoints : IEndpoint
         .WithName("AdminAddResources")
         .WithTags("Admin")
         .WithSummary("Add resources to a village")
+        .WithDescription("Adds the specified amounts of wood, clay, iron, and crop to a village.")
         .RequireAuthorization();
 
         app.MapPost("/admin/villages/resources/full", async (
@@ -106,6 +108,7 @@ public class AdminEndpoints : IEndpoint
         .WithName("AdminFullResources")
         .WithTags("Admin")
         .WithSummary("Set all villages to max resources")
+        .WithDescription("Fills every village's warehouse and granary to full capacity. Returns count of villages filled.")
         .RequireAuthorization();
 
         app.MapPost("/admin/tick/barbarian", async (
@@ -128,6 +131,7 @@ public class AdminEndpoints : IEndpoint
         .WithName("AdminTickBarbarian")
         .WithTags("Admin")
         .WithSummary("Run barbarian tick immediately")
+        .WithDescription("Triggers the barbarian AI tick immediately instead of waiting for the cron schedule. Requires UseBarbarians feature flag.")
         .RequireAuthorization();
 
         app.MapPost("/admin/tick/llm", async (
@@ -150,6 +154,7 @@ public class AdminEndpoints : IEndpoint
         .WithName("AdminTickLlm")
         .WithTags("Admin")
         .WithSummary("Run LLM player tick immediately")
+        .WithDescription("Triggers the LLM player AI tick immediately instead of waiting for the cron schedule. Requires UseLlmPlayers feature flag.")
         .RequireAuthorization();
     }
 
