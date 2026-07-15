@@ -148,7 +148,7 @@ public class AdminEndpoints : IEndpoint
             if (!features.UseLlmPlayers)
                 return Results.BadRequest(new { error = "LLM players feature is disabled" });
 
-            await llmTick.ExecuteAsync(ct);
+            _ = Task.Run(() => llmTick.ExecuteAsync(CancellationToken.None));
             return Results.Ok(new { ticked = "llm" });
         })
         .WithName("AdminTickLlm")
