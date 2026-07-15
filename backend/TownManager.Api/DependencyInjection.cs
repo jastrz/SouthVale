@@ -1,7 +1,8 @@
 using System.Text.Json.Serialization;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 using TownManager.Api.Configuration;
 using TownManager.Api.ExceptionHandling;
 using TownManager.Api.Services;
@@ -31,7 +32,10 @@ public static class DependencyInjection
 
         services.AddAuthorization();
 
-        services.AddOpenApi();
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer<ProductionServerUrlTransformer>();
+        });
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
@@ -75,5 +79,27 @@ public static class DependencyInjection
         });
 
         return services;
+    }
+}
+
+internal sealed class ProductionServerUrlTransformer(
+    IWebHostEnvironment environment,
+    IConfiguration configuration)
+    : IOpenApiDocumentTransformer
+{
+    public Task TransformAsync(
+        OpenApiDocument document,
+        OpenApiDocumentTransformerContext context,
+        CancellationToken cancellationToken)
+    {
+        if (environment.IsProduction())
+        {
+            document.Servers =
+            [
+                new OpenApiServer { Url = configuration["Scalar:ServerUrl"] ?? "/southvale/api" }
+            ];
+        }
+
+        return Task.CompletedTask;
     }
 }

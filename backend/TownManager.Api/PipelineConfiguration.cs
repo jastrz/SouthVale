@@ -69,7 +69,10 @@ public static class PipelineConfiguration
         }
 
         app.MapOpenApi();
-        app.MapScalarApiReference();
+        app.MapScalarApiReference(opt =>
+        {
+            opt.BaseServerUrl = "/southvale/api";
+        });
 
         app.UseCors();
         app.UseRateLimiter();
