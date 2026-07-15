@@ -2,6 +2,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuthStore } from "../store/authStore";
 import { useGameStateStore } from "../store/gameStateStore";
 import { api } from "../lib/axios";
+import { jwtRole } from "../lib/helpers";
+import { useDelete } from "../api/hooks/useAuth";
+import { BurgerMenu } from "./BurgerMenu";
 
 export function LoginBar() {
   const navigate = useNavigate();
@@ -10,6 +13,9 @@ export function LoginBar() {
   const email = useAuthStore((s) => s.email);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const clearGameState = useGameStateStore((s) => s.clear);
+  const deleteMutation = useDelete();
+
+  const isAdmin = token ? jwtRole(token) === "Admin" : false;
 
   const handleLogout = async () => {
     await api.post("/auth/logout").catch(() => {});
@@ -17,6 +23,31 @@ export function LoginBar() {
     clearGameState();
     navigate({ to: "/login" });
   };
+
+  const handleDelete = () => {
+    const password = window.prompt("Enter your password to confirm deletion:");
+    if (!password) return;
+    deleteMutation.mutate(
+      { password },
+      {
+        onSuccess: () => {
+          clearAuth();
+          clearGameState();
+          navigate({ to: "/login" });
+        },
+        onError: () => {
+          alert("Deletion failed. Check your password.");
+        },
+      },
+    );
+  };
+
+  const menuItems = isAdmin
+    ? [{ label: "Logout", onClick: handleLogout }]
+    : [
+        { label: "Logout", onClick: handleLogout },
+        { label: "Delete account", onClick: handleDelete, danger: true },
+      ];
 
   return (
     <div className="flex items-center gap-2">
@@ -30,12 +61,7 @@ export function LoginBar() {
           <span className="max-w-30 truncate text-slate-200">
             {username ?? email}
           </span>
-          <button
-            onClick={handleLogout}
-            className="cursor-pointer rounded bg-red-700 px-2 py-1 font-bold text-white transition-colors hover:bg-red-600"
-          >
-            Logout
-          </button>
+          <BurgerMenu items={menuItems} />
         </>
       ) : (
         <>

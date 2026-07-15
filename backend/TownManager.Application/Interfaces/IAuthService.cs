@@ -8,4 +8,5 @@ public interface IAuthService
 {
     Task<Result<LoginResult>> LoginAsync(string email, string password, CancellationToken ct);
     Task<Result<LoginResult>> RegisterAsync(string email, string password, string username, CancellationToken ct);
+    Task<Result<bool>> DeleteAsync(string userId, string password, CancellationToken ct);
 }

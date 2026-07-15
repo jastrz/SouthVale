@@ -73,4 +73,37 @@ public class AuthService(
 
         return Result<LoginResult>.Success(new LoginResult(accessToken, refreshToken, username));
     }
+
+    public async Task<Result<bool>> DeleteAsync(string userId, string password, CancellationToken ct)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+            return Result<bool>.Failure(["User not found"]);
+
+        if (!await userManager.CheckPasswordAsync(user, password))
+            return Result<bool>.Failure(["Wrong password"]);
+
+        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+
+        var player = await db.Players.FirstOrDefaultAsync(p => p.UserId == userId, ct);
+        if (player is not null)
+        {
+            db.Players.Remove(player);
+            await db.SaveChangesAsync(ct);
+        }
+
+        var result = await userManager.DeleteAsync(user);
+        if (!result.Succeeded)
+        {
+            await transaction.RollbackAsync(ct);
+            return Result<bool>.Failure(result.Errors.Select(e => e.Description));
+        }
+
+        await db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
+
+        logger.LogInformation("User deleted: {Email}", user.Email);
+
+        return Result<bool>.Success(true);
+    }
 }

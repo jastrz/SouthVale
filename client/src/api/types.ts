@@ -25,6 +25,10 @@ export interface RegisterRequest {
   username: string;
 }
 
+export interface DeleteRequest {
+  password: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
   username?: string;

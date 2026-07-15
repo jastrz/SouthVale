@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import type { AuthResponse, LoginRequest, RegisterRequest } from "../types";
+import type { AuthResponse, DeleteRequest, LoginRequest, RegisterRequest } from "../types";
 import { api } from "../../lib/axios";
 
 export const useLogin = () =>
@@ -13,3 +13,9 @@ export const useRegister = () =>
     mutationFn: (data: RegisterRequest) =>
       api.post<AuthResponse>("/auth/register", data),
   });
+
+export const useDelete = () =>
+  useMutation({
+    mutationFn: (data: DeleteRequest) =>
+      api.post<boolean>("/auth/delete", data),
+  })
