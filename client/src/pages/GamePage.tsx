@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useGameStateStore } from "../store/gameStateStore";
 import { MapCanvas } from "../components/MapCanvas";
 import { NotificationsPanel } from "../components/NotificationsPanel";
@@ -7,29 +8,103 @@ import { VillagePanel } from "../components/village-panel";
 import { VillageTooltip } from "../components/VillageTooltip";
 import { TopBar } from "../components/TopBar";
 
-export function GamePage() {
-  const currentView = useGameStateStore((s) => s.currentView);
+function Panel({
+  side,
+  open,
+  onClose,
+  children,
+}: {
+  side: "left" | "right";
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  const translate = side === "left"
+    ? (open ? "translate-x-0" : "-translate-x-full")
+    : (open ? "translate-x-0" : "translate-x-full");
+  const position = side === "left" ? "left-0" : "right-0";
 
   return (
-    <div className="relative h-screen w-screen">
+    <div
+      className={`absolute inset-y-0 ${position} z-21 transition-transform duration-200 ease-out ${translate}`}
+    >
+      <button
+        onClick={onClose}
+        className={`pointer-events-auto absolute top-1/2 z-20 -translate-y-1/2 rounded border border-slate-500 bg-slate-800 px-1 py-3 text-xs font-bold text-slate-200 transition-colors hover:bg-slate-700 hover:text-white ${
+          side === "left" ? "right-0" : "left-0"
+        }`}
+      >
+        {side === "left" ? "<" : ">"}
+      </button>
+      {children}
+    </div>
+  );
+}
+
+function ToggleButton({
+  side,
+  label,
+  onClick,
+}: {
+  side: "left" | "right";
+  label: string;
+  onClick: () => void;
+}) {
+  const isLeft = side === "left";
+  return (
+    <button
+      onClick={onClick}
+      className={`pointer-events-auto absolute top-1/2 z-20 -translate-y-1/2 flex items-center gap-1 rounded border border-slate-500 bg-slate-800 px-1 py-3 text-xs font-bold text-slate-200 transition-colors hover:bg-slate-700 hover:text-white ${
+        isLeft ? "left-0 rounded-l-none" : "right-0 rounded-r-none"
+      }`}
+    >
+      <span
+        className="text-[10px] uppercase tracking-wider text-slate-400"
+        style={{ writingMode: "vertical-rl" }}
+      >
+        {label}
+      </span>
+      <span>{isLeft ? ">" : "<"}</span>
+    </button>
+  );
+}
+
+export function GamePage() {
+  const currentView = useGameStateStore((s) => s.currentView);
+  const [showLeft, setShowLeft] = useState(
+    () => window.matchMedia("(min-width: 768px)").matches,
+  );
+  const [showRight, setShowRight] = useState(
+    () => window.matchMedia("(min-width: 768px)").matches,
+  );
+  const isMap = currentView === "map";
+
+  return (
+    <div className="relative h-screen w-screen overflow-hidden">
       <TopBar />
 
-      {currentView === "map" && (
+      {isMap && (
         <div className="absolute inset-0">
           <MapCanvas />
         </div>
       )}
 
-      {currentView === "map" && (
-        <div className="absolute inset-y-0 left-0 z-10">
+      {isMap && (
+        <Panel side="left" open={showLeft} onClose={() => setShowLeft(false)}>
           <OverviewPanel />
-        </div>
+        </Panel>
+      )}
+      {isMap && !showLeft && (
+        <ToggleButton side="left" label="Status" onClick={() => setShowLeft(true)} />
       )}
 
-      {currentView === "map" && (
-        <div className="absolute inset-y-0 right-0 z-10">
+      {isMap && (
+        <Panel side="right" open={showRight} onClose={() => setShowRight(false)}>
           <VillagePanel />
-        </div>
+        </Panel>
+      )}
+      {isMap && !showRight && (
+        <ToggleButton side="right" label="Actions" onClick={() => setShowRight(true)} />
       )}
 
       {currentView !== "map" && (

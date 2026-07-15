@@ -23,7 +23,7 @@ export function TopBar() {
 
   return (
     <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex flex-col items-center gap-1">
-      <div className="pointer-events-auto flex items-center gap-4 rounded-b-lg border border-t-0 border-slate-800 bg-slate-950/70 px-4 py-2 text-xs shadow-lg">
+      <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2 rounded-b-lg border border-t-0 border-slate-800 bg-slate-950/70 px-4 py-2 text-xs shadow-lg sm:gap-4 sm:justify-start">
         <LoginBar />
 
         {activeVillageId && storeVillage && (
@@ -177,13 +177,13 @@ function VillageContent({ villageId }: { villageId: string }) {
           </h2>
         )}
       </div>
-      <div className="flex gap-4">
+      <div className="flex gap-1 sm:gap-4">
         {resources.map((r) => (
           <div key={r.icon} className="flex items-center gap-1 text-slate-300">
             <Icon src={r.icon} size={24} />
             <span>{r.value.toLocaleString()}</span>
             {r.max !== undefined && (
-              <span className="text-slate-500">/{r.max.toLocaleString()}</span>
+              <span className="hidden text-slate-500 sm:inline">/{r.max.toLocaleString()}</span>
             )}
           </div>
         ))}

@@ -1,8 +1,9 @@
 import type { Container } from "pixi.js";
 
 /**
- * Drag-to-pan. Attaches mousedown/mousemove/mouseup listeners to the canvas
- * and translates `viewport` by the mouse delta.
+ * Drag-to-pan. Attaches pointerdown/pointermove/pointerup listeners to the
+ * canvas and translates `viewport` by the pointer delta.
+ * Works for mouse, touch, and pen.
  */
 export type PanControllerOptions = {
   onDragStart?: () => void;
@@ -18,17 +19,21 @@ export function attachPan(
   let start = { x: 0, y: 0 };
   let origin = { x: 0, y: 0 };
 
-  const onMouseDown = (e: MouseEvent): void => {
+  const xy = (e: PointerEvent) => ({ x: e.clientX, y: e.clientY });
+
+  const onDown = (e: PointerEvent): void => {
+    canvas.setPointerCapture(e.pointerId);
     dragging = true;
-    start = { x: e.clientX, y: e.clientY };
+    start = xy(e);
     origin = { x: viewport.x, y: viewport.y };
     options.onDragStart?.();
   };
 
-  const onMouseMove = (e: MouseEvent): void => {
+  const onMove = (e: PointerEvent): void => {
     if (!dragging) return;
-    const newX = origin.x + (e.clientX - start.x);
-    const newY = origin.y + (e.clientY - start.y);
+    const pos = xy(e);
+    const newX = origin.x + (pos.x - start.x);
+    const newY = origin.y + (pos.y - start.y);
     if (options.onPan) {
       options.onPan(newX, newY);
     } else {
@@ -37,17 +42,19 @@ export function attachPan(
     }
   };
 
-  const onMouseUp = (): void => {
+  const onUp = (): void => {
     dragging = false;
   };
 
-  canvas.addEventListener("mousedown", onMouseDown);
-  canvas.addEventListener("mousemove", onMouseMove);
-  canvas.addEventListener("mouseup", onMouseUp);
+  canvas.addEventListener("pointerdown", onDown);
+  canvas.addEventListener("pointermove", onMove);
+  canvas.addEventListener("pointerup", onUp);
+  canvas.addEventListener("pointercancel", onUp);
 
   return () => {
-    canvas.removeEventListener("mousedown", onMouseDown);
-    canvas.removeEventListener("mousemove", onMouseMove);
-    canvas.removeEventListener("mouseup", onMouseUp);
+    canvas.removeEventListener("pointerdown", onDown);
+    canvas.removeEventListener("pointermove", onMove);
+    canvas.removeEventListener("pointerup", onUp);
+    canvas.removeEventListener("pointercancel", onUp);
   };
 }

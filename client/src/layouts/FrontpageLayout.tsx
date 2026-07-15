@@ -14,8 +14,8 @@ export function FrontpageLayout() {
           className="h-80 w-auto drop-shadow-[0_0_32px_rgba(0,0,0,1)]"
         />
 
-        <div className="grid w-full grid-cols-3 gap-8">
-          <div />
+        <div className="grid w-full grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="hidden lg:block" />
 
           <div className="flex justify-center">
             <Outlet />
