@@ -46,8 +46,8 @@ export function attachPan(
   };
 
   const onUp = (): void => {
+    if (pointers > 1) dragging = false;
     pointers = Math.max(0, pointers - 1);
-    if (pointers === 0) dragging = false;
   };
 
   canvas.addEventListener("pointerdown", onDown);
