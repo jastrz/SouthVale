@@ -137,9 +137,8 @@ public class AdminEndpoints : IEndpoint
         app.MapPost("/admin/tick/llm", async (
             HttpContext httpContext,
             UserManager<ApplicationUser> userManager,
-            ILlmPlayerService llmTick,
-            FeatureFlags features,
-            CancellationToken ct
+            IServiceScopeFactory scopeFactory,
+            FeatureFlags features
         ) =>
         {
             var guard = await AdminGuard(httpContext, userManager);
@@ -148,7 +147,12 @@ public class AdminEndpoints : IEndpoint
             if (!features.UseLlmPlayers)
                 return Results.BadRequest(new { error = "LLM players feature is disabled" });
 
-            _ = Task.Run(() => llmTick.ExecuteAsync(CancellationToken.None));
+            _ = Task.Run(async () =>
+            {
+                using var scope = scopeFactory.CreateScope();
+                var tick = scope.ServiceProvider.GetRequiredService<ILlmPlayerService>();
+                await tick.ExecuteAsync(CancellationToken.None);
+            });
             return Results.Ok(new { ticked = "llm" });
         })
         .WithName("AdminTickLlm")
