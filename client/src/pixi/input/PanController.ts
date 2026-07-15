@@ -16,12 +16,15 @@ export function attachPan(
   options: PanControllerOptions = {},
 ): () => void {
   let dragging = false;
+  let pointers = 0;
   let start = { x: 0, y: 0 };
   let origin = { x: 0, y: 0 };
 
   const xy = (e: PointerEvent) => ({ x: e.clientX, y: e.clientY });
 
   const onDown = (e: PointerEvent): void => {
+    pointers++;
+    if (pointers > 1) return;
     canvas.setPointerCapture(e.pointerId);
     dragging = true;
     start = xy(e);
@@ -30,7 +33,7 @@ export function attachPan(
   };
 
   const onMove = (e: PointerEvent): void => {
-    if (!dragging) return;
+    if (!dragging || pointers > 1) return;
     const pos = xy(e);
     const newX = origin.x + (pos.x - start.x);
     const newY = origin.y + (pos.y - start.y);
@@ -43,7 +46,8 @@ export function attachPan(
   };
 
   const onUp = (): void => {
-    dragging = false;
+    pointers = Math.max(0, pointers - 1);
+    if (pointers === 0) dragging = false;
   };
 
   canvas.addEventListener("pointerdown", onDown);
