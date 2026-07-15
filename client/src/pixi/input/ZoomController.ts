@@ -16,7 +16,6 @@ export function attachZoom(
   options: ZoomControllerOptions = {},
 ): () => void {
   let pinchDist = 0;
-  let pinchCenter = { x: 0, y: 0 };
 
   const dist = (a: Touch, b: Touch) =>
     Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
@@ -45,10 +44,6 @@ export function attachZoom(
   const onTouchStart = (e: TouchEvent): void => {
     if (e.touches.length === 2) {
       pinchDist = dist(e.touches[0], e.touches[1]);
-      pinchCenter = {
-        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-        y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
-      };
     }
   };
 
@@ -56,8 +51,10 @@ export function attachZoom(
     if (e.touches.length !== 2 || pinchDist === 0) return;
     e.preventDefault();
     const d = dist(e.touches[0], e.touches[1]);
+    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
     const factor = d / pinchDist;
-    zoomAt(factor, pinchCenter.x, pinchCenter.y);
+    zoomAt(factor, cx, cy);
     pinchDist = d;
   };
 
