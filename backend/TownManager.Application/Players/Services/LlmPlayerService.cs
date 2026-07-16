@@ -272,7 +272,7 @@ IMPORTANT:
         foreach (var (type, t) in cfg.Troops)
         {
             var c = t.TrainingCost;
-            sb.AppendLine($"  {type}: {c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Crop}Crop, {t.TrainingTime.TotalSeconds:F0}s atk={t.Attack} def={t.Defense} speed={t.Speed} carry={t.CarryCapacity} upkeep={t.Upkeep}");
+            sb.AppendLine($"  {type}: {c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Crop}Crop, {t.TrainingTime.TotalSeconds:F0}s atk={t.Attack} def={t.Defense} speed={t.Speed} carry={t.CarryCapacity}");
         }
         return sb.ToString();
     }

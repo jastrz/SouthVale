@@ -37,9 +37,6 @@ function TroopTooltip({ config }: { config: TroopConfigDto }) {
         <div className="text-slate-300">Speed:</div>
         <div className="text-white">{config.speed}</div>
 
-        <div className="text-slate-300">Upkeep:</div>
-        <div className="text-white">{config.upkeep}</div>
-
         <div className="text-slate-300">Time:</div>
         <div className="text-white">
           {formatTime(parseTimeSpanMs(config.trainingTime))}

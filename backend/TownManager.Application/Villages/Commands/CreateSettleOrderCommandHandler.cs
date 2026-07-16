@@ -22,6 +22,9 @@ public class CreateSettleOrderCommandHandler(
         if (village is null)
             return Result.Failure(["Village not found."], statusCode: 404);
 
+        if (await repo.CountByPlayerAsync(village.PlayerId, ct) >= MapConfig.MaxVillagesPerPlayer)
+            return Result.Failure(["You have reached the maximum number of villages."]);
+
         var settlersNeeded = new Troops(0, 0, 1);
         if (!village.Troops.HasEnough(settlersNeeded))
             return Result.Failure(["Not enough settlers in garrison."]);

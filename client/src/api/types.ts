@@ -87,7 +87,6 @@ export interface TroopConfigDto {
   defense: number;
   carryCapacity: number;
   speed: number;
-  upkeep: number;
 }
 
 export interface GameConfigDto {

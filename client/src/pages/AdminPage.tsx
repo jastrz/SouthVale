@@ -54,8 +54,8 @@ export function AdminPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-900">
-      <div className="flex w-full max-w-md flex-col gap-8">
+    <div className="h-screen overflow-y-auto bg-slate-900 pb-16 pt-8">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-8 px-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">Admin</h1>
           <LoginBar />

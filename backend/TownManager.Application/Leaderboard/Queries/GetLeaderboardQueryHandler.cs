@@ -2,6 +2,9 @@ using MediatR;
 using TownManager.Application.Common;
 using TownManager.Application.Dtos;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Config;
+using TownManager.Domain.Entities;
+using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Leaderboard.Queries;
@@ -19,10 +22,9 @@ public class GetLeaderboardQueryHandler(IPlayerRepository playerRepo)
             {
                 p.Id,
                 p.Username,
-                Score = p.Villages.Sum(v => v.Troops.TotalCount +
-                    v.TroopMovements
-                        .Where(m => m.Status == MovementStatus.InFlight)
-                        .Sum(m => m.Troops.TotalCount))
+                Score = p.Villages.Sum(v =>
+                    TroopsScore(v.Troops, v.TroopMovements) +
+                    BuildingsScore(v.Buildings))
             })
             .OrderByDescending(x => x.Score)
             .ToList();
@@ -39,4 +41,27 @@ public class GetLeaderboardQueryHandler(IPlayerRepository playerRepo)
 
         return Result<LeaderboardResultDto>.Success(new LeaderboardResultDto(items, total));
     }
+
+    private static int TroopsScore(Troops garrison, ICollection<TroopMovement> movements)
+    {
+        static int CountByType(TroopType type, Troops t) => type switch
+        {
+            TroopType.Swordsman => t.Swordsmen,
+            TroopType.Archer    => t.Archers,
+            TroopType.Settler   => t.Settlers,
+            _ => 0,
+        };
+
+        var moving = movements
+            .Where(m => m.Status == MovementStatus.InFlight)
+            .Select(m => m.Troops);
+
+        return ScoreConfig.Troop.Sum(kv =>
+            (CountByType(kv.Key, garrison) + moving.Sum(t => CountByType(kv.Key, t))) * kv.Value);
+    }
+
+    private static int BuildingsScore(IEnumerable<Building> buildings) =>
+        buildings.Sum(b =>
+            ScoreConfig.Building.TryGetValue(b.Type, out var lv) &&
+            lv.TryGetValue(b.Level, out var s) ? s : 0);
 }

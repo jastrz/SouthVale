@@ -1,4 +1,3 @@
-using TownManager.Domain.Config;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Domain.Entities;
@@ -45,9 +44,4 @@ public class Troops
 
     public bool IsEmpty() => Swordsmen == 0 && Archers == 0 && Settlers == 0;
 
-    public Resources CalculateUpkeep() =>
-        new(0, 0, 0,
-            Swordsmen * TroopsConfig.Get(TroopType.Swordsman).Stats.Upkeep +
-            Archers   * TroopsConfig.Get(TroopType.Archer).Stats.Upkeep +
-            Settlers  * TroopsConfig.Get(TroopType.Settler).Stats.Upkeep);
 }

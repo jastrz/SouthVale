@@ -5,7 +5,7 @@ export function FrontpageLayout() {
   return (
     <div
       className="flex h-screen w-screen flex-col overflow-y-auto bg-slate-950 bg-cover bg-top"
-      style={{ backgroundImage: "url(/bg.png)" }}
+      style={{ backgroundImage: "url(/bg.png)", height: "100dvh" }}
     >
       <div className="flex flex-col items-center gap-2 px-4 py-2">
         <img
@@ -26,9 +26,8 @@ export function FrontpageLayout() {
               <h2 className="mb-4 text-center text-xl font-bold tracking-widest text-white uppercase">
                 Leaderboard
               </h2>
-              <div className="rounded-xl bg-slate-800/90 p-4 shadow-2xl">
-                <LeaderboardPanel />
-              </div>
+              <LeaderboardPanel />
+
             </div>
           </div>
         </div>

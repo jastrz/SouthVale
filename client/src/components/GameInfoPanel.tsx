@@ -12,7 +12,7 @@ export function GameInfoPanel() {
   const [openTroops, setOpenTroops] = useState(false);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-8">
       {/*<h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase text-center">
         Game Info
       </h2>*/}
@@ -53,7 +53,6 @@ export function GameInfoPanel() {
                     <th className="px-2 py-2">Defense</th>
                     <th className="px-2 py-2">Carry</th>
                     <th className="px-2 py-2">Speed</th>
-                    <th className="px-2 py-2">Upkeep</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -78,7 +77,6 @@ export function GameInfoPanel() {
                       <td className="px-2 py-1.5">{troop.defense}</td>
                       <td className="px-2 py-1.5">{troop.carryCapacity}</td>
                       <td className="px-2 py-1.5">{troop.speed}/h</td>
-                      <td className="px-2 py-1.5">{troop.upkeep}/h</td>
                     </tr>
                   ))}
                 </tbody>

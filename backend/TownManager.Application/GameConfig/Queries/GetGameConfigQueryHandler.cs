@@ -41,8 +41,7 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
                 t.Value.Stats.Attack,
                 t.Value.Stats.Defense,
                 t.Value.Stats.CarryCapacity,
-                t.Value.Stats.Speed,
-                t.Value.Stats.Upkeep
+                t.Value.Stats.Speed
             )
         );
 

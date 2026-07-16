@@ -23,8 +23,7 @@ public record TroopConfigDto(
     int Attack,
     int Defense,
     int CarryCapacity,
-    int Speed,
-    int Upkeep
+    int Speed
 );
 
 public record GameConfigDto(

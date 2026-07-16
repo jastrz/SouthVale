@@ -120,6 +120,9 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
     public async Task<List<Coordinates>> GetAllCoordinatesAsync(CancellationToken ct = default) =>
         await db.Villages.Select(v => v.Coordinates).ToListAsync(ct);
 
+    public Task<int> CountByPlayerAsync(Guid playerId, CancellationToken ct = default) =>
+        db.Villages.CountAsync(v => v.PlayerId == playerId, ct);
+
     public async Task<IReadOnlyList<Village>> GetBarbarianVillagesAsync(Guid barbarianPlayerId, CancellationToken ct = default) =>
         await db.Villages
             .Include(v => v.Buildings)

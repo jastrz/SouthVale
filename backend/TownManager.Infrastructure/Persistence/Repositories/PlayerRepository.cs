@@ -39,6 +39,8 @@ internal sealed class PlayerRepository(AppDbContext db) : IPlayerRepository
             .AsNoTracking()
             .Include(p => p.Villages)
                 .ThenInclude(v => v.TroopMovements)
+            .Include(p => p.Villages)
+                .ThenInclude(v => v.Buildings)
             .Where(p => p.Id != BarbarianConfig.BarbarianPlayerId)
             .ToListAsync(ct);
 }
