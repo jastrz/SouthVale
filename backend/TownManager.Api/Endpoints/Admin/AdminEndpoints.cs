@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TownManager.Application.Map.Services;
 using TownManager.Application.Players.Services;
 using TownManager.Application.Villages.Services;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
+using TownManager.Domain.Entities.Villages;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Persistence;
 
@@ -20,6 +22,8 @@ public class AdminEndpoints : IEndpoint
             return Results.Forbid();
         return null;
     }
+
+    public record ResetRequest(string Password);
 
     public static void Map(IEndpointRouteBuilder app)
     {
@@ -159,6 +163,46 @@ public class AdminEndpoints : IEndpoint
         .WithTags("Admin")
         .WithSummary("Run LLM player tick immediately")
         .WithDescription("Triggers the LLM player AI tick immediately instead of waiting for the cron schedule. Requires UseLlmPlayers feature flag.")
+        .RequireAuthorization();
+
+        app.MapPost("/admin/reset", async (
+            ResetRequest request,
+            HttpContext httpContext,
+            UserManager<ApplicationUser> userManager,
+            AppDbContext db,
+            IHostApplicationLifetime hostLifetime,
+            ILogger<AdminEndpoints> logger,
+            CancellationToken ct
+        ) =>
+        {
+            var guard = await AdminGuard(httpContext, userManager);
+            if (guard is not null) return guard;
+
+            var userId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var user = await userManager.FindByIdAsync(userId!);
+            if (user is null || !await userManager.CheckPasswordAsync(user, request.Password))
+                return Results.Problem("Wrong password", statusCode: 403);
+
+            await db.Players.ExecuteDeleteAsync(ct);
+
+            await db.Database.ExecuteSqlRawAsync("""
+                DELETE FROM "AspNetUserTokens";
+                DELETE FROM "AspNetUserLogins";
+                DELETE FROM "AspNetUserClaims";
+                DELETE FROM "AspNetUserRoles";
+                DELETE FROM "AspNetUsers";
+                DELETE FROM "AspNetRoles";
+                DROP SCHEMA IF EXISTS hangfire CASCADE;
+                """, ct);
+
+            logger.LogWarning("Database reset by admin — restarting");
+            _ = Task.Run(() => hostLifetime.StopApplication());
+            return Results.Ok(new { reset = true });
+        })
+        .WithName("AdminReset")
+        .WithTags("Admin")
+        .WithSummary("Reset entire game database")
+        .WithDescription("Deletes all game data and Identity users, then restarts the application for re-seeding. Requires admin password confirmation.")
         .RequireAuthorization();
     }
 

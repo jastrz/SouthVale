@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useAddResources, useFullResources, useTickBarbarian, useTickLlm, useAdminVillages } from "../api/hooks/useAdmin";
+import { useAddResources, useFullResources, useTickBarbarian, useTickLlm, useResetDb, useAdminVillages } from "../api/hooks/useAdmin";
 import { LoginBar } from "../components/LoginBar";
 
 function Btn({ label, loading, ...props }: {
@@ -31,6 +31,9 @@ export function AdminPage() {
   const fullResources = useFullResources();
   const tickBarbarian = useTickBarbarian();
   const tickLlm = useTickLlm();
+  const resetDb = useResetDb();
+  const [resetPassword, setResetPassword] = useState("");
+  const [showReset, setShowReset] = useState(false);
 
   const filtered = useMemo(
     () => (villages ?? []).filter((v) => v.name.toLowerCase().includes(search.toLowerCase())),
@@ -123,6 +126,33 @@ export function AdminPage() {
           <Btn onClick={() => fullResources.mutate()} loading={fullResources.isPending} label="Fill all villages" className="w-full" />
           <Btn onClick={() => tickBarbarian.mutate()} loading={tickBarbarian.isPending} label="Barbarian tick" className="w-full" />
           <Btn onClick={() => tickLlm.mutate()} loading={tickLlm.isPending} label="LLM tick" className="w-full" />
+
+          <hr className="border-slate-700" />
+
+          {!showReset ? (
+            <Btn onClick={() => setShowReset(true)} label="Reset database" className="w-full text-red-400 hover:text-red-300" />
+          ) : (
+            <div className="flex flex-col gap-2">
+              <input
+                type="password"
+                value={resetPassword}
+                onChange={(e) => setResetPassword(e.target.value)}
+                placeholder="Enter admin password to confirm..."
+                className="rounded bg-slate-700 px-3 py-2 text-sm text-white placeholder-slate-500"
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <Btn onClick={() => { setShowReset(false); setResetPassword(""); }} label="Cancel" className="flex-1" />
+                <Btn
+                  onClick={() => resetDb.mutate(resetPassword, { onSuccess: () => { setShowReset(false); setResetPassword(""); } })}
+                  loading={resetDb.isPending}
+                  label="Confirm reset"
+                  disabled={!resetPassword}
+                  className="flex-1 bg-red-800 hover:bg-red-700"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
