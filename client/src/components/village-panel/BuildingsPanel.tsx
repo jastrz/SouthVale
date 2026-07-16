@@ -25,10 +25,10 @@ function BuildingTooltip({
   nextConfig,
 }: {
   building: { type: string; level: number };
-  config: BuildingLevelConfigDto;
+  config: BuildingLevelConfigDto | undefined;
   nextConfig: BuildingLevelConfigDto | undefined;
 }) {
-  const currentPerHour = config.productionPerHour;
+  const currentPerHour = config?.productionPerHour;
   const nextPerHour = nextConfig?.productionPerHour;
 
   return (
@@ -39,12 +39,12 @@ function BuildingTooltip({
         )}
         {BUILDING_LABELS[building.type] ?? building.type}
       </div>
-      <div className="text-slate-400">Level {building.level}</div>
-      {config.warehouseCapacity > 0 && (
-        <div className="text-slate-300">Capacity: {config.warehouseCapacity}</div>
+      {config && <div className="text-slate-400">Level {building.level}</div>}
+      {(config?.warehouseCapacity ?? 0) > 0 && (
+        <div className="text-slate-300">Capacity: {config!.warehouseCapacity}</div>
       )}
-      {config.granaryCapacity > 0 && (
-        <div className="text-slate-300">Capacity: {config.granaryCapacity}</div>
+      {(config?.granaryCapacity ?? 0) > 0 && (
+        <div className="text-slate-300">Capacity: {config!.granaryCapacity}</div>
       )}
       {currentPerHour && (
         <div className="flex flex-wrap gap-x-2.5 gap-y-0.5">
@@ -71,16 +71,16 @@ function BuildingTooltip({
           )}
         </div>
       )}
-      {config.trainingSpeedMultiplier > 1 && (
+      {(config?.trainingSpeedMultiplier ?? 0) > 1 && (
         <div className="text-slate-300">
-          Training Speed: {config.trainingSpeedMultiplier}x
+          Training Speed: {config!.trainingSpeedMultiplier}x
         </div>
       )}
       {nextConfig && (
         <>
           <div className="border-t border-slate-700 pt-1" />
           <div className="font-medium text-cyan-400">
-            Next Level ({nextConfig.level})
+            {config ? `Next Level (${nextConfig.level})` : `Level ${nextConfig.level}`}
           </div>
           <div className="text-slate-300">Cost</div>
           <ResourceCost value={nextConfig.upgradeCost} />
@@ -92,19 +92,23 @@ function BuildingTooltip({
           {nextConfig.warehouseCapacity > 0 && (
             <div className="text-slate-300">
               Capacity: {nextConfig.warehouseCapacity}
-              <span className="text-green-400">
-                {" "}
-                (+{nextConfig.warehouseCapacity - config.warehouseCapacity})
-              </span>
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{nextConfig.warehouseCapacity - config.warehouseCapacity})
+                </span>
+              )}
             </div>
           )}
           {nextConfig.granaryCapacity > 0 && (
             <div className="text-slate-300">
               Capacity: {nextConfig.granaryCapacity}
-              <span className="text-green-400">
-                {" "}
-                (+{nextConfig.granaryCapacity - config.granaryCapacity})
-              </span>
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{nextConfig.granaryCapacity - config.granaryCapacity})
+                </span>
+              )}
             </div>
           )}
           {nextPerHour && (
@@ -155,16 +159,18 @@ function BuildingTooltip({
           {nextConfig.trainingSpeedMultiplier > 1 && (
             <div className="text-slate-300">
               Speed: {nextConfig.trainingSpeedMultiplier}x
-              <span className="text-green-400">
-                {" "}
-                (+
-                {(
-                  (nextConfig.trainingSpeedMultiplier -
-                    config.trainingSpeedMultiplier) *
-                  100
-                ).toFixed(0)}
-                %)
-              </span>
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+
+                  {(
+                    (nextConfig.trainingSpeedMultiplier -
+                      config.trainingSpeedMultiplier) *
+                    100
+                  ).toFixed(0)}
+                  %)
+                </span>
+              )}
             </div>
           )}
         </>
@@ -178,30 +184,33 @@ function BuildingCard({
   orders,
   disabled,
   onUpgrade,
+  maxLevel,
 }: {
   building: { id: string; type: string; level: number };
   orders: readonly { completesAt: string; targetLevel: number }[];
   disabled?: boolean;
   onUpgrade: () => void;
+  maxLevel: number;
 }) {
   const { data: config } = useGameConfig();
+  const isNew = building.level === 0;
   const nextOrder =
     orders.length > 0
       ? orders.reduce((a, b) => (a.completesAt < b.completesAt ? a : b))
       : null;
 
   const levels = config?.buildings[building.type];
-  const currentCfg = levels?.find((l) => l.level === building.level);
+  const currentCfg = isNew ? undefined : levels?.find((l) => l.level === building.level);
   const highestQueued = orders.reduce(
     (max, o) => Math.max(max, o.targetLevel),
     building.level,
   );
-  const nextCfg = levels?.find((l) => l.level === highestQueued + 1);
+  const nextCfg = levels?.find((l) => l.level === (isNew ? 1 : highestQueued + 1));
 
   return (
     <Tooltip
       content={
-        currentCfg && (
+        (currentCfg || nextCfg) && (
           <BuildingTooltip
             building={building}
             config={currentCfg}
@@ -219,7 +228,7 @@ function BuildingCard({
             {BUILDING_LABELS[building.type] ?? building.type}
           </span>
           <span className="flex items-center gap-4 text-slate-300">
-            <span>Lv. {building.level}</span>
+            <span>{isNew ? "Not built" : `Lv. ${building.level}`}</span>
             <span className="text-[12px] italic text-slate-500">
               {BUILDING_DESCRIPTIONS[building.type] ?? ""}
             </span>
@@ -243,10 +252,10 @@ function BuildingCard({
         <button
           type="button"
           onClick={onUpgrade}
-          disabled={disabled}
+          disabled={disabled || building.level >= maxLevel}
           className="cursor-pointer rounded bg-blue-600 px-2.5 p-2 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
         >
-          {disabled ? "..." : "Upgrade"}
+          {disabled ? "..." : isNew ? "Build" : building.level >= maxLevel ? "Max" : "Upgrade"}
         </button>
       </div>
     </Tooltip>
@@ -268,20 +277,26 @@ export function BuildingsPanel({
 }) {
   useTick();
 
+  const byType = Object.fromEntries(buildings.map((b) => [b.type, b]));
+  const maxLevels = useMaxLevels();
+
+  const allBuildings = BUILDING_ORDER.map((type) =>
+    byType[type] ?? { id: `new-${type}`, type, level: 0 },
+  );
+
   return (
     <section className="px-4 py-3">
-      <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
+      {/*<h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
         Buildings
-      </h3>
+      </h3>*/}
       <div className="flex flex-col gap-1.5">
-        {[...buildings]
-          .sort((a, b) => BUILDING_ORDER.indexOf(a.type as typeof BUILDING_ORDER[number]) - BUILDING_ORDER.indexOf(b.type as typeof BUILDING_ORDER[number]))
-          .map((b) => (
+        {allBuildings.map((b) => (
           <BuildingCard
             key={b.id}
             building={b}
             orders={buildOrders.filter((o) => o.buildingType === b.type)}
             disabled={mutation.isPending}
+            maxLevel={maxLevels[b.type] ?? 5}
             onUpgrade={() =>
               mutation.mutate({ buildingType: b.type as BuildingType })
             }
@@ -289,5 +304,13 @@ export function BuildingsPanel({
         ))}
       </div>
     </section>
+  );
+}
+
+function useMaxLevels(): Record<string, number> {
+  const { data: config } = useGameConfig();
+  if (!config) return {};
+  return Object.fromEntries(
+    Object.entries(config.buildings).map(([type, levels]) => [type, levels.length]),
   );
 }

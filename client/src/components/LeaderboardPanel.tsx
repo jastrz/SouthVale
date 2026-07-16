@@ -12,9 +12,9 @@ export function LeaderboardPanel() {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase text-center">
+      {/*<h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase text-center">
         Leaderboard
-      </h2>
+      </h2>*/}
       <div className="rounded-xl overflow-hidden">
         <table className="w-full text-left text-xs">
           <thead>

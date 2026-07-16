@@ -218,9 +218,9 @@ export function TroopsPanel({
 
   return (
     <section className="px-4 py-3">
-      <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
+      {/*<h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
         Troops
-      </h3>
+      </h3>*/}
       <div className="mb-2 grid grid-cols-3 gap-1 text-xs">
         {troopList.map(([label, type, count, icon]) => {
           const troopCfg = gameConfig?.troops[type];

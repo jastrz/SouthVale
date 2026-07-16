@@ -13,23 +13,31 @@ public class RefreshEndpoint : IEndpoint
             HttpContext httpContext,
             ITokenService tokenService,
             UserManager<ApplicationUser> userManager,
+            ILogger<RefreshEndpoint> logger,
             CancellationToken ct) =>
         {
             var refreshToken = httpContext.Request.Cookies["refresh_token"];
             if (string.IsNullOrEmpty(refreshToken))
+            {
+                logger.LogWarning("Refresh failed: no refresh_token cookie");
                 return Results.Problem(statusCode: 401, title: "No refresh token");
+            }
 
             var principal = tokenService.ValidateToken(refreshToken);
             if (principal is null)
             {
                 httpContext.Response.Cookies.Delete("refresh_token");
+                logger.LogWarning("Refresh failed: invalid or expired refresh token");
                 return Results.Problem(statusCode: 401, title: "Invalid or expired refresh token");
             }
 
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
             var email = principal.FindFirstValue(ClaimTypes.Email);
             if (userId is null || email is null)
+            {
+                logger.LogWarning("Refresh failed: invalid token claims (userId={UserId}, email={Email})", userId, email);
                 return Results.Problem(statusCode: 401, title: "Invalid token claims");
+            }
 
             var user = await userManager.FindByIdAsync(userId);
             var roles = user is not null ? await userManager.GetRolesAsync(user) : [];
@@ -45,6 +53,8 @@ public class RefreshEndpoint : IEndpoint
                 Secure = false,
                 Path = "/",
             });
+
+            logger.LogInformation("Token refreshed: {Email}", email);
 
             return Results.Ok(new { accessToken = newAccessToken });
         })

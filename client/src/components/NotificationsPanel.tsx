@@ -16,9 +16,9 @@ export function NotificationsPanel() {
     <>
       <div className="flex items-center">
         <div className="flex-1" />
-        <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
+        {/*<h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
           Reports
-        </h2>
+        </h2>*/}
         <div className="flex-1 flex justify-end">
           {unreadCount > 0 && (
             <button

@@ -23,7 +23,7 @@ export function FrontpageLayout() {
 
           <div className="flex justify-center">
             <div className="w-full max-w-sm">
-              <h2 className="mb-4 text-center text-xl font-bold tracking-widest text-orange-700 uppercase">
+              <h2 className="mb-4 text-center text-xl font-bold tracking-widest text-white uppercase">
                 Leaderboard
               </h2>
               <div className="rounded-xl bg-slate-800/90 p-4 shadow-2xl">

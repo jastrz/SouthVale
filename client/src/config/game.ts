@@ -5,6 +5,7 @@ export const BUILDING_ORDER = [
   "CropField",
   "Warehouse",
   "Granary",
+  "Barracks",
 ] as const;
 
 export const BUILDING_LABELS: Record<string, string> = {

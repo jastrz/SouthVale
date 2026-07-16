@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   useGameStateStore,
   selectActiveVillage,
@@ -12,6 +13,7 @@ import {
 } from "../../api/hooks/useQueries";
 import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "../PanelContainer";
+import { CollapsibleSection } from "../CollapsibleSection";
 import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
 import { AttackPanel } from "./AttackPanel";
@@ -63,6 +65,12 @@ function VillagePanelInner({
   const settleMutation = useSettle(villageId);
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
   const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
+  const [openBuildings, setOpenBuildings] = useState(true);
+  const [openTroops, setOpenTroops] = useState(true);
+
+  const hasBarracks = village?.buildings.some(
+    (b) => b.type === "Barracks" && b.level >= 1,
+  );
 
   if (isLoading) {
     return (
@@ -87,19 +95,36 @@ function VillagePanelInner({
   }
 
   return (
+
     <PanelContainer>
-      <BuildingsPanel
-        buildings={village.buildings}
-        buildOrders={village.buildOrders}
-        mutation={buildMutation}
-      />
-      <TroopsPanel
-        resources={village.resources}
-        swordsmen={village.troops.swordsmen}
-        archers={village.troops.archers}
-        settlers={village.troops.settlers}
-        mutation={trainMutation}
-      />
+      <CollapsibleSection
+        label="Buildings"
+        open={openBuildings}
+        onToggle={() => setOpenBuildings(!openBuildings)}
+        className="px-4 pt-4 text-slate-400 hover:text-slate-300"
+      >
+        <BuildingsPanel
+          buildings={village.buildings}
+          buildOrders={village.buildOrders}
+          mutation={buildMutation}
+        />
+      </CollapsibleSection>
+      {hasBarracks && (
+        <CollapsibleSection
+          label="Troops"
+          open={openTroops}
+          onToggle={() => setOpenTroops(!openTroops)}
+          className="px-4 pt-1.5 text-slate-400 hover:text-slate-300"
+        >
+          <TroopsPanel
+            resources={village.resources}
+            swordsmen={village.troops.swordsmen}
+            archers={village.troops.archers}
+            settlers={village.troops.settlers}
+            mutation={trainMutation}
+          />
+        </CollapsibleSection>
+      )}
       <TravelTimeProvider
         originX={village.coordinates.x}
         originY={village.coordinates.y}

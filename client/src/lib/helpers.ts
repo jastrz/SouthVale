@@ -18,6 +18,7 @@ export const BUILDING_ICONS: Record<string, string> = {
   CropField: "/icons/buildings/crop_farm.png",
   Warehouse: "/icons/buildings/warehouse.png",
   Granary: "/icons/buildings/granary.png",
+  Barracks: "/icons/buildings/barracks.png",
 };
 
 export function parseTimeSpanMs(ts: string): number {
