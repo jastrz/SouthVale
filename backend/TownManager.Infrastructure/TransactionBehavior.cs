@@ -12,7 +12,8 @@ public class TransactionBehavior<TRequest, TResponse>(AppDbContext db)
     public async Task<TResponse> Handle(
         TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
     {
-        if (typeof(TResponse) != typeof(Result))
+        // IsAssignableFrom covers Result<T> too; exact-type check would skip it
+        if (!typeof(Result).IsAssignableFrom(typeof(TResponse)))
             return await next();
 
         await using var tx = await db.Database.BeginTransactionAsync(ct);

@@ -20,8 +20,6 @@ public class AuthService(
 {
     public async Task<Result<LoginResult>> RegisterAsync(string email, string password, string username, CancellationToken ct)
     {
-        await using var transaction = await db.Database.BeginTransactionAsync(ct);
-
         var user = new ApplicationUser
         {
             Id = Guid.NewGuid().ToString(),
@@ -41,7 +39,6 @@ public class AuthService(
         db.Villages.Add(village);
 
         await db.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
 
         var roles = await userManager.GetRolesAsync(user);
         var accessToken = tokenService.GenerateAccessToken(user.Id, user.Email!, roles);
@@ -83,8 +80,6 @@ public class AuthService(
         if (!await userManager.CheckPasswordAsync(user, password))
             return Result<bool>.Failure(["Wrong password"]);
 
-        await using var transaction = await db.Database.BeginTransactionAsync(ct);
-
         var player = await db.Players.FirstOrDefaultAsync(p => p.UserId == userId, ct);
         if (player is not null)
         {
@@ -94,13 +89,9 @@ public class AuthService(
 
         var result = await userManager.DeleteAsync(user);
         if (!result.Succeeded)
-        {
-            await transaction.RollbackAsync(ct);
             return Result<bool>.Failure(result.Errors.Select(e => e.Description));
-        }
 
         await db.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
 
         logger.LogInformation("User deleted: {Email}", user.Email);
 
