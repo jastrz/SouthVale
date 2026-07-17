@@ -42,6 +42,5 @@ public class AdminSeeder(
         }
 
         await userManager.AddToRoleAsync(admin, "Admin");
-        logger.LogInformation("Admin user created with role Admin");
     }
 }

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   useGameStateStore,
   selectActiveVillage,
@@ -103,6 +103,21 @@ function VillageContent({ villageId }: { villageId: string }) {
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const production = useMemo(() => {
+    if (!village || !gameConfig) return null;
+    const total = { wood: 0, clay: 0, iron: 0, crop: 0 };
+    for (const b of village.buildings) {
+      const cfg = gameConfig.buildings[b.type]?.find((l) => l.level === b.level)?.productionPerHour;
+      if (cfg) {
+        total.wood += cfg.wood;
+        total.clay += cfg.clay;
+        total.iron += cfg.iron;
+        total.crop += cfg.crop;
+      }
+    }
+    return total;
+  }, [village, gameConfig]);
+
   if (!village)
     return <div className="h-5 w-32 animate-pulse rounded bg-slate-800" />;
 
@@ -119,21 +134,25 @@ function VillageContent({ villageId }: { villageId: string }) {
 
   const resources = [
     {
+      key: "wood" as const,
       value: Math.floor(village.resources.wood),
       max: warehouseCapacity,
       icon: RESOURCE_ICONS.wood,
     },
     {
+      key: "clay" as const,
       value: Math.floor(village.resources.clay),
       max: warehouseCapacity,
       icon: RESOURCE_ICONS.clay,
     },
     {
+      key: "iron" as const,
       value: Math.floor(village.resources.iron),
       max: warehouseCapacity,
       icon: RESOURCE_ICONS.iron,
     },
     {
+      key: "crop" as const,
       value: Math.floor(village.resources.crop),
       max: granaryCapacity,
       icon: RESOURCE_ICONS.crop,
@@ -187,10 +206,19 @@ function VillageContent({ villageId }: { villageId: string }) {
         {resources.map((r) => (
           <div key={r.icon} className="flex items-center gap-1 text-slate-300">
             <Icon src={r.icon} size={24} />
-            <span>{r.value.toLocaleString()}</span>
-            {r.max !== undefined && (
-              <span className="hidden text-slate-500 sm:inline">/{r.max.toLocaleString()}</span>
-            )}
+            <div className="flex flex-col">
+              <div>
+                <span>{r.value.toLocaleString()}</span>
+                {r.max !== undefined && (
+                  <span className="hidden text-slate-500 sm:inline">/{r.max.toLocaleString()}</span>
+                )}
+              </div>
+              {production && (
+                <div className="text-[10px] leading-tight text-green-400">
+                  +{Math.floor(production[r.key])}/h
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>

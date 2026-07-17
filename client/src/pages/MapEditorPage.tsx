@@ -118,7 +118,7 @@ export function MapEditorPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-slate-900">
+    <div className="flex flex-col bg-slate-900" style={{ height: "100dvh" }}>
       <div className="flex items-center gap-2 border-b border-slate-700 px-4 py-2">
         {TOOLS.map((t) => (
           <button

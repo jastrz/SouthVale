@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TownManager.Application.Map.Services;
 using TownManager.Application.Players.Services;
 using TownManager.Application.Villages.Services;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
-using TownManager.Domain.Entities.Villages;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Persistence;
 

@@ -275,11 +275,12 @@ export class MapScene {
     const pw = panelWidth() + 200;
     const cx = (cw - worldW) / 2;
     const cy = (ch - worldH) / 2;
+    const pad = Math.min(pw, 200);
     return {
-      xMin: Math.min(cx, -(worldW - cw) - pw),
-      xMax: Math.max(cx, pw),
-      yMin: Math.min(cy, -(worldH - ch) - 80),
-      yMax: Math.max(cy, 80),
+      xMin: Math.min(cx, -(worldW - cw) - pad),
+      xMax: Math.max(cx, pad),
+      yMin: Math.min(cy, -(worldH - ch) - pad),
+      yMax: Math.max(cy, pad),
     };
   }
 

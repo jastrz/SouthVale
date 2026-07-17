@@ -57,7 +57,7 @@ export function AdminPage() {
   };
 
   return (
-    <div className="h-screen overflow-y-auto bg-slate-900 pb-16 pt-8">
+    <div className="overflow-y-auto bg-slate-900 pb-16 pt-8" style={{ minHeight: "100dvh" }}>
       <div className="mx-auto flex w-full max-w-md flex-col gap-8 px-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">Admin</h1>
