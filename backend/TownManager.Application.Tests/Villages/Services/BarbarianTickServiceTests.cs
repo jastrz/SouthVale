@@ -18,6 +18,8 @@ public class BarbarianTickServiceTests
     private readonly IMediator _mediator;
     private readonly BarbarianTickService _service;
 
+    private CancellationToken Ct => TestContext.Current.CancellationToken;
+
     public BarbarianTickServiceTests()
     {
         _repo = Substitute.For<IVillageRepository>();
@@ -26,18 +28,18 @@ public class BarbarianTickServiceTests
         mapService.GetFreeTilesAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns([]);
         _service = new BarbarianTickService(_repo, mapService, _mediator);
 
-        _repo.SaveChangesAsync(CancellationToken.None).ReturnsForAnyArgs(Task.CompletedTask);
+        _repo.SaveChangesAsync(Ct).ReturnsForAnyArgs(Task.CompletedTask);
     }
 
     [Fact]
     public async Task ExecuteAsync_SkipsBarbarianWithNoTroops()
     {
         var village = MakeBarbarian(new Troops(0, 0));
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
-        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>());
+        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>(), Ct);
     }
 
     [Fact]
@@ -45,17 +47,17 @@ public class BarbarianTickServiceTests
     {
         var village = MakeBarbarian(new Troops(1, 1));
         var target = MakeTarget(new Troops(10, 10));
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
-        _repo.GetForMapWithinRadius(default, default).ReturnsForAnyArgs([target]);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
+        _repo.GetForMapWithinRadius(default, default, Ct).ReturnsForAnyArgs([target]);
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
         await _mediator.Received(1).Send(
             Arg.Is<CreateAttackOrderCommand>(c =>
                 c.VillageId == village.Id &&
                 c.Troops.Count == 2 &&
                 c.Troops.Any(t => t.TroopType == TroopType.Swordsman && t.Count == 1) &&
-                c.Troops.Any(t => t.TroopType == TroopType.Archer && t.Count == 1)));
+                c.Troops.Any(t => t.TroopType == TroopType.Archer && t.Count == 1)), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -63,11 +65,11 @@ public class BarbarianTickServiceTests
     {
         var village = MakeBarbarian(new Troops(5, 5));
         village.LastAttackAt = DateTime.UtcNow;
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
-        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>());
+        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>(), Ct);
     }
 
     [Fact]
@@ -79,32 +81,32 @@ public class BarbarianTickServiceTests
             Type = MovementType.Attack,
             Status = MovementStatus.InFlight,
         });
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
-        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>());
+        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>(), Ct);
     }
 
     [Fact]
     public async Task TryAttack_SkipsWhenNoTargets()
     {
         var village = MakeBarbarian(new Troops(5, 5));
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
-        _repo.GetForMapWithinRadius(default, default).ReturnsForAnyArgs(Array.Empty<Village>());
+        _repo.GetBarbarianVillagesAsync(Guid.Empty,Ct).ReturnsForAnyArgs([village]);
+        _repo.GetForMapWithinRadius(default, default, Ct).ReturnsForAnyArgs(Array.Empty<Village>());
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
-        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>());
+        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>(),Ct);
     }
 
     [Fact]
     public async Task AutoTrain_SendsDeficit()
     {
         var village = MakeBarbarian(new Troops(50, 50));
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
         var maxSwords = BarbarianConfig.MaxTroops.Swordsmen;
         var maxArchers = BarbarianConfig.MaxTroops.Archers;
@@ -112,7 +114,7 @@ public class BarbarianTickServiceTests
             Arg.Is<CreateTrainOrderCommand>(c =>
                 c.Orders.Count == 2 &&
                 c.Orders.Any(o => o.TroopType == TroopType.Swordsman && o.Count == maxSwords - 50) &&
-                c.Orders.Any(o => o.TroopType == TroopType.Archer && o.Count == maxArchers - 50)));
+                c.Orders.Any(o => o.TroopType == TroopType.Archer && o.Count == maxArchers - 50)), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -121,25 +123,25 @@ public class BarbarianTickServiceTests
         var village = MakeBarbarian(new Troops(
             BarbarianConfig.MaxTroops.Swordsmen,
             BarbarianConfig.MaxTroops.Archers));
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
-        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateTrainOrderCommand>());
+        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateTrainOrderCommand>(), Ct);
     }
 
     [Fact]
     public async Task AutoBuild_SendsBuildOrderWhenBelowMax()
     {
         var village = MakeBarbarian(new Troops(0, 0));
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
         foreach (var bt in BarbarianConfig.StartingBuildings.Keys)
         {
             await _mediator.Received(1).Send(
-                Arg.Is<CreateBuildOrderCommand>(c => c.VillageId == village.Id && c.BuildingType == bt));
+                Arg.Is<CreateBuildOrderCommand>(c => c.VillageId == village.Id && c.BuildingType == bt), Arg.Any<CancellationToken>());
         }
     }
 
@@ -152,11 +154,11 @@ public class BarbarianTickServiceTests
             var building = village.Buildings.First(b => b.Type == bt);
             building.Level = BarbarianConfig.MaxBuildingLevel;
         }
-        _repo.GetBarbarianVillagesAsync(Guid.Empty).ReturnsForAnyArgs([village]);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
-        await _service.ExecuteAsync(CancellationToken.None);
+        await _service.ExecuteAsync(Ct);
 
-        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateBuildOrderCommand>());
+        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateBuildOrderCommand>(), Ct);
     }
 
     private static Village MakeBarbarian(Troops troops)
