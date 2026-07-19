@@ -272,10 +272,9 @@ export class MapScene {
     const worldH = rows * TILE_SIZE * this.root.scale.y;
     const cw = this.app.screen.width;
     const ch = this.app.screen.height;
-    const pw = panelWidth() + 200;
+    const pad = panelWidth() * 2;
     const cx = (cw - worldW) / 2;
     const cy = (ch - worldH) / 2;
-    const pad = Math.min(pw, 200);
     return {
       xMin: Math.min(cx, -(worldW - cw) - pad),
       xMax: Math.max(cx, pad),

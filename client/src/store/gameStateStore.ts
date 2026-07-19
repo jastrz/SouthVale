@@ -9,6 +9,7 @@ import type { ViewMode } from "../types/view";
 export interface GameState {
   villages: Record<string, VillageListItemDto>;
   activeVillageId: string | null;
+  activeVillageNonce: number;
   hoveredVillage: MapVillage | null;
   currentView: ViewMode;
 
@@ -32,6 +33,7 @@ export interface GameState {
 export const useGameStateStore = create<GameState>((set) => ({
   villages: {},
   activeVillageId: null,
+  activeVillageNonce: 0,
   hoveredVillage: null,
   currentView: "map",
   targetVillage: null,
@@ -58,7 +60,7 @@ export const useGameStateStore = create<GameState>((set) => ({
       };
     }),
 
-  setActiveVillage: (id) => set({ activeVillageId: id }),
+  setActiveVillage: (id) => set((state) => ({ activeVillageId: id, activeVillageNonce: state.activeVillageNonce + 1 })),
   setHoveredVillage: (village) => set({ hoveredVillage: village }),
   setTargetVillage: (village) => set({ targetVillage: village }),
   setSelectedTile: (tile) => set({ selectedTile: tile }),

@@ -43,10 +43,10 @@ export function MovementsPanel({
   if (outgoing.length === 0 && incoming.length === 0) return null;
 
   return (
-    <section className="border-t border-slate-800 px-4 py-2">
-      <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
+    <section className=" border-slate-800 px-4 py-2">
+      {/*<h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
         Movements
-      </h3>
+      </h3>*/}
       <div className="flex flex-col gap-1">
         {outgoing.map((m) => (
           <MovementRow key={m.id} movement={m} kind="outgoing" />

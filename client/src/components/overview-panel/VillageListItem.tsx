@@ -31,7 +31,7 @@ export function VillageListItem({
         className={[
           "w-full cursor-pointer border-none px-4 py-1 text-left text-sm transition-colors rounded-sm",
           isActive
-            ? "bg-blue-600 text-white"
+            ? "bg-blue-600/40 text-white"
             : "bg-transparent text-white hover:bg-slate-800",
         ].join(" ")}
       >

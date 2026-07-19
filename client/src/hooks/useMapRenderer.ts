@@ -25,6 +25,7 @@ export function useMapRenderer(
 
   const villages = useGameStateStore((s) => s.villages);
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
+  const activeVillageNonce = useGameStateStore((s) => s.activeVillageNonce);
   const setActiveVillage = useGameStateStore((s) => s.setActiveVillage);
   const setHoveredVillage = useGameStateStore((s) => s.setHoveredVillage);
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
@@ -157,17 +158,12 @@ export function useMapRenderer(
     }
   }, [selectedTile, pixiReady]);
 
-  // Pan to the active village whenever it changes. The ref guard keeps
-  // subsequent store updates (resource ticks, etc.) from stealing the
-  // camera when the user has panned away.
-  const prevActiveIdRef = useRef<string | null>(null);
+  // Pan to the active village whenever it changes.
   useEffect(() => {
     if (!pixiReady) return;
-    if (activeVillageId === prevActiveIdRef.current) return;
-    prevActiveIdRef.current = activeVillageId;
     if (!activeVillageId) return;
     const village = villages[activeVillageId];
     if (!village) return;
     sceneRef.current?.centerOnVillage(village);
-  }, [activeVillageId, pixiReady, villages]);
+  }, [activeVillageId, activeVillageNonce, pixiReady, villages]);
 }
