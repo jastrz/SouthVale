@@ -9,6 +9,9 @@ export const TROOP_ICONS: Record<string, string> = {
   Swordsman: "/icons/troops/swordman.png",
   Archer: "/icons/troops/archer.png",
   Settler: "/icons/troops/hiking.png",
+  Dogs: "/icons/troops/dog.png",
+  Horsemen: "/icons/troops/horsemen.png",
+  LlamaRiders: "/icons/troops/llama_riders.png",
 };
 
 export const BUILDING_ICONS: Record<string, string> = {

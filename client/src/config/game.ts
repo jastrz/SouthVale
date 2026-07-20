@@ -41,4 +41,7 @@ export const TROOP_LABELS: Record<string, string> = {
   Swordsman: "Swordsman",
   Archer: "Archer",
   Settler: "Settler",
+  Dogs: "Dogs",
+  Horsemen: "Horsemen",
+  LlamaRiders: "Llama Riders",
 };

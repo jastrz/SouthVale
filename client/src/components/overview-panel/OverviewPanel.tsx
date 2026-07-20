@@ -122,7 +122,7 @@ export function OverviewPanel() {
               />
             </CollapsibleSection>
           )}
-          {activeVillageId && movements?.filter((m) => m.originVillageId === activeVillageId || m.targetVillageId === activeVillageId).length > 0 && (
+          {activeVillageId && (movements?.filter((m) => m.originVillageId === activeVillageId || m.targetVillageId === activeVillageId)?.length ?? 0) > 0 && (
             <CollapsibleSection
               label="Movements"
               open={openMovements}
@@ -131,7 +131,7 @@ export function OverviewPanel() {
             >
               <MovementsPanel
                 villageId={activeVillageId}
-                movements={movements}
+                movements={movements ?? []}
               />
             </CollapsibleSection>
           )}

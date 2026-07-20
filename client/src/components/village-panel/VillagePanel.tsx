@@ -69,7 +69,7 @@ function VillagePanelInner({
   const [openTroops, setOpenTroops] = useState(true);
 
   const hasBarracks = village?.buildings.some(
-    (b) => b.type === "Barracks" && b.level >= 1,
+    (b) => (b.type === "Barracks" || b.type === "Stable") && b.level >= 1,
   );
 
   if (isLoading) {
@@ -118,9 +118,8 @@ function VillagePanelInner({
         >
           <TroopsPanel
             resources={village.resources}
-            swordsmen={village.troops.swordsmen}
-            archers={village.troops.archers}
-            settlers={village.troops.settlers}
+            troops={village.troops}
+            buildings={village.buildings}
             mutation={trainMutation}
           />
         </CollapsibleSection>

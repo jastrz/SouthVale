@@ -5,9 +5,13 @@ import { ResourceCost } from "./ResourceCost";
 
 function troopLabel(m: MovementDto): string {
   const parts: string[] = [];
-  if (m.troops.swordsmen > 0) parts.push(`${m.troops.swordsmen} Swordsmen`);
-  if (m.troops.archers > 0) parts.push(`${m.troops.archers} Archers`);
-  if (m.troops.settlers > 0) parts.push(`${m.troops.settlers} Settlers`);
+  const t = m.troops;
+  if (t.swordsmen > 0) parts.push(`${t.swordsmen} Swordsmen`);
+  if (t.archers > 0) parts.push(`${t.archers} Archers`);
+  if (t.settlers > 0) parts.push(`${t.settlers} Settlers`);
+  if (t.dogs > 0) parts.push(`${t.dogs} Dogs`);
+  if (t.horsemen > 0) parts.push(`${t.horsemen} Horsemen`);
+  if (t.llamariders > 0) parts.push(`${t.llamariders} Llama Riders`);
   return parts.join(", ") || "No troops";
 }
 

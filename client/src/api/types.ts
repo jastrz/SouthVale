@@ -10,7 +10,7 @@ export type BuildingType =
   | "Cranny"
   | "TradePost";
 
-export type TroopType = "Swordsman" | "Archer" | "Settler";
+export type TroopType = "Swordsman" | "Archer" | "Settler" | "Dogs" | "Horsemen" | "LlamaRiders";
 
 export interface TroopEntry {
   troopType: TroopType;
@@ -93,6 +93,7 @@ export interface TroopConfigDto {
   defense: number;
   carryCapacity: number;
   speed: number;
+  trainedAt: string;
 }
 
 export interface GameConfigDto {
@@ -104,6 +105,9 @@ export interface TroopsDto {
   swordsmen: number;
   archers: number;
   settlers: number;
+  dogs: number;
+  horsemen: number;
+  llamariders: number;
 }
 
 export interface BuildingDto {
