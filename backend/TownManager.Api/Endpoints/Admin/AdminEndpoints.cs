@@ -64,7 +64,7 @@ public class AdminEndpoints : IEndpoint
                 .FirstOrDefaultAsync(v => v.Id == id, ct);
             if (village is null) return Results.NotFound();
 
-            var added = new Resources(request.Wood, request.Clay, request.Iron, request.Crop);
+            var added = new Resources(request.Wood, request.Clay, request.Iron, request.Beer);
             var effects = BuildingConfig.AggregateEffects(village.Buildings);
             village.Resources = village.GetCurrentResources(effects).Add(added);
             village.LastTickAt = DateTime.UtcNow;
@@ -99,7 +99,7 @@ public class AdminEndpoints : IEndpoint
                     effects.WarehouseCapacity,
                     effects.WarehouseCapacity,
                     effects.WarehouseCapacity,
-                    effects.GranaryCapacity
+                    effects.WarehouseCapacity
                 );
                 village.LastTickAt = DateTime.UtcNow;
             }
@@ -204,5 +204,5 @@ public class AdminEndpoints : IEndpoint
         .RequireAuthorization();
     }
 
-    public record AddResourcesRequest(double Wood, double Clay, double Iron, double Crop);
+    public record AddResourcesRequest(double Wood, double Clay, double Iron, double Beer);
 }

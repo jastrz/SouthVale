@@ -121,11 +121,11 @@ public static class DependencyInjection
                 sp.GetRequiredService<BarbarianOptions>()) { TickAtStart = false });
         }
         
+        var llmConfig = configuration.GetSection(LlmPlayerConfig.SectionName).Get<LlmPlayerConfig>() ?? new();
+        services.AddSingleton(llmConfig);
+
         if (features.UseLlmPlayers)
         {
-            var llmConfig = configuration.GetSection(LlmPlayerConfig.SectionName).Get<LlmPlayerConfig>() ?? new();
-            services.AddSingleton(llmConfig);
-            
             services.AddHostedService(sp => new LlmPlayerJobScheduler(
                 sp.GetRequiredService<IServiceScopeFactory>(),
                 sp.GetRequiredService<IRecurringJobManager>(),

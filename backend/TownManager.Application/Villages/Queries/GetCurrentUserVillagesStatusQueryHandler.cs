@@ -28,7 +28,7 @@ public class GetCurrentUserVillagesStatusQueryHandler(
                 v.Id,
                 v.BuildOrders.Count,
                 v.TrainOrders.Count,
-                new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Crop),
+                new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Beer),
                 new TroopsDto(v.Troops.Swordsmen, v.Troops.Archers, v.Troops.Settlers)
             );
         }).ToList();

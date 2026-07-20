@@ -47,9 +47,8 @@ public class Village : Entity
             Building.Create(BuildingType.ClayPit,  1),
             Building.Create(BuildingType.IronMine,  1),
             Building.Create(BuildingType.Warehouse,  1),
-            Building.Create(BuildingType.Granary,  1),
             Building.Create(BuildingType.WoodCutter, 1),
-            Building.Create(BuildingType.CropField, 1)
+            Building.Create(BuildingType.Brewery, 1)
         ],
         Coordinates = coordinates
     };
@@ -67,10 +66,10 @@ public class Village : Entity
         return Cap(Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours)), effects);
     }
 
-    private static Resources Cap(Resources r, BuildingEffects e) => new(
-        Math.Min(r.Wood, e.WarehouseCapacity),
-        Math.Min(r.Clay, e.WarehouseCapacity),
-        Math.Min(r.Iron, e.WarehouseCapacity),
-        Math.Min(r.Crop, e.GranaryCapacity)
-    );
+private static Resources Cap(Resources r, BuildingEffects e) => new(
+    Math.Min(r.Wood, e.WarehouseCapacity),
+    Math.Min(r.Clay, e.WarehouseCapacity),
+    Math.Min(r.Iron, e.WarehouseCapacity),
+    Math.Min(r.Beer, e.WarehouseCapacity)
+);
 }

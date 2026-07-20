@@ -10,18 +10,26 @@ public record BuildingEffects
     public int WarehouseCapacity { get; init; } = 0;
     public int GranaryCapacity { get; init; } = 0;
     public double TrainingSpeedMultiplier { get; init; } = 1.0;
+    public double DefenseMultiplier { get; init; } = 1.0;
+    public int CrannyCapacity { get; init; } = 0;
+    public double TradeRate { get; init; } = 1.0;
 
-    // Positional convenience constructor
     public BuildingEffects(
         Resources? productionPerHour = null,
         int warehouseCapacity = 0,
         int granaryCapacity = 0,
-        double trainingSpeedMultiplier = 1.0)
+        double trainingSpeedMultiplier = 1.0,
+        double defenseMultiplier = 1.0,
+        int crannyCapacity = 0,
+        double tradeRate = 1.0)
     {
         ProductionPerHour = productionPerHour ?? Resources.Zero;
         WarehouseCapacity = warehouseCapacity;
         GranaryCapacity = granaryCapacity;
         TrainingSpeedMultiplier = trainingSpeedMultiplier;
+        DefenseMultiplier = defenseMultiplier;
+        CrannyCapacity = crannyCapacity;
+        TradeRate = tradeRate;
     }
 }
 
@@ -34,71 +42,64 @@ public record BuildingLevelConfig(
 
 public static class BuildingConfig
 {
-    public static readonly Dictionary<BuildingType, List<BuildingLevelConfig>> Levels = new()
+    private static TimeSpan T(string s) => s switch
     {
-        [BuildingType.WoodCutter] =
-        [
-            new(1, new Resources(40,   100, 50,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(5,  0, 0, 0))),
-            new(2, new Resources(80,   200, 100, 120), TimeSpan.FromMinutes(5),   new BuildingEffects(new Resources(9,  0, 0, 0))),
-            new(3, new Resources(160,  400, 200, 240), TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(15, 0, 0, 0))),
-            new(4, new Resources(320,  800, 400, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(22, 0, 0, 0))),
-            new(5, new Resources(640,  1600, 800, 960), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(33, 0, 0, 0))),
-        ],
-
-        [BuildingType.ClayPit] =
-        [
-            new(1, new Resources(80,   40,  50,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 5,  0, 0))),
-            new(2, new Resources(160,  80,  100, 120), TimeSpan.FromMinutes(1),   new BuildingEffects(new Resources(0, 9,  0, 0))),
-            new(3, new Resources(320,  160, 200, 240), TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(0, 15, 0, 0))),
-            new(4, new Resources(640,  320, 400, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 22, 0, 0))),
-            new(5, new Resources(1280, 640, 800, 1000), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(0, 33, 0, 0))),
-        ],
-
-        [BuildingType.IronMine] =
-        [
-            new(1, new Resources(100,  80,  30,  60),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 0, 5,  0))),
-            new(2, new Resources(200,  160, 60,  120), TimeSpan.FromMinutes(5),   new BuildingEffects(new Resources(0, 0, 9,  0))),
-            new(3, new Resources(1,  1, 1, 1), TimeSpan.FromSeconds(15),  new BuildingEffects(new Resources(0, 0, 15, 0))),
-            new(4, new Resources(800,  640, 240, 480), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 0, 22, 0))),
-            new(5, new Resources(1600, 1280, 480, 1000), TimeSpan.FromHours(2),    new BuildingEffects(new Resources(0, 0, 33, 0))),
-        ],
-
-        [BuildingType.CropField] =
-        [
-            new(1, new Resources(70,   90,  70,  20),  TimeSpan.FromSeconds(30),  new BuildingEffects(new Resources(0, 0, 0, 5))),
-            new(2, new Resources(140,  180, 140, 40),  TimeSpan.FromMinutes(5),   new BuildingEffects(new Resources(0, 0, 0, 9))),
-            new(3, new Resources(280,  360, 280, 80),  TimeSpan.FromMinutes(15),  new BuildingEffects(new Resources(0, 0, 0, 15))),
-            new(4, new Resources(560,  720, 560, 160), TimeSpan.FromMinutes(40),  new BuildingEffects(new Resources(0, 0, 0, 22))),
-            new(5, new Resources(1120, 1440, 1120, 320), TimeSpan.FromHours(2),  new BuildingEffects(new Resources(0, 0, 0, 33))),
-        ],
-
-        [BuildingType.Warehouse] =
-        [
-            new(1, new Resources(130,  160, 90,  40),  TimeSpan.FromMinutes(2),  new BuildingEffects(warehouseCapacity: 800)),
-            new(2, new Resources(260,  320, 180, 80),  TimeSpan.FromMinutes(8),  new BuildingEffects(warehouseCapacity: 1600)),
-            new(3, new Resources(520,  640, 360, 160), TimeSpan.FromMinutes(25), new BuildingEffects(warehouseCapacity: 2800)),
-            new(4, new Resources(1040, 1280, 720, 320), TimeSpan.FromHours(1),  new BuildingEffects(warehouseCapacity: 4500)),
-            new(5, new Resources(2080, 2560, 1440, 640), TimeSpan.FromHours(3), new BuildingEffects(warehouseCapacity: 7000)),
-        ],
-
-        [BuildingType.Granary] =
-        [
-            new(1, new Resources(80,   100, 70,  20),  TimeSpan.FromMinutes(2),  new BuildingEffects(granaryCapacity: 800)),
-            new(2, new Resources(160,  200, 140, 40),  TimeSpan.FromMinutes(8),  new BuildingEffects(granaryCapacity: 1600)),
-            new(3, new Resources(320,  400, 280, 80),  TimeSpan.FromMinutes(25), new BuildingEffects(granaryCapacity: 2800)),
-            new(4, new Resources(640,  800, 560, 160), TimeSpan.FromHours(1),   new BuildingEffects(granaryCapacity: 4500)),
-            new(5, new Resources(1280, 1600, 1120, 320), TimeSpan.FromHours(3), new BuildingEffects(granaryCapacity: 7000)),
-        ],
-
-        [BuildingType.Barracks] =
-        [
-            new(1, new Resources(200,   150, 80,   100), TimeSpan.FromMinutes(5),  new BuildingEffects(trainingSpeedMultiplier: 1.0)),
-            new(2, new Resources(400,   300, 160,  200), TimeSpan.FromMinutes(15), new BuildingEffects(trainingSpeedMultiplier: 1.1)),
-            new(3, new Resources(800,   600, 320,  400), TimeSpan.FromMinutes(40), new BuildingEffects(trainingSpeedMultiplier: 1.25)),
-            new(4, new Resources(1600,  1200, 640,  800), TimeSpan.FromHours(2),  new BuildingEffects(trainingSpeedMultiplier: 1.45)),
-            new(5, new Resources(3200,  2400, 1280, 1600), TimeSpan.FromHours(5), new BuildingEffects(trainingSpeedMultiplier: 1.7)),
-        ],
+        not null when s.EndsWith('d') => TimeSpan.FromDays(double.Parse(s[..^1])),
+        not null when s.EndsWith('h') => TimeSpan.FromHours(double.Parse(s[..^1])),
+        not null when s.EndsWith('m') => TimeSpan.FromMinutes(double.Parse(s[..^1])),
+        not null when s.EndsWith('s') => TimeSpan.FromSeconds(double.Parse(s[..^1])),
+        _ => throw new FormatException($"Unknown duration: {s}")
     };
+
+    // parses csv/buildings.csv into Levels.
+    // I = parse int (empty → 0), M = parse double (empty → 1, for multipliers)
+    // csv columns: Building,Level, CostW,CostC,CostI,CostB, Time, ProdW,ProdC,ProdB,ProdBe, WhCap,GrCap,TrainM,DefM,CrCap,Rate,Score
+    //                         [0]   [1]   [2]   [3]   [4]   [5]  [6]   [7]   [8]   [9]  [10]  [11]  [12]  [13]  [14] [15]  [16]  [17]
+    private static Dictionary<BuildingType, List<BuildingLevelConfig>> LoadFromCsv()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "csv", "buildings.csv");
+        var lines = File.ReadAllLines(path);
+        var result = new Dictionary<BuildingType, List<BuildingLevelConfig>>();
+        var currentType = (BuildingType)(-1);
+        List<BuildingLevelConfig>? currentList = null;
+
+        static int I(string s) => string.IsNullOrEmpty(s) ? 0 : int.Parse(s);
+        static double M(string s) => string.IsNullOrEmpty(s) ? 1 : double.Parse(s); // multipliers default 1
+
+        foreach (var line in lines.Skip(1))
+        {
+            var parts = line.Split(',');
+            var typeName = parts[0];
+            if (!Enum.TryParse<BuildingType>(typeName, out var type))
+                continue;
+
+            if (type != currentType)
+            {
+                currentType = type;
+                currentList = [];
+                result[type] = currentList;
+            }
+
+            var level = I(parts[1]);
+            var cost = new Resources(I(parts[2]), I(parts[3]), I(parts[4]), I(parts[5]));
+            var upgradeTime = T(parts[6]);
+            var prod = new Resources(I(parts[7]), I(parts[8]), I(parts[9]), I(parts[10]));
+            var effects = new BuildingEffects(
+                prod,
+                warehouseCapacity: I(parts[11]),
+                granaryCapacity: I(parts[12]),
+                trainingSpeedMultiplier: M(parts[13]),
+                defenseMultiplier: M(parts[14]),
+                crannyCapacity: I(parts[15]),
+                tradeRate: M(parts[16]));
+
+            currentList!.Add(new BuildingLevelConfig(level, cost, upgradeTime, effects));
+        }
+
+        return result;
+    }
+
+    public static readonly Dictionary<BuildingType, List<BuildingLevelConfig>> Levels = LoadFromCsv();
 
     public static BuildingLevelConfig Get(BuildingType type, int level) =>
         Levels[type].First(x => x.Level == level);
@@ -117,7 +118,10 @@ public static class BuildingConfig
                     ProductionPerHour = acc.ProductionPerHour.Add(e.ProductionPerHour),
                     WarehouseCapacity = acc.WarehouseCapacity + e.WarehouseCapacity,
                     GranaryCapacity = acc.GranaryCapacity + e.GranaryCapacity,
-                    TrainingSpeedMultiplier = acc.TrainingSpeedMultiplier * e.TrainingSpeedMultiplier
+                    TrainingSpeedMultiplier = acc.TrainingSpeedMultiplier * e.TrainingSpeedMultiplier,
+                    DefenseMultiplier = acc.DefenseMultiplier * e.DefenseMultiplier,
+                    CrannyCapacity = acc.CrannyCapacity + e.CrannyCapacity,
+                    TradeRate = acc.TradeRate * e.TradeRate,
                 };
             });
 }

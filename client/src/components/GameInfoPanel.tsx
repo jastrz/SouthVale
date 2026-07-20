@@ -133,9 +133,6 @@ function BuildingTable({
                   {l.warehouseCapacity > 0 && (
                     <span>Warehouse: {l.warehouseCapacity}</span>
                   )}
-                  {l.granaryCapacity > 0 && (
-                    <span>Granary: {l.granaryCapacity}</span>
-                  )}
                   {l.productionPerHour && (
                     <span className="flex items-center gap-1">
                       Production: <CostIcons value={l.productionPerHour} perHour />
@@ -143,6 +140,15 @@ function BuildingTable({
                   )}
                   {l.trainingSpeedMultiplier > 1 && (
                     <span>Training: {l.trainingSpeedMultiplier}x</span>
+                  )}
+                  {l.defenseMultiplier > 1 && (
+                    <span>Defense: {l.defenseMultiplier}x</span>
+                  )}
+                  {l.crannyCapacity > 0 && (
+                    <span>Hidden: {l.crannyCapacity}</span>
+                  )}
+                  {l.tradeRate < 1 && (
+                    <span>Trade: {l.tradeRate}x</span>
                   )}
                 </div>
               </td>
@@ -158,7 +164,7 @@ function CostIcons({
   value,
   perHour,
 }: {
-  value: { wood: number; clay: number; iron: number; crop: number };
+  value: { wood: number; clay: number; iron: number; beer: number };
   perHour?: boolean;
 }) {
   const entries = Object.entries(RESOURCE_ICONS).filter(

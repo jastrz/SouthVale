@@ -111,7 +111,7 @@ public class BarbarianTickService(
                 VillageType = VillageType.Barbarian,
                 PlayerId = BarbarianConfig.BarbarianPlayerId,
                 Troops = new Troops(BarbarianConfig.StartingTroops.Swordsmen, BarbarianConfig.StartingTroops.Archers),
-                Resources = new Resources(rc.Wood, rc.Clay, rc.Iron, rc.Crop),
+                Resources = new Resources(rc.Wood, rc.Clay, rc.Iron, rc.Beer),
                 Coordinates = coords,
                 Buildings = BarbarianConfig.StartingBuildings
                     .Select(kv => Building.Create(kv.Key, kv.Value))

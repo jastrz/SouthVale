@@ -2,7 +2,7 @@ export const RESOURCE_ICONS: Record<string, string> = {
   wood: "/icons/resources/wood.png",
   clay: "/icons/resources/clay.png",
   iron: "/icons/resources/iron.png",
-  crop: "/icons/resources/crop.png",
+  beer: "/icons/resources/beer.png",
 };
 
 export const TROOP_ICONS: Record<string, string> = {
@@ -15,10 +15,13 @@ export const BUILDING_ICONS: Record<string, string> = {
   WoodCutter: "/icons/buildings/woodcutter.png",
   ClayPit: "/icons/buildings/clay_pit.png",
   IronMine: "/icons/buildings/iron_mine.png",
-  CropField: "/icons/buildings/crop_farm.png",
+  Brewery: "/icons/buildings/brewery.png",
   Warehouse: "/icons/buildings/warehouse.png",
-  Granary: "/icons/buildings/granary.png",
   Barracks: "/icons/buildings/barracks.png",
+  Stable: "/icons/buildings/stable.png",
+  Wall: "/icons/buildings/wall.png",
+  Cranny: "/icons/buildings/cranny.png",
+  TradePost: "/icons/buildings/trade_post.png",
 };
 
 export function parseTimeSpanMs(ts: string): number {

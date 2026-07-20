@@ -36,21 +36,21 @@ export function TransportPanel({
   const [wood, setWood] = useState(0);
   const [clay, setClay] = useState(0);
   const [iron, setIron] = useState(0);
-  const [crop, setCrop] = useState(0);
+  const [beer, setBeer] = useState(0);
 
   const selectedVillage = targets.find((v) => v.id === targetVillageId);
   const carryCapacity =
     swordsmen * (gameConfig?.troops.Swordsman?.carryCapacity ?? 0) +
     archers * (gameConfig?.troops.Archer?.carryCapacity ?? 0) +
     settlers * (gameConfig?.troops.Settler?.carryCapacity ?? 0);
-  const resourcesUsed = wood + clay + iron + crop;
-  const maxFor = (have: number, key: "wood" | "clay" | "iron" | "crop") => {
+  const resourcesUsed = wood + clay + iron + beer;
+  const maxFor = (have: number, key: "wood" | "clay" | "iron" | "beer") => {
     if (!carryCapacity) return 0;
-    const others = resourcesUsed - { wood, clay, iron, crop }[key];
+    const others = resourcesUsed - { wood, clay, iron, beer }[key];
     const remaining = carryCapacity - others;
     return Math.min(Math.floor(have), Math.max(0, remaining));
   };
-  const hasResources = wood > 0 || clay > 0 || iron > 0 || crop > 0;
+  const hasResources = wood > 0 || clay > 0 || iron > 0 || beer > 0;
   const hasTroops = swordsmen > 0 || archers > 0 || settlers > 0;
 
   const speed = hasTroops
@@ -77,7 +77,7 @@ export function TransportPanel({
       {
         targetVillageId,
         troops: troopEntries,
-        resources: { wood, clay, iron, crop },
+        resources: { wood, clay, iron, beer },
       },
       { onSuccess: onClose },
     );
@@ -207,11 +207,11 @@ export function TransportPanel({
             />
           </div>
           <div className="flex-1">
-            <label className="block text-[10px] text-slate-400">Crop</label>
+            <label className="block text-[10px] text-slate-400">Beer</label>
             <NumberInput
-              value={crop}
-              onChange={setCrop}
-              max={maxFor(resources.crop, "crop")}
+              value={beer}
+              onChange={setBeer}
+              max={maxFor(resources.beer, "beer")}
             />
           </div>
         </div>

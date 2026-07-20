@@ -24,7 +24,7 @@ public class CombatResolver
         int attackerCapacity = survivingAttackers.Swordsmen * TroopsConfig.Get(TroopType.Swordsman).Stats.CarryCapacity
                                + survivingAttackers.Archers * TroopsConfig.Get(TroopType.Archer).Stats.CarryCapacity;
 
-        double totalResources = defenderResources.Wood + defenderResources.Clay + defenderResources.Iron + defenderResources.Crop;
+        double totalResources = defenderResources.Wood + defenderResources.Clay + defenderResources.Iron + defenderResources.Beer;
         double lootRatio = totalResources > 0 ? Math.Min(1.0, attackerCapacity / totalResources) : 0;
         Resources attackerLoot = defenderResources.Multiply(lootRatio);
 

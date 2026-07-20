@@ -77,7 +77,7 @@ public class TransactionBehaviorTests : IntegrationTestBase
         CoordinatesDto Coordinates
     );
 
-    private record ResourcesDto(int Wood, int Clay, int Iron, int Crop);
+    private record ResourcesDto(int Wood, int Clay, int Iron, int Beer);
     private record TroopsDto(int Swordsmen, int Archers, int Settlers);
     private record BuildingDto(Guid Id, string Type, int Level);
     private record BuildOrderDto(Guid Id, string BuildingType, int TargetLevel, DateTime StartsAt, DateTime CompletesAt);

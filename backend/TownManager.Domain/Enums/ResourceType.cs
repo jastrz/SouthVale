@@ -8,5 +8,5 @@ public enum ResourceType
     Wood = 0,
     Clay = 1,
     Iron = 2,
-    Crop = 3
+    Beer = 3
 }

@@ -1,11 +1,14 @@
 export type BuildingType =
   | "Warehouse"
-  | "Granary"
   | "Barracks"
   | "IronMine"
   | "WoodCutter"
-  | "CropField"
-  | "ClayPit";
+  | "Brewery"
+  | "ClayPit"
+  | "Stable"
+  | "Wall"
+  | "Cranny"
+  | "TradePost";
 
 export type TroopType = "Swordsman" | "Archer" | "Settler";
 
@@ -66,7 +69,7 @@ export interface ResourcesDto {
   wood: number;
   clay: number;
   iron: number;
-  crop: number;
+  beer: number;
 }
 
 export interface BuildingLevelConfigDto {
@@ -77,6 +80,9 @@ export interface BuildingLevelConfigDto {
   granaryCapacity: number;
   productionPerHour: ResourcesDto | null;
   trainingSpeedMultiplier: number;
+  defenseMultiplier: number;
+  crannyCapacity: number;
+  tradeRate: number;
 }
 
 export interface TroopConfigDto {
@@ -222,7 +228,7 @@ export interface AddResourcesRequest {
   wood: number;
   clay: number;
   iron: number;
-  crop: number;
+  beer: number;
 }
 
 export type MapVillage =

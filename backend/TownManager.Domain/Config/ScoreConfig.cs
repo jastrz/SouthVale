@@ -13,13 +13,16 @@ public static class ScoreConfig
 
     public static readonly Dictionary<BuildingType, IReadOnlyDictionary<int, int>> Building = new()
     {
-        [BuildingType.WoodCutter] = Lv(10, 25, 50, 100, 200),
-        [BuildingType.ClayPit]    = Lv(10, 25, 50, 100, 200),
-        [BuildingType.IronMine]   = Lv(10, 25, 50, 100, 200),
-        [BuildingType.CropField]  = Lv(10, 25, 50, 100, 200),
-        [BuildingType.Warehouse]  = Lv(10, 25, 50, 100, 200),
-        [BuildingType.Granary]    = Lv(10, 25, 50, 100, 200),
-        [BuildingType.Barracks]   = Lv(10, 25, 50, 100, 200),
+        [BuildingType.WoodCutter] = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.ClayPit]    = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.IronMine]   = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.Brewery]    = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.Warehouse]  = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.Barracks]   = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.Stable]     = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.Wall]       = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.Cranny]     = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
+        [BuildingType.TradePost]  = Lv(10,20,40,80,150,250,400,600,900,1300,1800,2500,3500,5000,7000,10000,14000,20000,28000,40000),
     };
 
     private static IReadOnlyDictionary<int, int> Lv(params int[] scores) =>

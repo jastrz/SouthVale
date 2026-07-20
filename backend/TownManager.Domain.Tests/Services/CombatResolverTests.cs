@@ -23,7 +23,7 @@ public class CombatResolverTests
     [Fact]
     public void NoDefenders_AttackersUnaffected_FullLoot()
     {
-        var resources = new Resources(wood: 100, clay: 200, iron: 300, crop: 400);
+        var resources = new Resources(wood: 100, clay: 200, iron: 300, beer: 400);
 
         var result = CombatResolver.Resolve(
             new Troops(swordsmen: 50),
@@ -38,7 +38,7 @@ public class CombatResolverTests
         result.AttackerLoot.Wood.Should().Be(resources.Wood);
         result.AttackerLoot.Clay.Should().Be(resources.Clay);
         result.AttackerLoot.Iron.Should().Be(resources.Iron);
-        result.AttackerLoot.Crop.Should().Be(resources.Crop);
+        result.AttackerLoot.Beer.Should().Be(resources.Beer);
     }
 
     [Fact]

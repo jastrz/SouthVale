@@ -88,9 +88,9 @@ function TrainingForm({
           wood: c.wood * count,
           clay: c.clay * count,
           iron: c.iron * count,
-          crop: c.crop * count,
+          beer: c.beer * count,
         }
-      : { wood: 0, clay: 0, iron: 0, crop: 0 };
+      : { wood: 0, clay: 0, iron: 0, beer: 0 };
   };
 
   const sumCost = (costs: ResourcesDto[]): ResourcesDto =>
@@ -99,9 +99,9 @@ function TrainingForm({
         wood: a.wood + b.wood,
         clay: a.clay + b.clay,
         iron: a.iron + b.iron,
-        crop: a.crop + b.crop,
+        beer: a.beer + b.beer,
       }),
-      { wood: 0, clay: 0, iron: 0, crop: 0 },
+      { wood: 0, clay: 0, iron: 0, beer: 0 },
     );
 
   const maxFor = (type: string): number => {
@@ -117,14 +117,14 @@ function TrainingForm({
       wood: resources.wood - committed.wood,
       clay: resources.clay - committed.clay,
       iron: resources.iron - committed.iron,
-      crop: resources.crop - committed.crop,
+      beer: resources.beer - committed.beer,
     };
 
     return Math.min(
       unitCost.wood > 0 ? Math.floor(remaining.wood / unitCost.wood) : Infinity,
       unitCost.clay > 0 ? Math.floor(remaining.clay / unitCost.clay) : Infinity,
       unitCost.iron > 0 ? Math.floor(remaining.iron / unitCost.iron) : Infinity,
-      unitCost.crop > 0 ? Math.floor(remaining.crop / unitCost.crop) : Infinity,
+      unitCost.beer > 0 ? Math.floor(remaining.beer / unitCost.beer) : Infinity,
     );
   };
 

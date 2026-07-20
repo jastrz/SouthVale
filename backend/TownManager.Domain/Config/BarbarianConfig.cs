@@ -8,7 +8,7 @@ public static class BarbarianConfig
     // player ID for the barbarian
     public static readonly Guid BarbarianPlayerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-    public const int MaxBuildingLevel = 5;
+    public const int MaxBuildingLevel = 20;
     public const int AttackRange = 15;
     public const int TargetPopulation = 15;
     
@@ -22,8 +22,7 @@ public static class BarbarianConfig
         [BuildingType.ClayPit] = 2,
         [BuildingType.IronMine] = 2,
         [BuildingType.Warehouse] = 2,
-        [BuildingType.Granary] = 2,
         [BuildingType.WoodCutter] = 2,
-        [BuildingType.CropField] = 2,
+        [BuildingType.Brewery] = 2,
     };
 }

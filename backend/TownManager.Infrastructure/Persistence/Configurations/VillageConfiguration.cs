@@ -41,7 +41,7 @@ public class VillageConfiguration : IEntityTypeConfiguration<Village>
           rb.Property(p => p.Wood).HasColumnName("Wood");
           rb.Property(p => p.Clay).HasColumnName("Clay");
           rb.Property(p => p.Iron).HasColumnName("Iron");
-          rb.Property(p => p.Crop).HasColumnName("Crop");
+          rb.Property(p => p.Beer).HasColumnName("Beer");
         });
 
         b.OwnsOne(v => v.Troops, gb =>

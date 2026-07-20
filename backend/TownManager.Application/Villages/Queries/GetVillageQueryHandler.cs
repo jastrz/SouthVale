@@ -22,7 +22,7 @@ public class GetVillageQueryHandler(IVillageRepository repo)
         return Result<VillageDto>.Success(new VillageDto(
             village.Id,
             village.Name,
-            new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Crop),
+            new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Beer),
             new TroopsDto(village.Troops.Swordsmen, village.Troops.Archers, village.Troops.Settlers),
             village.Buildings.Select(b => new BuildingDto(b.Id, b.Type.ToString(), b.Level)).ToList(),
             village.BuildOrders.Select(o => new BuildOrderDto(o.Id, o.BuildingType, o.TargetLevel, o.StartsAt, o.CompletesAt)).ToList(),

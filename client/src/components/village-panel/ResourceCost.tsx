@@ -10,7 +10,7 @@ const RESOURCE_ROWS: {
   { key: "wood", label: "Wood", icon: RESOURCE_ICONS.wood },
   { key: "clay", label: "Clay", icon: RESOURCE_ICONS.clay },
   { key: "iron", label: "Iron", icon: RESOURCE_ICONS.iron },
-  { key: "crop", label: "Crop", icon: RESOURCE_ICONS.crop },
+  { key: "beer", label: "Beer", icon: RESOURCE_ICONS.beer },
 ];
 
 export function ResourceCost({ value }: { value: ResourcesDto }) {

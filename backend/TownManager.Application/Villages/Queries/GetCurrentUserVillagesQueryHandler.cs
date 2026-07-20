@@ -27,7 +27,7 @@ public class GetCurrentUserVillagesQueryHandler(
             return new VillageListItemDto(
                 v.Id,
                 v.Name,
-                new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Crop),
+                new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Beer),
                 new TroopsDto(v.Troops.Swordsmen, v.Troops.Archers, v.Troops.Settlers),
                 v.Coordinates
             );

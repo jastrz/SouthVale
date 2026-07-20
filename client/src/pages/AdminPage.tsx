@@ -24,7 +24,7 @@ export function AdminPage() {
   const [wood, setWood] = useState("1000");
   const [clay, setClay] = useState("1000");
   const [iron, setIron] = useState("1000");
-  const [crop, setCrop] = useState("1000");
+  const [beer, setBeer] = useState("1000");
 
   const { data: villages } = useAdminVillages();
   const addResources = useAddResources();
@@ -51,7 +51,7 @@ export function AdminPage() {
         wood: Number(wood),
         clay: Number(clay),
         iron: Number(iron),
-        crop: Number(crop),
+        beer: Number(beer),
       },
     });
   };
@@ -100,14 +100,14 @@ export function AdminPage() {
           {selected && <p className="text-xs text-slate-500">ID: {selected.id}</p>}
 
           <div className="grid grid-cols-2 gap-2">
-            {(["wood", "clay", "iron", "crop"] as const).map((r) => (
+            {(["wood", "clay", "iron", "beer"] as const).map((r) => (
               <label key={r} className="flex flex-col gap-1 text-xs text-slate-400">
                 {r.charAt(0).toUpperCase() + r.slice(1)}
                 <input
                   type="number"
-                  value={{ wood, clay, iron, crop }[r]}
+                  value={{ wood, clay, iron, beer }[r]}
                   onChange={(e) => {
-                    const setter = { wood: setWood, clay: setClay, iron: setIron, crop: setCrop }[r];
+                    const setter = { wood: setWood, clay: setClay, iron: setIron, beer: setBeer }[r];
                     setter(e.target.value);
                   }}
                   className="rounded bg-slate-700 px-2 py-1 text-sm text-white"

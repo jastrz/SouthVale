@@ -81,9 +81,9 @@ function PlayerVillageInfoBody({ village }: { village: OwnVillage }) {
         </span>
         <span className="text-right">{resources.iron}</span>
         <span className="flex items-center gap-1 text-slate-400">
-          <Icon src={RESOURCE_ICONS.crop} size={14} /> Crop
+          <Icon src={RESOURCE_ICONS.beer} size={14} /> Beer
         </span>
-        <span className="text-right">{resources.crop}</span>
+        <span className="text-right">{resources.beer}</span>
       </div>
       <div className="mt-2 border-t border-slate-700 pt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
         <span className="text-slate-400">Swordsmen</span>

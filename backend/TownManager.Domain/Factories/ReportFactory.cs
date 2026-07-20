@@ -15,7 +15,7 @@ public static class ReportFactory
     }
 
     private static string LootLine(Resources loot) =>
-        loot.IsEmpty() ? "" : $"\nLoot: {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Crop} Crop.";
+        loot.IsEmpty() ? "" : $"\nLoot: {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Beer} Beer.";
 
     private static string CombatBody(Troops attackers, Troops attackerSurvivors, Troops defenders, Troops defenderSurvivors, Resources loot) =>
         $"Attackers: {TroopBreakdown(attackerSurvivors)} of {TroopBreakdown(attackers)} survived.\n"
@@ -57,7 +57,7 @@ public static class ReportFactory
         Troops troops, Resources? loot)
     {
         var lootStr = loot is not null && !loot.IsEmpty()
-            ? $" with {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Crop} Crop"
+            ? $" with {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Beer} Beer"
             : "";
 
         return new Report
@@ -111,7 +111,7 @@ public static class ReportFactory
     {
         var parts = new List<string>();
         if (!troops.IsEmpty()) parts.Add(TroopBreakdown(troops));
-        if (!resources.IsEmpty()) parts.Add($"{(int)resources.Wood} Wood, {(int)resources.Clay} Clay, {(int)resources.Iron} Iron, {(int)resources.Crop} Crop");
+        if (!resources.IsEmpty()) parts.Add($"{(int)resources.Wood} Wood, {(int)resources.Clay} Clay, {(int)resources.Iron} Iron, {(int)resources.Beer} Beer");
 
         return new Report
         {

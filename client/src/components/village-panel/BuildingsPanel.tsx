@@ -43,9 +43,6 @@ function BuildingTooltip({
       {(config?.warehouseCapacity ?? 0) > 0 && (
         <div className="text-slate-300">Capacity: {config!.warehouseCapacity}</div>
       )}
-      {(config?.granaryCapacity ?? 0) > 0 && (
-        <div className="text-slate-300">Capacity: {config!.granaryCapacity}</div>
-      )}
       {currentPerHour && (
         <div className="flex flex-wrap gap-x-2.5 gap-y-0.5">
           <span className="text-slate-300">Production</span>
@@ -64,9 +61,9 @@ function BuildingTooltip({
               <Icon src={RESOURCE_ICONS.iron} size={12} /> {currentPerHour.iron}/h
             </span>
           )}
-          {currentPerHour.crop > 0 && (
+          {currentPerHour.beer > 0 && (
             <span className="flex items-center gap-1 text-slate-300 whitespace-nowrap">
-              <Icon src={RESOURCE_ICONS.crop} size={12} /> {currentPerHour.crop}/h
+              <Icon src={RESOURCE_ICONS.beer} size={12} /> {currentPerHour.beer}/h
             </span>
           )}
         </div>
@@ -74,6 +71,21 @@ function BuildingTooltip({
       {(config?.trainingSpeedMultiplier ?? 0) > 1 && (
         <div className="text-slate-300">
           Training Speed: {config!.trainingSpeedMultiplier}x
+        </div>
+      )}
+      {(config?.defenseMultiplier ?? 0) > 1 && (
+        <div className="text-slate-300">
+          Defense: {config!.defenseMultiplier}x
+        </div>
+      )}
+      {(config?.crannyCapacity ?? 0) > 0 && (
+        <div className="text-slate-300">
+          Hides: {config!.crannyCapacity}
+        </div>
+      )}
+      {(config?.tradeRate ?? 1) < 1 && (
+        <div className="text-slate-300">
+          Trade Rate: {config!.tradeRate}x
         </div>
       )}
       {nextConfig && (
@@ -96,17 +108,6 @@ function BuildingTooltip({
                 <span className="text-green-400">
                   {" "}
                   (+{nextConfig.warehouseCapacity - config.warehouseCapacity})
-                </span>
-              )}
-            </div>
-          )}
-          {nextConfig.granaryCapacity > 0 && (
-            <div className="text-slate-300">
-              Capacity: {nextConfig.granaryCapacity}
-              {config && (
-                <span className="text-green-400">
-                  {" "}
-                  (+{nextConfig.granaryCapacity - config.granaryCapacity})
                 </span>
               )}
             </div>
@@ -144,12 +145,12 @@ function BuildingTooltip({
                   )}
                 </span>
               )}
-              {nextPerHour.crop > 0 && (
+              {nextPerHour.beer > 0 && (
                 <span className="flex items-center gap-1 text-slate-300 whitespace-nowrap">
-                  <Icon src={RESOURCE_ICONS.crop} size={12} /> {nextPerHour.crop}/h
-                  {currentPerHour && nextPerHour.crop > currentPerHour.crop && (
+                  <Icon src={RESOURCE_ICONS.beer} size={12} /> {nextPerHour.beer}/h
+                  {currentPerHour && nextPerHour.beer > currentPerHour.beer && (
                     <span className="text-green-400">
-                      (+{nextPerHour.crop - currentPerHour.crop}/h)
+                      (+{nextPerHour.beer - currentPerHour.beer}/h)
                     </span>
                   )}
                 </span>
@@ -169,6 +170,45 @@ function BuildingTooltip({
                     100
                   ).toFixed(0)}
                   %)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.defenseMultiplier > 1 && (
+            <div className="text-slate-300">
+              Defense: {nextConfig.defenseMultiplier}x
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+
+                  {(
+                    (nextConfig.defenseMultiplier -
+                      config.defenseMultiplier) *
+                    100
+                  ).toFixed(0)}
+                  %)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.crannyCapacity > 0 && (
+            <div className="text-slate-300">
+              Hides: {nextConfig.crannyCapacity}
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{nextConfig.crannyCapacity - config.crannyCapacity})
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.tradeRate < 1 && (
+            <div className="text-slate-300">
+              Trade Rate: {nextConfig.tradeRate}x
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  ({((nextConfig.tradeRate - config.tradeRate) * 100).toFixed(0)}%)
                 </span>
               )}
             </div>

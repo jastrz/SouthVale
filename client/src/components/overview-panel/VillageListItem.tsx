@@ -67,8 +67,8 @@ export function VillageListItem({
             {r.iron}
           </span>
           <span className="flex items-center gap-0.5">
-            <Icon src={RESOURCE_ICONS.crop} size={10} />
-            {r.crop}
+            <Icon src={RESOURCE_ICONS.beer} size={10} />
+            {r.beer}
           </span>
         </div>
         {t.swordsmen > 0 || t.archers > 0 || t.settlers > 0 ? (
