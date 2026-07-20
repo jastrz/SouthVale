@@ -59,6 +59,8 @@ try
         .AddApplication()
         .AddInfrastructure(builder.Configuration);
 
+    builder.Services.Configure<ServiceProviderOptions>(o => o.ValidateOnBuild = false);
+
     var app = builder.Build()
         .ConfigurePipeline();
 

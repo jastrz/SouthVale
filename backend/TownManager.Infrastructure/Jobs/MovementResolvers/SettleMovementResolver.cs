@@ -40,7 +40,8 @@ public class SettleMovementResolver(
             logger.LogInformation("Tile {Coords} already occupied, returning settlers to {VillageId}",
                 movement.TargetCoordinates, movement.VillageId);
 
-            var returningSettlers = new Troops(0, 0, movement.Troops.Settlers);
+            var returningSettlers = new Troops();
+            returningSettlers.Add(TroopType.Settler, movement.Troops.Get(TroopType.Settler));
             if (returningSettlers.IsEmpty()) return;
 
             TimeSpan travelTime = movement.ArrivesAt - movement.DepartureAt;

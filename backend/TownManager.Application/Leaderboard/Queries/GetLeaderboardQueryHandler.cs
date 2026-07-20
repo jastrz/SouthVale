@@ -46,9 +46,9 @@ public class GetLeaderboardQueryHandler(IPlayerRepository playerRepo)
     {
         static int CountByType(TroopType type, Troops t) => type switch
         {
-            TroopType.Swordsman => t.Swordsmen,
-            TroopType.Archer    => t.Archers,
-            TroopType.Settler   => t.Settlers,
+            TroopType.Swordsman => t.Get(TroopType.Swordsman),
+            TroopType.Archer    => t.Get(TroopType.Archer),
+            TroopType.Settler   => t.Get(TroopType.Settler),
             _ => 0,
         };
 

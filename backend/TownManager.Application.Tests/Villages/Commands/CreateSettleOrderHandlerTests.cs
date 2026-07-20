@@ -37,7 +37,7 @@ public class CreateSettleOrderHandlerTests
         var result = await _handler.Handle(new(village.Id, target), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
-        village.Troops.Settlers.Should().Be(0);
+        village.Troops.Get(TroopType.Settler).Should().Be(0);
         village.TroopMovements.Should().ContainSingle(m =>
             m.Type == MovementType.Settle && m.TargetCoordinates == target);
         await _repo.Received(1).SaveChangesAsync(CancellationToken.None);
@@ -65,7 +65,7 @@ public class CreateSettleOrderHandlerTests
         var result = await _handler.Handle(new(village.Id, new(5, 5)), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
-        village.Troops.Settlers.Should().Be(0);
+        village.Troops.Get(TroopType.Settler).Should().Be(0);
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class CreateSettleOrderHandlerTests
 
         result.Succeeded.Should().BeFalse();
         result.StatusCode.Should().Be(409);
-        village.Troops.Settlers.Should().Be(1);
+        village.Troops.Get(TroopType.Settler).Should().Be(1);
     }
 
     private static Village CreateVillageWithSettlers(int count)

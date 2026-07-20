@@ -8,9 +8,11 @@ public static class ReportFactory
     private static string TroopBreakdown(Troops t)
     {
         var parts = new List<string>();
-        if (t.Swordsmen > 0) parts.Add($"{t.Swordsmen} Swordsmen");
-        if (t.Archers > 0) parts.Add($"{t.Archers} Archers");
-        if (t.Settlers > 0) parts.Add($"{t.Settlers} Settlers");
+        foreach (TroopType type in Enum.GetValues<TroopType>())
+        {
+            var count = t.Get(type);
+            if (count > 0) parts.Add($"{count} {type}");
+        }
         return parts.Count > 0 ? string.Join(", ", parts) : "None";
     }
 

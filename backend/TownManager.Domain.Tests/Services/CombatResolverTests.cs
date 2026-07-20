@@ -1,5 +1,6 @@
 using FluentAssertions;
 using TownManager.Domain.Entities;
+using TownManager.Domain.Enums;
 using TownManager.Domain.Services;
 
 namespace TownManager.Domain.Tests.Services;
@@ -51,8 +52,8 @@ public class CombatResolverTests
         );
         
         result.DefenderTroops.Should().BeEquivalentTo(Troops.Zero);
-        result.AttackerTroops.Swordsmen.Should().BeGreaterThan(0);
-        result.AttackerTroops.Archers.Should().BeGreaterThan(0);
+        result.AttackerTroops.Get(TroopType.Swordsman).Should().BeGreaterThan(0);
+        result.AttackerTroops.Get(TroopType.Archer).Should().BeGreaterThan(0);
     }
 
     [Fact]
@@ -64,9 +65,9 @@ public class CombatResolverTests
             Resources.Zero
         );
 
-        // Settlers have 0 attack/defense - same outcome as 100 swordsmen vs 100
-        result.AttackerTroops.Swordsmen.Should().BeGreaterThan(0);
-        result.AttackerTroops.Settlers.Should().Be(0);
+        // Settlers have 0 attack/defense — survive combat untouched
+        result.AttackerTroops.Get(TroopType.Swordsman).Should().BeGreaterThan(0);
+        result.AttackerTroops.Get(TroopType.Settler).Should().Be(100);
     }
 
     [Fact]
@@ -78,11 +79,11 @@ public class CombatResolverTests
             Resources.Zero
         );
 
-        result.AttackerTroops.Swordsmen.Should().BeGreaterThanOrEqualTo(0);
-        result.AttackerTroops.Archers.Should().BeGreaterThanOrEqualTo(0);
-        result.AttackerTroops.Settlers.Should().BeGreaterThanOrEqualTo(0);
-        result.DefenderTroops.Swordsmen.Should().BeGreaterThanOrEqualTo(0);
-        result.DefenderTroops.Archers.Should().BeGreaterThanOrEqualTo(0);
-        result.DefenderTroops.Settlers.Should().BeGreaterThanOrEqualTo(0);
+        result.AttackerTroops.Get(TroopType.Swordsman).Should().BeGreaterThanOrEqualTo(0);
+        result.AttackerTroops.Get(TroopType.Archer).Should().BeGreaterThanOrEqualTo(0);
+        result.AttackerTroops.Get(TroopType.Settler).Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Get(TroopType.Swordsman).Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Get(TroopType.Archer).Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Get(TroopType.Settler).Should().BeGreaterThanOrEqualTo(0);
     }
 }

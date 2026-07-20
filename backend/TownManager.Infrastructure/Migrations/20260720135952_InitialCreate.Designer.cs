@@ -13,8 +13,8 @@ using TownManager.Infrastructure.Persistence;
 namespace TownManager.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260702080631_AddedBarbarians")]
-    partial class AddedBarbarians
+    [Migration("20260720135952_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -164,8 +164,14 @@ namespace TownManager.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("BotPersonality")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsBot")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -603,10 +609,10 @@ namespace TownManager.Infrastructure.Migrations
                             b1.Property<Guid>("TroopMovementId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<double>("Clay")
+                            b1.Property<double>("Beer")
                                 .HasColumnType("double precision");
 
-                            b1.Property<double>("Crop")
+                            b1.Property<double>("Clay")
                                 .HasColumnType("double precision");
 
                             b1.Property<double>("Iron")
@@ -625,21 +631,16 @@ namespace TownManager.Infrastructure.Migrations
 
                     b.OwnsOne("TownManager.Domain.Entities.Troops", "Troops", b1 =>
                         {
-                            b1.Property<Guid>("TroopMovementId");
+                            b1.Property<Guid>("TroopMovementId")
+                                .HasColumnType("uuid");
 
-                            b1.Property<int>("Archers");
-
-                            b1.Property<int>("Settlers");
-
-                            b1.Property<int>("Swordsmen");
+                            b1.Property<string>("Counts")
+                                .IsRequired()
+                                .HasColumnType("jsonb");
 
                             b1.HasKey("TroopMovementId");
 
                             b1.ToTable("TroopMovements");
-
-                            b1
-                                .ToJson("Troops")
-                                .HasColumnType("jsonb");
 
                             b1.WithOwner()
                                 .HasForeignKey("TroopMovementId");
@@ -666,13 +667,13 @@ namespace TownManager.Infrastructure.Migrations
                             b1.Property<Guid>("VillageId")
                                 .HasColumnType("uuid");
 
+                            b1.Property<double>("Beer")
+                                .HasColumnType("double precision")
+                                .HasColumnName("Beer");
+
                             b1.Property<double>("Clay")
                                 .HasColumnType("double precision")
                                 .HasColumnName("Clay");
-
-                            b1.Property<double>("Crop")
-                                .HasColumnType("double precision")
-                                .HasColumnName("Crop");
 
                             b1.Property<double>("Iron")
                                 .HasColumnType("double precision")
@@ -695,17 +696,9 @@ namespace TownManager.Infrastructure.Migrations
                             b1.Property<Guid>("VillageId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<int>("Archers")
-                                .HasColumnType("integer")
-                                .HasColumnName("Archers");
-
-                            b1.Property<int>("Settlers")
-                                .HasColumnType("integer")
-                                .HasColumnName("Settler");
-
-                            b1.Property<int>("Swordsmen")
-                                .HasColumnType("integer")
-                                .HasColumnName("Swordsmen");
+                            b1.Property<string>("Counts")
+                                .IsRequired()
+                                .HasColumnType("jsonb");
 
                             b1.HasKey("VillageId");
 

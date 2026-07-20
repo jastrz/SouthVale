@@ -8,8 +8,11 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
 {
     public AppDbContext CreateDbContext(string[] args)
     {
+        var apiDir = Path.Combine(Directory.GetCurrentDirectory(), "..", "TownManager.Api");
+        if (!Directory.Exists(apiDir))
+            apiDir = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "TownManager.Api"); // running from Infra dir
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../TownManager.Api"))
+            .SetBasePath(apiDir)
             .AddJsonFile("appsettings.json")
             .Build();
 

@@ -108,8 +108,8 @@ public class BarbarianTickServiceTests
 
         await _service.ExecuteAsync(Ct);
 
-        var maxSwords = BarbarianConfig.MaxTroops.Swordsmen;
-        var maxArchers = BarbarianConfig.MaxTroops.Archers;
+        var maxSwords = BarbarianConfig.MaxTroops.Get(TroopType.Swordsman);
+        var maxArchers = BarbarianConfig.MaxTroops.Get(TroopType.Archer);
         await _mediator.Received(1).Send(
             Arg.Is<CreateTrainOrderCommand>(c =>
                 c.Orders.Count == 2 &&
@@ -121,8 +121,8 @@ public class BarbarianTickServiceTests
     public async Task AutoTrain_SkipsWhenAtMax()
     {
         var village = MakeBarbarian(new Troops(
-            BarbarianConfig.MaxTroops.Swordsmen,
-            BarbarianConfig.MaxTroops.Archers));
+            BarbarianConfig.MaxTroops.Get(TroopType.Swordsman),
+            BarbarianConfig.MaxTroops.Get(TroopType.Archer)));
         _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
         await _service.ExecuteAsync(Ct);

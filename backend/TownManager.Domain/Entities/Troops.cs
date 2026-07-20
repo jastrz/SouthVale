@@ -2,46 +2,52 @@ using TownManager.Domain.Enums;
 
 namespace TownManager.Domain.Entities;
 
-/// <summary>
-/// Troop counts for a single village or army group.
-/// Immutable by design — use Add/Subtract to produce new instances.
-/// </summary>
 public class Troops
 {
-    public int Swordsmen { get; private set; }
-    public int Archers { get; private set; }
-    public int Settlers { get; private set; }
-
-    public int TotalCount => Swordsmen + Archers + Settlers;
+    public Dictionary<TroopType, int> Counts { get; set; } = [];
 
     public static Troops Zero => new();
 
-    public Troops(int swordsmen = 0, int archers = 0, int settlers = 0)
+    public Troops() { }
+
+    public Troops(int swordsmen = 0, int archers = 0, int settlers = 0,
+        int dogs = 0, int horsemen = 0, int llamaRiders = 0)
     {
-        Swordsmen = swordsmen;
-        Archers = archers;
-        Settlers = settlers;
+        if (swordsmen > 0) Counts[TroopType.Swordsman] = swordsmen;
+        if (archers > 0) Counts[TroopType.Archer] = archers;
+        if (settlers > 0) Counts[TroopType.Settler] = settlers;
+        if (dogs > 0) Counts[TroopType.Dogs] = dogs;
+        if (horsemen > 0) Counts[TroopType.Horsemen] = horsemen;
+        if (llamaRiders > 0) Counts[TroopType.LlamaRiders] = llamaRiders;
     }
 
-    private Troops() { }
+    public int TotalCount => Counts.Values.Sum();
+    public bool IsEmpty() => Counts.All(kv => kv.Value <= 0);
 
-    public Troops Add(Troops other) =>
-        new(Swordsmen + other.Swordsmen, Archers + other.Archers, Settlers + other.Settlers);
+    public int Get(TroopType t) => Counts.GetValueOrDefault(t);
 
-    public Troops Add(TroopType type, int count) => type switch
+    public Troops Add(TroopType type, int count)
     {
-        TroopType.Swordsman => new Troops(Swordsmen + count, Archers, Settlers),
-        TroopType.Archer    => new Troops(Swordsmen, Archers + count, Settlers),
-        TroopType.Settler   => new Troops(Swordsmen, Archers, Settlers + count),
-        _ => throw new ArgumentOutOfRangeException(nameof(type), $"Unknown troop type: {type}")
-    };
+        var next = new Troops { Counts = new(Counts) { [type] = Get(type) + count } };
+        return next;
+    }
 
-    public Troops Subtract(Troops other) =>
-        new(Swordsmen - other.Swordsmen, Archers - other.Archers, Settlers - other.Settlers);
+    public Troops Add(Troops other)
+    {
+        var d = new Dictionary<TroopType, int>(Counts);
+        foreach (var (t, c) in other.Counts)
+            d[t] = d.GetValueOrDefault(t) + c;
+        return new Troops { Counts = d };
+    }
+
+    public Troops Subtract(Troops other)
+    {
+        var d = new Dictionary<TroopType, int>(Counts);
+        foreach (var (t, c) in other.Counts)
+            d[t] = Math.Max(0, d.GetValueOrDefault(t) - c);
+        return new Troops { Counts = d };
+    }
 
     public bool HasEnough(Troops required) =>
-        Swordsmen >= required.Swordsmen && Archers >= required.Archers && Settlers >= required.Settlers;
-
-    public bool IsEmpty() => Swordsmen == 0 && Archers == 0 && Settlers == 0;
-
+        required.Counts.All(kv => Get(kv.Key) >= kv.Value);
 }

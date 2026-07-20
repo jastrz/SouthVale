@@ -25,6 +25,9 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
         foreach (var entry in request.Orders)
         {
             var config = TroopsConfig.Get(entry.TroopType);
+            var hasBuilding = village.Buildings.Any(b => b.Type == config.TrainedAt && b.Level >= 1);
+            if (!hasBuilding)
+                return Result.Failure([$"{config.TrainedAt} required to train {entry.TroopType}"]);
             totalCost = totalCost.Add(config.TrainingCost.Multiply(entry.Count));
         }
 

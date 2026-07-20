@@ -628,21 +628,16 @@ namespace TownManager.Infrastructure.Migrations
 
                     b.OwnsOne("TownManager.Domain.Entities.Troops", "Troops", b1 =>
                         {
-                            b1.Property<Guid>("TroopMovementId");
+                            b1.Property<Guid>("TroopMovementId")
+                                .HasColumnType("uuid");
 
-                            b1.Property<int>("Archers");
-
-                            b1.Property<int>("Settlers");
-
-                            b1.Property<int>("Swordsmen");
+                            b1.Property<string>("Counts")
+                                .IsRequired()
+                                .HasColumnType("jsonb");
 
                             b1.HasKey("TroopMovementId");
 
                             b1.ToTable("TroopMovements");
-
-                            b1
-                                .ToJson("Troops")
-                                .HasColumnType("jsonb");
 
                             b1.WithOwner()
                                 .HasForeignKey("TroopMovementId");
@@ -698,17 +693,9 @@ namespace TownManager.Infrastructure.Migrations
                             b1.Property<Guid>("VillageId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<int>("Archers")
-                                .HasColumnType("integer")
-                                .HasColumnName("Archers");
-
-                            b1.Property<int>("Settlers")
-                                .HasColumnType("integer")
-                                .HasColumnName("Settler");
-
-                            b1.Property<int>("Swordsmen")
-                                .HasColumnType("integer")
-                                .HasColumnName("Swordsmen");
+                            b1.Property<string>("Counts")
+                                .IsRequired()
+                                .HasColumnType("jsonb");
 
                             b1.HasKey("VillageId");
 

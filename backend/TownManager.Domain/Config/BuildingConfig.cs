@@ -58,6 +58,7 @@ public static class BuildingConfig
     private static Dictionary<BuildingType, List<BuildingLevelConfig>> LoadFromCsv()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "csv", "buildings.csv");
+        if (!File.Exists(path)) return [];
         var lines = File.ReadAllLines(path);
         var result = new Dictionary<BuildingType, List<BuildingLevelConfig>>();
         var currentType = (BuildingType)(-1);

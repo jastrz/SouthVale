@@ -2,6 +2,7 @@ using MediatR;
 using TownManager.Application.Common;
 using TownManager.Application.Dtos;
 using TownManager.Application.Interfaces;
+using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Villages.Queries;
 
@@ -40,7 +41,7 @@ public class GetCurrentUserMovementsQueryHandler(
             m.DepartureAt,
             m.ArrivesAt,
             m.CompletedAt,
-            new TroopsDto(m.Troops.Swordsmen, m.Troops.Archers, m.Troops.Settlers),
+            new TroopsDto(m.Troops.Get(TroopType.Swordsman), m.Troops.Get(TroopType.Archer), m.Troops.Get(TroopType.Settler), m.Troops.Get(TroopType.Dogs), m.Troops.Get(TroopType.Horsemen), m.Troops.Get(TroopType.LlamaRiders)),
             m.CarriedResources is { } r
                 ? new ResourcesDto((int)r.Wood, (int)r.Clay, (int)r.Iron, (int)r.Beer)
                 : null,

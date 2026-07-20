@@ -201,7 +201,7 @@ You are a player in browser strategy game. Your personality: {bot.BotPersonality
 Village {i + 1}: "{v.Name}" (ID: {v.Id})
   Location: ({v.Coordinates.X}, {v.Coordinates.Y})
   Resources: {(int)current.Wood}W {(int)current.Clay}C {(int)current.Iron}I {(int)current.Beer}B
-  Troops: {v.Troops.Swordsmen}S {v.Troops.Archers}A {v.Troops.Settlers}St
+  Troops: {v.Troops.Get(TroopType.Swordsman)}S {v.Troops.Get(TroopType.Archer)}A {v.Troops.Get(TroopType.Settler)}St
   Buildings: {buildings}
   Build queue: {(buildOrders.Length > 0 ? buildOrders : "empty")}
   Train queue: {(trainOrders.Length > 0 ? trainOrders : "empty")}
