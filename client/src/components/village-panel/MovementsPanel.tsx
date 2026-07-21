@@ -11,7 +11,7 @@ function troopLabel(m: MovementDto): string {
   if (t.settlers > 0) parts.push(`${t.settlers} Settlers`);
   if (t.dogs > 0) parts.push(`${t.dogs} Dogs`);
   if (t.horsemen > 0) parts.push(`${t.horsemen} Horsemen`);
-  if (t.llamariders > 0) parts.push(`${t.llamariders} Llama Riders`);
+  if (t.llamaRiders > 0) parts.push(`${t.llamaRiders} Llama Riders`);
   return parts.join(", ") || "No troops";
 }
 

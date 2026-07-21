@@ -70,7 +70,7 @@ export function TroopsPanel({
       .filter(([, cfg]) => buildings.some(b => b.type === cfg.trainedAt && b.level >= 1));
 
   const troopCount = (type: string) =>
-    ({ Swordsman: troops.swordsmen, Archer: troops.archers, Settler: troops.settlers, Dogs: troops.dogs, Horsemen: troops.horsemen, LlamaRiders: troops.llamariders } as Record<string, number>)[type] ?? 0;
+    ({ Swordsman: troops.swordsmen, Archer: troops.archers, Settler: troops.settlers, Dogs: troops.dogs, Horsemen: troops.horsemen, LlamaRiders: troops.llamaRiders } as Record<string, number>)[type] ?? 0;
 
   const maxFor = (type: string): number => {
     const unitCost = gameConfig?.troops[type]?.trainingCost;

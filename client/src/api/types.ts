@@ -107,7 +107,7 @@ export interface TroopsDto {
   settlers: number;
   dogs: number;
   horsemen: number;
-  llamariders: number;
+  llamaRiders: number;
 }
 
 export interface BuildingDto {

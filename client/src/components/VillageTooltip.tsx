@@ -92,6 +92,12 @@ function PlayerVillageInfoBody({ village }: { village: OwnVillage }) {
         <span className="text-right">{troops.archers}</span>
         <span className="text-slate-400">Settlers</span>
         <span className="text-right">{troops.settlers}</span>
+        <span className="text-slate-400">Dogs</span>
+        <span className="text-right">{troops.dogs}</span>
+        <span className="text-slate-400">Horsemen</span>
+        <span className="text-right">{troops.horsemen}</span>
+        <span className="text-slate-400">Llama Riders</span>
+        <span className="text-right">{troops.llamaRiders}</span>
       </div>
     </>
   );
