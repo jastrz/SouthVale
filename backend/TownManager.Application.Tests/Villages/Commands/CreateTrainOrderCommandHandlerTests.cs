@@ -97,6 +97,43 @@ public class CreateTrainOrderCommandHandlerTests
     }
 
     [Fact]
+    public async Task SingleSettler_CostScalesWithVillageCount()
+    {
+        var village = CreateVillage();
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.CountByPlayerAsync(village.PlayerId, CancellationToken.None).Returns(3);
+
+        var result = await _handler.Handle(
+            new(village.Id, [new(TroopType.Settler, 1)]), CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        var expectedDeduction = 800; // 200 × 2^(3+0-1)=4
+        village.Resources.Wood.Should().Be(99999 - expectedDeduction);
+        village.Resources.Clay.Should().Be(99999 - expectedDeduction);
+        village.Resources.Iron.Should().Be(99999 - expectedDeduction);
+        village.Resources.Beer.Should().Be(99999 - expectedDeduction);
+    }
+
+    [Fact]
+    public async Task BatchSettlers_CostGeometric()
+    {
+        var village = CreateVillage();
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.CountByPlayerAsync(village.PlayerId, CancellationToken.None).Returns(1);
+
+        var result = await _handler.Handle(
+            new(village.Id, [new(TroopType.Settler, 3)]), CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        // 1 village, 0 settlers → k=0, total=2^0×(2^3-1)=7 → 200×7=1400
+        var expectedDeduction = 1400;
+        village.Resources.Wood.Should().Be(99999 - expectedDeduction);
+        village.Resources.Clay.Should().Be(99999 - expectedDeduction);
+        village.Resources.Iron.Should().Be(99999 - expectedDeduction);
+        village.Resources.Beer.Should().Be(99999 - expectedDeduction);
+    }
+
+    [Fact]
     public async Task Success_SavesAndSchedules()
     {
         var village = CreateVillage();

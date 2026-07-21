@@ -50,6 +50,6 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
             )
         );
 
-        return new GameConfigDto(buildings, troops);
+        return new GameConfigDto(buildings, troops, MapConfig.MaxVillagesPerPlayer);
     }
 }

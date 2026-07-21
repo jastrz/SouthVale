@@ -5,6 +5,7 @@ import {
 } from "../../store/gameStateStore";
 import {
   useVillage,
+  useMyVillages,
   useBuild,
   useTrain,
   useAttack,
@@ -56,6 +57,7 @@ function VillagePanelInner({
 }) {
   const { data: village, isLoading, isError, error } = useVillage(villageId);
   const { data: config } = useGameConfig();
+  const { data: myVillages } = useMyVillages();
   const troopSpeeds = config?.troops
     ? Object.fromEntries(Object.entries(config.troops).map(([k, v]) => [k, v.speed]))
     : undefined;
@@ -122,6 +124,10 @@ function VillagePanelInner({
             troops={village.troops}
             buildings={village.buildings}
             mutation={trainMutation}
+            villageCount={myVillages?.length ?? 1}
+            settlersInTraining={village.trainOrders
+              .filter(o => o.troopType === "Settler")
+              .reduce((sum, o) => sum + o.amount - o.completed, 0)}
           />
         </CollapsibleSection>
       )}
@@ -149,6 +155,8 @@ function VillagePanelInner({
             targetX={selectedTile.x}
             targetY={selectedTile.y}
             settlers={village.troops.settlers}
+            villageCount={myVillages?.length ?? 1}
+            maxVillages={config?.maxVillagesPerPlayer ?? 8}
             mutation={settleMutation}
             onClearTarget={() => setSelectedTile(null)}
           />

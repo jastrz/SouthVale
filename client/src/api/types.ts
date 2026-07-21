@@ -101,6 +101,7 @@ export interface TroopConfigDto {
 export interface GameConfigDto {
   buildings: Record<string, BuildingLevelConfigDto[]>;
   troops: Record<string, TroopConfigDto>;
+  maxVillagesPerPlayer: number;
 }
 
 export interface TroopsDto {

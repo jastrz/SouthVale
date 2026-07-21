@@ -104,7 +104,7 @@ function BuildingTooltip({
           <ResourceCost value={nextConfig.upgradeCost} />
           <div className="border-t border-slate-700 pt-1" />
           <div className="text-slate-300">
-            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime) / buildSpeedMultiplier)}{buildSpeedMultiplier > 1 && <span className="text-green-400"> (×{buildSpeedMultiplier})</span>}
+            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime) / buildSpeedMultiplier)}{buildSpeedMultiplier > 1 && <span className="text-green-400"> ({buildSpeedMultiplier}x build speed)</span>}
           </div>
           <div className="border-t border-slate-700 pt-1" />
           {nextConfig.warehouseCapacity > 0 && (

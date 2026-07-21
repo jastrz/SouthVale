@@ -1,5 +1,4 @@
 using FluentValidation;
-using TownManager.Domain.Entities;
 
 namespace TownManager.Application.Villages.Commands;
 

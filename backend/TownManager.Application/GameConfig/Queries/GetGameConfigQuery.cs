@@ -33,5 +33,6 @@ public record TroopConfigDto(
 
 public record GameConfigDto(
     Dictionary<string, List<BuildingLevelConfigDto>> Buildings,
-    Dictionary<string, TroopConfigDto> Troops
+    Dictionary<string, TroopConfigDto> Troops,
+    int MaxVillagesPerPlayer
 );

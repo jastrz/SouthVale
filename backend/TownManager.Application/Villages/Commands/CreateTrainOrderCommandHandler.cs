@@ -4,6 +4,7 @@ using TownManager.Application.Interfaces;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
+using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Villages.Commands;
 
@@ -20,6 +21,11 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
         village.ApplyProduction(effects);
 
+        var villageCount = await repo.CountByPlayerAsync(village.PlayerId, ct);
+
+        var existingSettlers = village.Troops.Get(TroopType.Settler)
+            + village.TrainOrders.Where(o => o.Type == TroopType.Settler).Sum(o => o.Amount - o.Completed);
+
         var totalCost = Resources.Zero;
 
         foreach (var entry in request.Orders)
@@ -28,7 +34,22 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
             var hasBuilding = village.Buildings.Any(b => b.Type == config.TrainedAt && b.Level >= 1);
             if (!hasBuilding)
                 return Result.Failure([$"{config.TrainedAt} required to train {entry.TroopType}"]);
-            totalCost = totalCost.Add(config.TrainingCost.Multiply(entry.Count));
+
+            Resources cost;
+            if (entry.TroopType == TroopType.Settler)
+            {
+                // geometric series: each settler ×2 more than previous
+                var k = villageCount + existingSettlers - 1;
+                var totalMultiplier = (int)(Math.Pow(2, k) * (Math.Pow(2, entry.Count) - 1));
+                cost = config.TrainingCost.Multiply(Math.Max(entry.Count, totalMultiplier));
+            }
+            else
+            {
+                cost = config.TrainingCost.Multiply(entry.Count);
+            }
+            totalCost = totalCost.Add(cost);
+            if (entry.TroopType == TroopType.Settler)
+                existingSettlers += entry.Count;
         }
 
         if (!village.Resources.CanAfford(totalCost))
