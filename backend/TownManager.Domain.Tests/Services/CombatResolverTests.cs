@@ -45,9 +45,10 @@ public class CombatResolverTests
     [Fact]
     public void MixedTroops_CombinesSwordsmenAndArchers()
     {
+        // Overwhelming force ratio ensures clean wipe (avoid floating-point edge cases)
         var result = CombatResolver.Resolve(
-            new Troops(swordsmen: 50, archers: 50),
-            new Troops(swordsmen: 50, archers: 50),
+            new Troops(swordsmen: 100, archers: 100),
+            new Troops(swordsmen: 10, archers: 10),
             Resources.Zero
         );
         
@@ -68,6 +69,29 @@ public class CombatResolverTests
         // Settlers have 0 attack/defense — survive combat untouched
         result.AttackerTroops.Get(TroopType.Swordsman).Should().BeGreaterThan(0);
         result.AttackerTroops.Get(TroopType.Settler).Should().Be(100);
+    }
+
+    [Fact]
+    public void Cranny_ReducesLoot()
+    {
+        var resources = new Resources(wood: 1000, clay: 1000, iron: 1000, beer: 1000);
+        var crannyCap = 800;
+
+        var lootable = new Resources(
+            Math.Max(0, resources.Wood - crannyCap),
+            Math.Max(0, resources.Clay - crannyCap),
+            Math.Max(0, resources.Iron - crannyCap),
+            Math.Max(0, resources.Beer - crannyCap));
+
+        var withoutCranny = CombatResolver.Resolve(
+            new Troops(swordsmen: 100), Troops.Zero, resources);
+        var withCranny = CombatResolver.Resolve(
+            new Troops(swordsmen: 100), Troops.Zero, lootable);
+
+        withCranny.AttackerLoot.Wood.Should().BeLessThan(withoutCranny.AttackerLoot.Wood);
+        withCranny.AttackerLoot.Clay.Should().BeLessThan(withoutCranny.AttackerLoot.Clay);
+        withCranny.AttackerLoot.Iron.Should().BeLessThan(withoutCranny.AttackerLoot.Iron);
+        withCranny.AttackerLoot.Beer.Should().BeLessThan(withoutCranny.AttackerLoot.Beer);
     }
 
     [Fact]

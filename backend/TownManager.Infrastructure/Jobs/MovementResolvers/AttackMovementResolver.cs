@@ -67,7 +67,15 @@ public class AttackMovementResolver(
         targetVillage.ApplyProduction(effects);
 
         var originalDefenders = targetVillage.Troops;
-        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, targetVillage.Resources);
+        var crannyCap = effects.CrannyCapacity;
+        var lootable = crannyCap > 0
+            ? new Resources(
+                Math.Max(0, targetVillage.Resources.Wood - crannyCap),
+                Math.Max(0, targetVillage.Resources.Clay - crannyCap),
+                Math.Max(0, targetVillage.Resources.Iron - crannyCap),
+                Math.Max(0, targetVillage.Resources.Beer - crannyCap))
+            : targetVillage.Resources;
+        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, lootable);
 
         targetVillage.Troops = combatResult.DefenderTroops;
         targetVillage.Resources = targetVillage.Resources.Subtract(combatResult.AttackerLoot);
