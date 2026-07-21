@@ -33,9 +33,11 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
             ? village.BuildOrders.Max(o => o.CompletesAt)
             : DateTime.UtcNow;
 
-        var order = BuildOrder.Create(cmd.BuildingType, nextLevel, config.UpgradeTime);
+        var adjustedTime = TimeSpan.FromTicks((long)(config.UpgradeTime.Ticks / effects.BuildSpeedMultiplier));
+
+        var order = BuildOrder.Create(cmd.BuildingType, nextLevel, adjustedTime);
         order.StartsAt = queueStartTime;
-        order.CompletesAt = queueStartTime.Add(config.UpgradeTime);
+        order.CompletesAt = queueStartTime.Add(adjustedTime);
         village.BuildOrders.Add(order);
 
         await repo.SaveChangesAsync(ct);
@@ -43,7 +45,7 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
         VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "build",
             new { cmd.BuildingType, Level = nextLevel });
 
-        order.JobId = scheduler.ScheduleBuildOrderResolution(order.Id, config.UpgradeTime);
+        order.JobId = scheduler.ScheduleBuildOrderResolution(order.Id, adjustedTime);
         
         await repo.SaveChangesAsync(ct);
 

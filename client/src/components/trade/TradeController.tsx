@@ -28,7 +28,7 @@ export function TradeController({ villageId }: { villageId: string }) {
         }}
         className="mx-4 mb-2 mt-2 cursor-pointer rounded border border-amber-700 bg-amber-950/30 px-3 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-900/50"
       >
-        Trade (Lv.{tradePost.level})
+        Trade
       </button>
 
       <dialog

@@ -9,6 +9,7 @@ export const BUILDING_ORDER = [
   "Wall",
   "Cranny",
   "TradePost",
+  "TownHall",
 ] as const;
 
 export const BUILDING_LABELS: Record<string, string> = {
@@ -22,6 +23,7 @@ export const BUILDING_LABELS: Record<string, string> = {
   Wall: "Wall",
   Cranny: "Cranny",
   TradePost: "Trade Post",
+  TownHall: "Town Hall",
 };
 
 export const BUILDING_DESCRIPTIONS: Record<string, string> = {
@@ -35,6 +37,7 @@ export const BUILDING_DESCRIPTIONS: Record<string, string> = {
   Wall: "Defends village",
   Cranny: "Hides resources from attackers",
   TradePost: "Improves trade rates",
+  TownHall: "Speeds up construction",
 };
 
 export const TROOP_LABELS: Record<string, string> = {

@@ -31,7 +31,8 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
                 l.Effects.TrainingSpeedMultiplier,
                 l.Effects.DefenseMultiplier,
                 l.Effects.CrannyCapacity,
-                l.Effects.TradeRate
+                l.Effects.TradeRate,
+                l.Effects.BuildSpeedMultiplier
             )).ToList()
         );
 

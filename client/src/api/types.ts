@@ -8,7 +8,8 @@ export type BuildingType =
   | "Stable"
   | "Wall"
   | "Cranny"
-  | "TradePost";
+  | "TradePost"
+  | "TownHall";
 
 export type TroopType = "Swordsman" | "Archer" | "Settler" | "Dogs" | "Horsemen" | "LlamaRiders";
 
@@ -83,6 +84,7 @@ export interface BuildingLevelConfigDto {
   defenseMultiplier: number;
   crannyCapacity: number;
   tradeRate: number;
+  buildSpeedMultiplier: number;
 }
 
 export interface TroopConfigDto {

@@ -107,6 +107,7 @@ function VillagePanelInner({
           buildings={village.buildings}
           buildOrders={village.buildOrders}
           mutation={buildMutation}
+          resources={village.resources}
         />
       </CollapsibleSection>
       {hasBarracks && (

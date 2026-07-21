@@ -16,7 +16,8 @@ public record BuildingLevelConfigDto(
     double TrainingSpeedMultiplier,
     double DefenseMultiplier,
     int CrannyCapacity,
-    double TradeRate
+    double TradeRate,
+    double BuildSpeedMultiplier
 );
 
 public record TroopConfigDto(

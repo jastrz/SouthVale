@@ -150,6 +150,9 @@ function BuildingTable({
                   {l.tradeRate < 1 && (
                     <span>Trade: {l.tradeRate}x</span>
                   )}
+                  {l.buildSpeedMultiplier > 1 && (
+                    <span>Build Speed: {l.buildSpeedMultiplier}x</span>
+                  )}
                 </div>
               </td>
             </tr>

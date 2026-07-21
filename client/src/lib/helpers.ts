@@ -25,19 +25,24 @@ export const BUILDING_ICONS: Record<string, string> = {
   Wall: "/icons/buildings/wall.png",
   Cranny: "/icons/buildings/cranny.png",
   TradePost: "/icons/buildings/trade_post.png",
+  TownHall: "/icons/buildings/town_hall.png",
 };
 
 export function parseTimeSpanMs(ts: string): number {
-  const [h, m, s] = ts.split(":").map(Number);
-  return ((h || 0) * 3600 + (m || 0) * 60 + (s || 0)) * 1000;
+  const days = ts.includes(".") ? Number(ts.split(".")[0]) : 0;
+  const timePart = ts.includes(".") ? ts.split(".")[1] : ts;
+  const [h, m, s] = timePart.split(":").map(Number);
+  return ((days * 86400 + (h || 0) * 3600 + (m || 0) * 60 + (s || 0)) * 1000);
 }
 
 export function formatTime(ms: number): string {
   if (ms <= 0) return "Complete!";
   const totalSec = Math.ceil(ms / 1000);
-  const h = Math.floor(totalSec / 3600);
+  const d = Math.floor(totalSec / 86400);
+  const h = Math.floor((totalSec % 86400) / 3600);
   const m = Math.floor((totalSec % 3600) / 60);
   const s = totalSec % 60;
+  if (d > 0) return `${d}d ${h}h`;
   if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
   if (m > 0) return `${m}m ${s.toString().padStart(2, "0")}s`;
   return `${s}s`;

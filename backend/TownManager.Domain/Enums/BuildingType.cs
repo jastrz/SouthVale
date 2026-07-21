@@ -15,5 +15,6 @@ public enum BuildingType
     Stable = 7,
     Wall = 8,
     Cranny = 9,
-    TradePost = 10
+    TradePost = 10,
+    TownHall = 11
 }

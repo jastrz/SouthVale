@@ -13,6 +13,7 @@ public record BuildingEffects
     public double DefenseMultiplier { get; init; } = 1.0;
     public int CrannyCapacity { get; init; } = 0;
     public double TradeRate { get; init; } = 1.0;
+    public double BuildSpeedMultiplier { get; init; } = 1.0;
 
     public BuildingEffects(
         Resources? productionPerHour = null,
@@ -21,7 +22,8 @@ public record BuildingEffects
         double trainingSpeedMultiplier = 1.0,
         double defenseMultiplier = 1.0,
         int crannyCapacity = 0,
-        double tradeRate = 1.0)
+        double tradeRate = 1.0,
+        double buildSpeedMultiplier = 1.0)
     {
         ProductionPerHour = productionPerHour ?? Resources.Zero;
         WarehouseCapacity = warehouseCapacity;
@@ -30,6 +32,7 @@ public record BuildingEffects
         DefenseMultiplier = defenseMultiplier;
         CrannyCapacity = crannyCapacity;
         TradeRate = tradeRate;
+        BuildSpeedMultiplier = buildSpeedMultiplier;
     }
 }
 
@@ -53,8 +56,8 @@ public static class BuildingConfig
 
     // parses csv/buildings.csv into Levels.
     // I = parse int (empty → 0), M = parse double (empty → 1, for multipliers)
-    // csv columns: Building,Level, CostW,CostC,CostI,CostB, Time, ProdW,ProdC,ProdB,ProdBe, WhCap,GrCap,TrainM,DefM,CrCap,Rate,Score
-    //                         [0]   [1]   [2]   [3]   [4]   [5]  [6]   [7]   [8]   [9]  [10]  [11]  [12]  [13]  [14] [15]  [16]  [17]
+    // csv columns: Building,Level, CostW,CostC,CostI,CostB, Time, ProdW,ProdC,ProdB,ProdBe, WhCap,GrCap,TrainM,DefM,CrCap,Rate,BuildSpd,Score
+    //                         [0]   [1]   [2]   [3]   [4]   [5]  [6]   [7]   [8]   [9]  [10]  [11]  [12]  [13]  [14] [15]  [16]  [17]    [18]
     private static Dictionary<BuildingType, List<BuildingLevelConfig>> LoadFromCsv()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "csv", "buildings.csv");
@@ -92,7 +95,8 @@ public static class BuildingConfig
                 trainingSpeedMultiplier: M(parts[13]),
                 defenseMultiplier: M(parts[14]),
                 crannyCapacity: I(parts[15]),
-                tradeRate: M(parts[16]));
+                tradeRate: M(parts[16]),
+                buildSpeedMultiplier: parts.Length > 17 ? M(parts[17]) : 1.0);
 
             currentList!.Add(new BuildingLevelConfig(level, cost, upgradeTime, effects));
         }
@@ -123,6 +127,7 @@ public static class BuildingConfig
                     DefenseMultiplier = acc.DefenseMultiplier * e.DefenseMultiplier,
                     CrannyCapacity = acc.CrannyCapacity + e.CrannyCapacity,
                     TradeRate = acc.TradeRate * e.TradeRate,
+                    BuildSpeedMultiplier = acc.BuildSpeedMultiplier * e.BuildSpeedMultiplier,
                 };
             });
 }

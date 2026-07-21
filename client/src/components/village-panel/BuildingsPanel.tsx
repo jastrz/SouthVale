@@ -4,16 +4,15 @@ import type {
   BuildingType,
   BuildRequest,
   BuildingLevelConfigDto,
+  ResourcesDto,
 } from "../../api/types";
 import {
   formatTime,
-  timeRemaining,
   parseTimeSpanMs,
   RESOURCE_ICONS,
   BUILDING_ICONS,
 } from "../../lib/helpers";
 import { ResourceCost } from "./ResourceCost";
-import { useTick } from "../../hooks/useTick";
 import { useGameConfig } from "../../api/hooks/useQueries";
 import { Icon } from "../Icon";
 import { Tooltip } from "../Tooltip";
@@ -23,10 +22,12 @@ function BuildingTooltip({
   building,
   config,
   nextConfig,
+  buildSpeedMultiplier = 1,
 }: {
   building: { type: string; level: number };
   config: BuildingLevelConfigDto | undefined;
   nextConfig: BuildingLevelConfigDto | undefined;
+  buildSpeedMultiplier?: number;
 }) {
   const currentPerHour = config?.productionPerHour;
   const nextPerHour = nextConfig?.productionPerHour;
@@ -88,6 +89,11 @@ function BuildingTooltip({
           Trade Rate: {config!.tradeRate}x
         </div>
       )}
+      {config != null && (config.buildSpeedMultiplier > 1 || building.type === "TownHall") && (
+        <div className="text-slate-300">
+          Build Speed: {config.buildSpeedMultiplier}x
+        </div>
+      )}
       {nextConfig && (
         <>
           <div className="border-t border-slate-700 pt-1" />
@@ -98,7 +104,7 @@ function BuildingTooltip({
           <ResourceCost value={nextConfig.upgradeCost} />
           <div className="border-t border-slate-700 pt-1" />
           <div className="text-slate-300">
-            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime))}
+            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime) / buildSpeedMultiplier)}{buildSpeedMultiplier > 1 && <span className="text-green-400"> (×{buildSpeedMultiplier})</span>}
           </div>
           <div className="border-t border-slate-700 pt-1" />
           {nextConfig.warehouseCapacity > 0 && (
@@ -213,6 +219,17 @@ function BuildingTooltip({
               )}
             </div>
           )}
+          {(nextConfig.buildSpeedMultiplier > 1 || building.type === "TownHall") && (
+            <div className="text-slate-300">
+              Build Speed: {nextConfig.buildSpeedMultiplier}x
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{((nextConfig.buildSpeedMultiplier - config.buildSpeedMultiplier) * 100).toFixed(0)}%)
+                </span>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>
@@ -225,12 +242,16 @@ function BuildingCard({
   disabled,
   onUpgrade,
   maxLevel,
+  resources,
+  buildSpeedMultiplier = 1,
 }: {
   building: { id: string; type: string; level: number };
   orders: readonly { completesAt: string; targetLevel: number }[];
   disabled?: boolean;
   onUpgrade: () => void;
   maxLevel: number;
+  resources?: ResourcesDto;
+  buildSpeedMultiplier?: number;
 }) {
   const { data: config } = useGameConfig();
   const isNew = building.level === 0;
@@ -247,6 +268,13 @@ function BuildingCard({
   );
   const nextCfg = levels?.find((l) => l.level === (isNew ? 1 : highestQueued + 1));
 
+  const canAfford = !nextCfg || !resources || (
+    resources.wood >= nextCfg.upgradeCost.wood &&
+    resources.clay >= nextCfg.upgradeCost.clay &&
+    resources.iron >= nextCfg.upgradeCost.iron &&
+    resources.beer >= nextCfg.upgradeCost.beer
+  );
+
   return (
     <Tooltip
       content={
@@ -255,6 +283,7 @@ function BuildingCard({
             building={building}
             config={currentCfg}
             nextConfig={nextCfg}
+            buildSpeedMultiplier={buildSpeedMultiplier}
           />
         )
       }
@@ -275,12 +304,7 @@ function BuildingCard({
           </span>
           {nextOrder && (
               <div className="mt-0.5 flex items-center gap-2 text-slate-400">
-                <span>
-                  → {nextOrder.targetLevel}
-                </span>
-                <span className="text-yellow-400">
-                  {formatTime(timeRemaining(nextOrder.completesAt))}
-                </span>
+                <span>→ {nextOrder.targetLevel}</span>
                 {orders.length > 1 && (
                   <span className="text-[10px] text-slate-500">
                     +{orders.length - 1} more
@@ -292,7 +316,7 @@ function BuildingCard({
         <button
           type="button"
           onClick={onUpgrade}
-          disabled={disabled || building.level >= maxLevel}
+          disabled={disabled || building.level >= maxLevel || !canAfford}
           className="cursor-pointer rounded bg-blue-600 px-2.5 p-2 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
         >
           {disabled ? "..." : isNew ? "Build" : building.level >= maxLevel ? "Max" : "Upgrade"}
@@ -306,6 +330,7 @@ export function BuildingsPanel({
   buildings,
   buildOrders,
   mutation,
+  resources,
 }: {
   buildings: readonly { id: string; type: string; level: number }[];
   buildOrders: readonly {
@@ -314,11 +339,17 @@ export function BuildingsPanel({
     completesAt: string;
   }[];
   mutation: UseMutationResult<unknown, unknown, BuildRequest, unknown>;
+  resources?: ResourcesDto;
 }) {
-  useTick();
+  const { data: gameConfig } = useGameConfig();
 
   const byType = Object.fromEntries(buildings.map((b) => [b.type, b]));
   const maxLevels = useMaxLevels();
+
+  const townHall = buildings.find((b) => b.type === "TownHall");
+  const buildSpeedMultiplier = townHall && gameConfig
+    ? gameConfig.buildings["TownHall"]?.find((l) => l.level === townHall.level)?.buildSpeedMultiplier ?? 1
+    : 1;
 
   const allBuildings = BUILDING_ORDER.map((type) =>
     byType[type] ?? { id: `new-${type}`, type, level: 0 },
@@ -337,6 +368,8 @@ export function BuildingsPanel({
             orders={buildOrders.filter((o) => o.buildingType === b.type)}
             disabled={mutation.isPending}
             maxLevel={maxLevels[b.type] ?? 5}
+            resources={resources}
+            buildSpeedMultiplier={buildSpeedMultiplier}
             onUpgrade={() =>
               mutation.mutate({ buildingType: b.type as BuildingType })
             }
