@@ -95,6 +95,19 @@ public class CombatResolverTests
     }
 
     [Fact]
+    public void WallMultiplier_ReducesDefenderLosses()
+    {
+        var attackers = new Troops(swordsmen: 10);
+        var defenders = new Troops(swordsmen: 50);
+
+        var withoutWall = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0);
+        var withWall = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 2.0);
+
+        // 2x defense power → fewer defender casualties
+        withWall.DefenderTroops.TotalCount.Should().BeGreaterThan(withoutWall.DefenderTroops.TotalCount);
+    }
+
+    [Fact]
     public void TroopCounts_NeverNegative()
     {
         var result = CombatResolver.Resolve(

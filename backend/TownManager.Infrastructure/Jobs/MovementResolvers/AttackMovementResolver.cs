@@ -75,7 +75,9 @@ public class AttackMovementResolver(
                 Math.Max(0, targetVillage.Resources.Iron - crannyCap),
                 Math.Max(0, targetVillage.Resources.Beer - crannyCap))
             : targetVillage.Resources;
-        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, lootable);
+        
+        // walls boost defender combat power
+        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, lootable, effects.DefenseMultiplier);
 
         targetVillage.Troops = combatResult.DefenderTroops;
         targetVillage.Resources = targetVillage.Resources.Subtract(combatResult.AttackerLoot);

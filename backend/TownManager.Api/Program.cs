@@ -94,7 +94,6 @@ try
             }
         }
     }
-
     Log.Information("Starting application...");
     app.Run();
 }

@@ -8,10 +8,10 @@ public class CombatResolver
 {
     private const double K = 1.5;
 
-    public static CombatResult Resolve(Troops attackers, Troops defenders, Resources defenderResources)
+    public static CombatResult Resolve(Troops attackers, Troops defenders, Resources defenderResources, double defenseMultiplier = 1.0)
     {
         double attackPower = GetAttackPower(attackers);
-        double defensePower = GetDefensePower(defenders);
+        double defensePower = GetDefensePower(defenders) * defenseMultiplier; // wall building bonus
 
         var attackerLossRatio = Math.Pow(defensePower / attackPower, K);
         var defenderLossRatio = Math.Pow(attackPower / defensePower, K);
