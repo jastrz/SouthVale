@@ -14,6 +14,7 @@ import { VillageListItem } from "./VillageListItem";
 import { MovementsPanel } from "../village-panel/MovementsPanel";
 import { QueuePanel } from "../village-panel/QueuePanel";
 import { TransportController } from "../transport/TransportController";
+import { TradeController } from "../trade/TradeController";
 
 export function OverviewPanel() {
   const [openVillages, setOpenVillages] = useState(true);
@@ -136,6 +137,7 @@ export function OverviewPanel() {
             </CollapsibleSection>
           )}
           {activeVillageId && <TransportController villageId={activeVillageId} />}
+          {activeVillageId && <TradeController villageId={activeVillageId} />}
         </div>
       </div>
     </PanelContainer>

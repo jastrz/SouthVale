@@ -8,6 +8,7 @@ import {
   type AttackRequest,
   type TransportRequest,
   type SettleRequest,
+  type TradeRequest,
   type VillageListItemDto,
   type VillageDto,
   type PlayerVillageDto,
@@ -126,6 +127,18 @@ export const useTransport = (villageId: string) =>
       toast.success("Transport sent");
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["movements"] });
+    },
+    onError,
+  });
+
+export const useTrade = (villageId: string) =>
+  useMutation({
+    mutationFn: (data: TradeRequest) =>
+      api.post(`/gameplay/village/${villageId}/trade`, data),
+    onSuccess: () => {
+      toast.success("Trade complete");
+      queryClient.invalidateQueries({ queryKey: ["village", villageId] });
+      queryClient.invalidateQueries({ queryKey: ["villageStatus"] });
     },
     onError,
   });

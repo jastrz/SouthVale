@@ -228,6 +228,14 @@ export interface LeaderboardResult {
   totalCount: number;
 }
 
+export interface TradeRequest {
+  giveType: ResourceType;
+  giveAmount: number;
+  receiveType: ResourceType;
+}
+
+export type ResourceType = "Wood" | "Clay" | "Iron" | "Beer";
+
 export interface AddResourcesRequest {
   wood: number;
   clay: number;
