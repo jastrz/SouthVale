@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using TownManager.Application.Interfaces;
 using TownManager.Application.Barbarians;
 using TownManager.Application.Llm;
+using TownManager.Application.Map.Services;
 using TownManager.Domain.Config;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Jobs;

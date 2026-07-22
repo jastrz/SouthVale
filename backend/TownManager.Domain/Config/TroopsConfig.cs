@@ -40,7 +40,7 @@ public static class TroopsConfig
     //   CostWood,CostClay,CostIron,CostBrewery,TrainingTime,TrainedAt,Score
     private static Dictionary<TroopType, TroopConfig> LoadFromCsv()
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "csv", "troops.csv");
+        var path = Path.Combine(AppContext.BaseDirectory, "data", "troops.csv");
         var lines = File.ReadAllLines(path);
         var result = new Dictionary<TroopType, TroopConfig>();
 

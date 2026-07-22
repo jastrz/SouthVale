@@ -63,13 +63,13 @@ public static class BuildingConfig
         _ => throw new FormatException($"Unknown duration: {s}")
     };
 
-    // parses csv/buildings.csv into Levels.
+    // parses data/buildings.csv into Levels.
     // I = parse int (empty → 0), M = parse double (empty → 1, for multipliers)
     // csv columns: Building,Level, CostW,CostC,CostI,CostB, Time, ProdW,ProdC,ProdB,ProdBe, WhCap,GrCap,TrainM,DefM,CrCap,Rate,BuildSpd,AtkInf,AtkCav,Score,TrainInf,TrainCav
     //                         [0]   [1]   [2]   [3]   [4]   [5]  [6]   [7]   [8]   [9]  [10]  [11]  [12]  [13]  [14] [15]  [16]  [17]    [18]   [19]   [20]   [21]    [22]
     private static Dictionary<BuildingType, List<BuildingLevelConfig>> LoadFromCsv()
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "csv", "buildings.csv");
+        var path = Path.Combine(AppContext.BaseDirectory, "data", "buildings.csv");
         if (!File.Exists(path)) return [];
         var lines = File.ReadAllLines(path);
         var result = new Dictionary<BuildingType, List<BuildingLevelConfig>>();

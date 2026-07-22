@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="../csv/*.csv" Link="csv/%(RecursiveDir)%(Filename)%(Extension)">
+    <Content Include="../data/*" Link="data/%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Xunit;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Map.Services;
 using TownManager.Application.Villages.Commands;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
@@ -15,6 +16,7 @@ public class CreateSettleOrderHandlerTests
     private readonly IPlayerRepository _playerRepo;
     private readonly IGameNotificationService _notifications;
     private readonly IJobScheduler _scheduler;
+    private readonly IMapService _mapService;
     private readonly CreateSettleOrderCommandHandler _handler;
 
     public CreateSettleOrderHandlerTests()
@@ -23,7 +25,9 @@ public class CreateSettleOrderHandlerTests
         _playerRepo = Substitute.For<IPlayerRepository>();
         _notifications = Substitute.For<IGameNotificationService>();
         _scheduler = Substitute.For<IJobScheduler>();
-        _handler = new CreateSettleOrderCommandHandler(_repo, _playerRepo, _notifications, _scheduler);
+        _mapService = Substitute.For<IMapService>();
+        _mapService.IsWalkable(Arg.Any<Coordinates>()).Returns(true);
+        _handler = new CreateSettleOrderCommandHandler(_repo, _playerRepo, _notifications, _scheduler, _mapService);
     }
 
     [Fact]

@@ -29,6 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\data\**" CopyToOutputDirectory="PreserveNewest" LinkBase="data" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Watch Remove="logs\**" />
   </ItemGroup>
 

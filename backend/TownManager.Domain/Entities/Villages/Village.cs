@@ -44,6 +44,7 @@ public class Village : Entity
         LastTickAt = DateTime.UtcNow,
         Buildings =
         [
+            Building.Create(BuildingType.TownHall, 1),
             Building.Create(BuildingType.ClayPit,  1),
             Building.Create(BuildingType.IronMine,  1),
             Building.Create(BuildingType.Warehouse,  1),
@@ -66,10 +67,10 @@ public class Village : Entity
         return Cap(Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours)), effects);
     }
 
-private static Resources Cap(Resources r, BuildingEffects e) => new(
-    Math.Min(r.Wood, e.WarehouseCapacity),
-    Math.Min(r.Clay, e.WarehouseCapacity),
-    Math.Min(r.Iron, e.WarehouseCapacity),
-    Math.Min(r.Beer, e.WarehouseCapacity)
-);
+    private static Resources Cap(Resources r, BuildingEffects e) => new(
+        Math.Min(r.Wood, e.WarehouseCapacity),
+        Math.Min(r.Clay, e.WarehouseCapacity),
+        Math.Min(r.Iron, e.WarehouseCapacity),
+        Math.Min(r.Beer, e.WarehouseCapacity)
+    );
 }
