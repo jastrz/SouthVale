@@ -108,6 +108,54 @@ public class CombatResolverTests
     }
 
     [Fact]
+    public void BarracksAttackMultiplier_ReducesAttackerLosses()
+    {
+        var attackers = new Troops(swordsmen: 40);
+        var defenders = new Troops(swordsmen: 50);
+
+        var withoutBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0, barracksAttackMultiplier: 1.0);
+        var withBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0, barracksAttackMultiplier: 2.0);
+
+        withBonus.AttackerTroops.TotalCount.Should().BeGreaterThan(withoutBonus.AttackerTroops.TotalCount);
+    }
+
+    [Fact]
+    public void StableAttackMultiplier_ReducesAttackerLosses()
+    {
+        var attackers = new Troops(horsemen: 40);
+        var defenders = new Troops(horsemen: 50);
+
+        var withoutBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0, stableAttackMultiplier: 1.0);
+        var withBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0, stableAttackMultiplier: 2.0);
+
+        withBonus.AttackerTroops.TotalCount.Should().BeGreaterThan(withoutBonus.AttackerTroops.TotalCount);
+    }
+
+    [Fact]
+    public void BarracksMultiplier_DoesNotAffectStableTroops()
+    {
+        var attackers = new Troops(horsemen: 40);
+        var defenders = new Troops(horsemen: 50);
+
+        var withoutBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, barracksAttackMultiplier: 1.0, stableAttackMultiplier: 1.0);
+        var withBarracksBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, barracksAttackMultiplier: 2.0, stableAttackMultiplier: 1.0);
+
+        withBarracksBonus.AttackerTroops.TotalCount.Should().Be(withoutBonus.AttackerTroops.TotalCount);
+    }
+
+    [Fact]
+    public void StableMultiplier_DoesNotAffectBarracksTroops()
+    {
+        var attackers = new Troops(swordsmen: 40);
+        var defenders = new Troops(swordsmen: 50);
+
+        var withoutBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, barracksAttackMultiplier: 1.0, stableAttackMultiplier: 1.0);
+        var withStableBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, barracksAttackMultiplier: 1.0, stableAttackMultiplier: 2.0);
+
+        withStableBonus.AttackerTroops.TotalCount.Should().Be(withoutBonus.AttackerTroops.TotalCount);
+    }
+
+    [Fact]
     public void TroopCounts_NeverNegative()
     {
         var result = CombatResolver.Resolve(

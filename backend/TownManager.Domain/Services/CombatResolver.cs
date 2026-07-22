@@ -8,9 +8,9 @@ public class CombatResolver
 {
     private const double K = 1.5;
 
-    public static CombatResult Resolve(Troops attackers, Troops defenders, Resources defenderResources, double defenseMultiplier = 1.0)
+    public static CombatResult Resolve(Troops attackers, Troops defenders, Resources defenderResources, double defenseMultiplier = 1.0, double barracksAttackMultiplier = 1.0, double stableAttackMultiplier = 1.0)
     {
-        double attackPower = GetAttackPower(attackers);
+        double attackPower = GetAttackPower(attackers, barracksAttackMultiplier, stableAttackMultiplier);
         double defensePower = GetDefensePower(defenders) * defenseMultiplier; // wall building bonus
 
         var attackerLossRatio = Math.Pow(defensePower / attackPower, K);
@@ -36,7 +36,19 @@ public class CombatResolver
     private static double SumStat(Troops troops, Func<TroopConfig, int> stat) =>
         Enum.GetValues<TroopType>().Sum(t => troops.Get(t) * stat(TroopsConfig.Get(t)));
 
-    private static double GetAttackPower(Troops troops) => SumStat(troops, c => c.Stats.Attack);
+    private static double GetAttackPower(Troops troops, double barracksMult, double stableMult)
+    {
+        double total = 0;
+        foreach (TroopType t in Enum.GetValues<TroopType>())
+        {
+            var cnt = troops.Get(t);
+            if (cnt <= 0) continue;
+            var cfg = TroopsConfig.Get(t);
+            var mult = cfg.TrainedAt == BuildingType.Stable ? stableMult : barracksMult;
+            total += cnt * cfg.Stats.Attack * mult;
+        }
+        return total;
+    }
     private static double GetDefensePower(Troops troops) => SumStat(troops, c => c.Stats.Defense);
 
     private static Troops ApplyLosses(Troops troops, double lossRatio)

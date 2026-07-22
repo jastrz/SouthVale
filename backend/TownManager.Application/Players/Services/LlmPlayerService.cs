@@ -263,7 +263,8 @@ IMPORTANT:
                 sb.Append($" lv{l.Level}({c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Beer}Beer,{l.UpgradeTime.TotalMinutes:F0}m");
                 if (l.ProductionPerHour is { } p && p.Wood + p.Clay + p.Iron + p.Beer > 0)
                     sb.Append($" -> {(p.Wood > 0 ? $"+{p.Wood}Wood/h " : "")}{(p.Clay > 0 ? $"+{p.Clay}Clay/h " : "")}{(p.Iron > 0 ? $"+{p.Iron}Iron/h " : "")}{(p.Beer > 0 ? $"+{p.Beer}Beer/h" : "")}".TrimEnd());
-                if (l.TrainingSpeedMultiplier > 0) sb.Append($" train×{l.TrainingSpeedMultiplier}");
+                if (l.BarracksTrainingSpeed > 1) sb.Append($" train×{l.BarracksTrainingSpeed}");
+                if (l.StableTrainingSpeed > 1) sb.Append($" stable×{l.StableTrainingSpeed}");
                 sb.Append(')');
             }
             sb.AppendLine();

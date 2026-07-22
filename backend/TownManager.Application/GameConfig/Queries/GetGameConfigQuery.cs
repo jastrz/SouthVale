@@ -13,11 +13,14 @@ public record BuildingLevelConfigDto(
     int WarehouseCapacity,
     int GranaryCapacity,
     ResourcesDto? ProductionPerHour,
-    double TrainingSpeedMultiplier,
     double DefenseMultiplier,
     int CrannyCapacity,
     double TradeRate,
-    double BuildSpeedMultiplier
+    double BuildSpeedMultiplier,
+    double BarracksTrainingSpeed,
+    double StableTrainingSpeed,
+    double BarracksAttackMultiplier,
+    double StableAttackMultiplier
 );
 
 public record TroopConfigDto(

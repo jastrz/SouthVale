@@ -28,11 +28,14 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
                     (int)l.Effects.ProductionPerHour.Iron,
                     (int)l.Effects.ProductionPerHour.Beer
                 ),
-                l.Effects.TrainingSpeedMultiplier,
                 l.Effects.DefenseMultiplier,
                 l.Effects.CrannyCapacity,
                 l.Effects.TradeRate,
-                l.Effects.BuildSpeedMultiplier
+                l.Effects.BuildSpeedMultiplier,
+                l.Effects.BarracksTrainingSpeed,
+                l.Effects.StableTrainingSpeed,
+                l.Effects.BarracksAttackMultiplier,
+                l.Effects.StableAttackMultiplier
             )).ToList()
         );
 

@@ -36,7 +36,7 @@ function TroopTooltip({ config, cost }: { config: TroopConfigDto; cost: Resource
         <div className="text-slate-300">Carry:</div>
         <div className="text-white">{config.carryCapacity}</div>
 
-        <div className="text-slate-300">Speed:</div>
+        <div className="text-slate-300">Movement Speed:</div>
         <div className="text-white">{config.speed}</div>
 
         <div className="text-slate-300">Time:</div>

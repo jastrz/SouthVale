@@ -9,30 +9,39 @@ public record BuildingEffects
     public Resources ProductionPerHour { get; init; } = Resources.Zero;
     public int WarehouseCapacity { get; init; } = 0;
     public int GranaryCapacity { get; init; } = 0;
-    public double TrainingSpeedMultiplier { get; init; } = 1.0;
     public double DefenseMultiplier { get; init; } = 1.0;
     public int CrannyCapacity { get; init; } = 0;
     public double TradeRate { get; init; } = 1.0;
     public double BuildSpeedMultiplier { get; init; } = 1.0;
+    public double BarracksTrainingSpeed { get; init; } = 1.0;
+    public double StableTrainingSpeed { get; init; } = 1.0;
+    public double BarracksAttackMultiplier { get; init; } = 1.0;
+    public double StableAttackMultiplier { get; init; } = 1.0;
 
     public BuildingEffects(
         Resources? productionPerHour = null,
         int warehouseCapacity = 0,
         int granaryCapacity = 0,
-        double trainingSpeedMultiplier = 1.0,
         double defenseMultiplier = 1.0,
         int crannyCapacity = 0,
         double tradeRate = 1.0,
-        double buildSpeedMultiplier = 1.0)
+        double buildSpeedMultiplier = 1.0,
+        double barracksTrainingSpeed = 1.0,
+        double stableTrainingSpeed = 1.0,
+        double barracksAttackMultiplier = 1.0,
+        double stableAttackMultiplier = 1.0)
     {
         ProductionPerHour = productionPerHour ?? Resources.Zero;
         WarehouseCapacity = warehouseCapacity;
         GranaryCapacity = granaryCapacity;
-        TrainingSpeedMultiplier = trainingSpeedMultiplier;
         DefenseMultiplier = defenseMultiplier;
         CrannyCapacity = crannyCapacity;
         TradeRate = tradeRate;
         BuildSpeedMultiplier = buildSpeedMultiplier;
+        BarracksTrainingSpeed = barracksTrainingSpeed;
+        StableTrainingSpeed = stableTrainingSpeed;
+        BarracksAttackMultiplier = barracksAttackMultiplier;
+        StableAttackMultiplier = stableAttackMultiplier;
     }
 }
 
@@ -56,8 +65,8 @@ public static class BuildingConfig
 
     // parses csv/buildings.csv into Levels.
     // I = parse int (empty → 0), M = parse double (empty → 1, for multipliers)
-    // csv columns: Building,Level, CostW,CostC,CostI,CostB, Time, ProdW,ProdC,ProdB,ProdBe, WhCap,GrCap,TrainM,DefM,CrCap,Rate,BuildSpd,Score
-    //                         [0]   [1]   [2]   [3]   [4]   [5]  [6]   [7]   [8]   [9]  [10]  [11]  [12]  [13]  [14] [15]  [16]  [17]    [18]
+    // csv columns: Building,Level, CostW,CostC,CostI,CostB, Time, ProdW,ProdC,ProdB,ProdBe, WhCap,GrCap,TrainM,DefM,CrCap,Rate,BuildSpd,AtkInf,AtkCav,Score,TrainInf,TrainCav
+    //                         [0]   [1]   [2]   [3]   [4]   [5]  [6]   [7]   [8]   [9]  [10]  [11]  [12]  [13]  [14] [15]  [16]  [17]    [18]   [19]   [20]   [21]    [22]
     private static Dictionary<BuildingType, List<BuildingLevelConfig>> LoadFromCsv()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "csv", "buildings.csv");
@@ -92,11 +101,14 @@ public static class BuildingConfig
                 prod,
                 warehouseCapacity: I(parts[11]),
                 granaryCapacity: I(parts[12]),
-                trainingSpeedMultiplier: M(parts[13]),
                 defenseMultiplier: M(parts[14]),
                 crannyCapacity: I(parts[15]),
                 tradeRate: M(parts[16]),
-                buildSpeedMultiplier: parts.Length > 17 ? M(parts[17]) : 1.0);
+                buildSpeedMultiplier: parts.Length > 17 ? M(parts[17]) : 1.0,
+                barracksTrainingSpeed: parts.Length > 21 ? M(parts[21]) : 1.0,
+                stableTrainingSpeed: parts.Length > 22 ? M(parts[22]) : 1.0,
+                barracksAttackMultiplier: parts.Length > 18 ? M(parts[18]) : 1.0,
+                stableAttackMultiplier: parts.Length > 19 ? M(parts[19]) : 1.0);
 
             currentList!.Add(new BuildingLevelConfig(level, cost, upgradeTime, effects));
         }
@@ -123,11 +135,14 @@ public static class BuildingConfig
                     ProductionPerHour = acc.ProductionPerHour.Add(e.ProductionPerHour),
                     WarehouseCapacity = acc.WarehouseCapacity + e.WarehouseCapacity,
                     GranaryCapacity = acc.GranaryCapacity + e.GranaryCapacity,
-                    TrainingSpeedMultiplier = acc.TrainingSpeedMultiplier * e.TrainingSpeedMultiplier,
                     DefenseMultiplier = acc.DefenseMultiplier * e.DefenseMultiplier,
+                    BarracksTrainingSpeed = acc.BarracksTrainingSpeed * e.BarracksTrainingSpeed,
+                    StableTrainingSpeed = acc.StableTrainingSpeed * e.StableTrainingSpeed,
                     CrannyCapacity = acc.CrannyCapacity + e.CrannyCapacity,
                     TradeRate = acc.TradeRate * e.TradeRate,
                     BuildSpeedMultiplier = acc.BuildSpeedMultiplier * e.BuildSpeedMultiplier,
+                    BarracksAttackMultiplier = acc.BarracksAttackMultiplier * e.BarracksAttackMultiplier,
+                    StableAttackMultiplier = acc.StableAttackMultiplier * e.StableAttackMultiplier,
                 };
             });
 }

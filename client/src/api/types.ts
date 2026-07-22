@@ -80,11 +80,14 @@ export interface BuildingLevelConfigDto {
   warehouseCapacity: number;
   granaryCapacity: number;
   productionPerHour: ResourcesDto | null;
-  trainingSpeedMultiplier: number;
   defenseMultiplier: number;
   crannyCapacity: number;
   tradeRate: number;
   buildSpeedMultiplier: number;
+  barracksTrainingSpeed: number;
+  stableTrainingSpeed: number;
+  barracksAttackMultiplier: number;
+  stableAttackMultiplier: number;
 }
 
 export interface TroopConfigDto {

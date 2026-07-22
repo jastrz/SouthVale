@@ -40,7 +40,7 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
             {
                 // geometric series: each settler ×2 more than previous
                 var k = villageCount + existingSettlers - 1;
-                var totalMultiplier = (int)(Math.Pow(2, k) * (Math.Pow(2, entry.Count) - 1));
+                var totalMultiplier = (int)Math.Round(Math.Pow(2, k) * (Math.Pow(2, entry.Count) - 1));
                 cost = config.TrainingCost.Multiply(Math.Max(entry.Count, totalMultiplier));
             }
             else
@@ -65,10 +65,13 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
 
         foreach (var entry in request.Orders)
         {
+            var entryConfig = TroopsConfig.Get(entry.TroopType);
+            var speedMult = entryConfig.TrainedAt == BuildingType.Stable
+                ? effects.StableTrainingSpeed : effects.BarracksTrainingSpeed;
             var trainingTime = TroopsConfig.CalculateTrainingTime(
                 entry.TroopType,
                 entry.Count,
-                effects.TrainingSpeedMultiplier);
+                speedMult);
 
             var timePerUnit = trainingTime / entry.Count;
             var order = TrainOrder.Create(entry.TroopType, entry.Count, timePerUnit, queueStartTime);

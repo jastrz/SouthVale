@@ -69,9 +69,24 @@ function BuildingTooltip({
           )}
         </div>
       )}
-      {(config?.trainingSpeedMultiplier ?? 0) > 1 && (
+      {(config?.barracksTrainingSpeed ?? 0) > 1 && building.type === "Barracks" && (
         <div className="text-slate-300">
-          Training Speed: {config!.trainingSpeedMultiplier}x
+          Training Speed: {config!.barracksTrainingSpeed}x
+        </div>
+      )}
+      {(config?.stableTrainingSpeed ?? 0) > 1 && building.type === "Stable" && (
+        <div className="text-slate-300">
+          Training Speed: {config!.stableTrainingSpeed}x
+        </div>
+      )}
+      {(config?.barracksAttackMultiplier ?? 0) > 1 && building.type === "Barracks" && (
+        <div className="text-slate-300">
+          Infantry Attack: {config!.barracksAttackMultiplier}x (Empire-wide)
+        </div>
+      )}
+      {(config?.stableAttackMultiplier ?? 0) > 1 && building.type === "Stable" && (
+        <div className="text-slate-300">
+          Cavalry Attack: {config!.stableAttackMultiplier}x (Empire-wide)
         </div>
       )}
       {(config?.defenseMultiplier ?? 0) > 1 && (
@@ -81,7 +96,7 @@ function BuildingTooltip({
       )}
       {(config?.crannyCapacity ?? 0) > 0 && (
         <div className="text-slate-300">
-          Hides: {config!.crannyCapacity}
+          Hides: {config!.crannyCapacity} of each resource
         </div>
       )}
       {(config?.tradeRate ?? 1) < 1 && (
@@ -163,19 +178,58 @@ function BuildingTooltip({
               )}
             </div>
           )}
-          {nextConfig.trainingSpeedMultiplier > 1 && (
+          {nextConfig.barracksTrainingSpeed > 1 && building.type === "Barracks" && (
             <div className="text-slate-300">
-              Speed: {nextConfig.trainingSpeedMultiplier}x
+              Training Speed: {nextConfig.barracksTrainingSpeed}x
               {config && (
                 <span className="text-green-400">
                   {" "}
                   (+
                   {(
-                    (nextConfig.trainingSpeedMultiplier -
-                      config.trainingSpeedMultiplier) *
+                    (nextConfig.barracksTrainingSpeed -
+                      config.barracksTrainingSpeed) *
                     100
                   ).toFixed(0)}
                   %)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.stableTrainingSpeed > 1 && building.type === "Stable" && (
+            <div className="text-slate-300">
+              Training Speed: {nextConfig.stableTrainingSpeed}x
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+
+                  {(
+                    (nextConfig.stableTrainingSpeed -
+                      config.stableTrainingSpeed) *
+                    100
+                  ).toFixed(0)}
+                  %)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.barracksAttackMultiplier > 1 && building.type === "Barracks" && (
+            <div className="text-slate-300">
+              Infantry Attack: {nextConfig.barracksAttackMultiplier}x (Empire-wide)
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{((nextConfig.barracksAttackMultiplier - config.barracksAttackMultiplier) * 100).toFixed(0)}%)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.stableAttackMultiplier > 1 && building.type === "Stable" && (
+            <div className="text-slate-300">
+              Cavalry Attack: {nextConfig.stableAttackMultiplier}x (Empire-wide)
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{((nextConfig.stableAttackMultiplier - config.stableAttackMultiplier) * 100).toFixed(0)}%)
                 </span>
               )}
             </div>
@@ -214,7 +268,7 @@ function BuildingTooltip({
               {config && (
                 <span className="text-green-400">
                   {" "}
-                  ({((nextConfig.tradeRate - config.tradeRate) * 100).toFixed(0)}%)
+                  (+{((nextConfig.tradeRate - config.tradeRate) * 100).toFixed(0)}%)
                 </span>
               )}
             </div>

@@ -138,8 +138,17 @@ function BuildingTable({
                       Production: <CostIcons value={l.productionPerHour} perHour />
                     </span>
                   )}
-                  {l.trainingSpeedMultiplier > 1 && (
-                    <span>Training: {l.trainingSpeedMultiplier}x</span>
+                  {l.barracksTrainingSpeed > 1 && type === "Barracks" && (
+                    <span>Infantry Training: {l.barracksTrainingSpeed}x</span>
+                  )}
+                  {l.stableTrainingSpeed > 1 && type === "Stable" && (
+                    <span>Cavalry Training: {l.stableTrainingSpeed}x</span>
+                  )}
+                  {l.barracksAttackMultiplier > 1 && type === "Barracks" && (
+                    <span>Infantry Attack: {l.barracksAttackMultiplier}x (Empire-wide)</span>
+                  )}
+                  {l.stableAttackMultiplier > 1 && type === "Stable" && (
+                    <span>Cavalry Attack: {l.stableAttackMultiplier}x (Empire-wide)</span>
                   )}
                   {l.defenseMultiplier > 1 && (
                     <span>Defense: {l.defenseMultiplier}x</span>

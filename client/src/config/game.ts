@@ -1,4 +1,5 @@
 export const BUILDING_ORDER = [
+  "TownHall",
   "WoodCutter",
   "ClayPit",
   "IronMine",
@@ -6,10 +7,10 @@ export const BUILDING_ORDER = [
   "Warehouse",
   "Barracks",
   "Stable",
-  "Wall",
-  "Cranny",
   "TradePost",
-  "TownHall",
+  "Cranny",
+  "Wall",
+
 ] as const;
 
 export const BUILDING_LABELS: Record<string, string> = {

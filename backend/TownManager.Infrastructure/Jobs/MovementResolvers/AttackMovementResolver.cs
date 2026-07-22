@@ -63,11 +63,15 @@ public class AttackMovementResolver(
             return;
         }
 
-        var effects = BuildingConfig.AggregateEffects(targetVillage.Buildings);
-        targetVillage.ApplyProduction(effects);
+        var defenderEffects = BuildingConfig.AggregateEffects(targetVillage.Buildings);
+        targetVillage.ApplyProduction(defenderEffects);
+
+        var playerVillages = await villageRepo.GetFullDetailsByPlayerAsync(village.PlayerId, ct);
+        var allBuildings = playerVillages.SelectMany(v => v.Buildings);
+        var attackerEffects = BuildingConfig.AggregateEffects(allBuildings);
 
         var originalDefenders = targetVillage.Troops;
-        var crannyCap = effects.CrannyCapacity;
+        var crannyCap = defenderEffects.CrannyCapacity;
         var lootable = crannyCap > 0
             ? new Resources(
                 Math.Max(0, targetVillage.Resources.Wood - crannyCap),
@@ -76,8 +80,10 @@ public class AttackMovementResolver(
                 Math.Max(0, targetVillage.Resources.Beer - crannyCap))
             : targetVillage.Resources;
         
-        // walls boost defender combat power
-        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, lootable, effects.DefenseMultiplier);
+        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, lootable,
+            defenderEffects.DefenseMultiplier,
+            attackerEffects.BarracksAttackMultiplier,
+            attackerEffects.StableAttackMultiplier);
 
         targetVillage.Troops = combatResult.DefenderTroops;
         targetVillage.Resources = targetVillage.Resources.Subtract(combatResult.AttackerLoot);
