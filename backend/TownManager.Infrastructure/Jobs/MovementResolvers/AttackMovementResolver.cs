@@ -63,6 +63,7 @@ public class AttackMovementResolver(
             return;
         }
 
+        // Applying effects
         var defenderEffects = BuildingConfig.AggregateEffects(targetVillage.Buildings);
         targetVillage.ApplyProduction(defenderEffects);
 
@@ -80,6 +81,8 @@ public class AttackMovementResolver(
                 Math.Max(0, targetVillage.Resources.Beer - crannyCap))
             : targetVillage.Resources;
         
+        
+        // Combat resolution
         var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, lootable,
             defenderEffects.DefenseMultiplier,
             attackerEffects.BarracksAttackMultiplier,

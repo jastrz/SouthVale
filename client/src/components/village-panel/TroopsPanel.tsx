@@ -25,6 +25,10 @@ function TroopTooltip({ config, cost }: { config: TroopConfigDto; cost: Resource
       <div className="font-semibold text-white">
         {TROOP_LABELS[config.type as TroopType] ?? config.type}
       </div>
+      <div className="text-[10px] leading-none"
+        style={{ color: config.trainedAt === "Stable" ? "#f59e0b" : "#22d3ee" }}>
+        {config.trainedAt === "Stable" ? "cavalry" : "infantry"}
+      </div>
       <div className="border-t border-slate-700" />
       <div className="grid grid-cols-[auto_1fr] gap-x-3">
         <div className="text-slate-300">Attack:</div>
