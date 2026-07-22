@@ -70,7 +70,7 @@ export function useMapRenderer(
       try {
         const [app, grid] = await Promise.all([
           createApplication(divRef.current!),
-          loadMap("/config/terrain"),
+          loadMap(`${import.meta.env.VITE_API_URL ?? ""}/config/terrain`),
         ]);
         if (!mounted) {
           app.destroy(true);

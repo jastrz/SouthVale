@@ -1,8 +1,8 @@
 using TownManager.Application.Map.Services;
 
-namespace TownManager.Api.Endpoints.Gameplay.Map;
+namespace TownManager.Api.Endpoints.Gameplay.Config;
 
-public class GetMapTilesEndpoint : IEndpoint
+public class TerrainEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder app)
     {
