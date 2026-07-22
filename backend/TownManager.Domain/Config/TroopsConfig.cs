@@ -21,7 +21,8 @@ public record TroopConfig(
     Resources TrainingCost,
     TimeSpan TrainingTime,
     TroopStats Stats,
-    BuildingType TrainedAt
+    BuildingType TrainedAt,
+    int Score
 );
 
 public static class TroopsConfig
@@ -55,7 +56,8 @@ public static class TroopsConfig
                 new Resources(I(parts[5]), I(parts[6]), I(parts[7]), I(parts[8])),
                 T(parts[9]),
                 new TroopStats(I(parts[1]), I(parts[2]), I(parts[3]), I(parts[4])),
-                trainedAt
+                trainedAt,
+                I(parts[11])
             );
         }
 

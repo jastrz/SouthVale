@@ -49,7 +49,8 @@ public record BuildingLevelConfig(
     int Level,
     Resources UpgradeCost,
     TimeSpan UpgradeTime,
-    BuildingEffects Effects
+    BuildingEffects Effects,
+    int Score
 );
 
 public static class BuildingConfig
@@ -65,8 +66,8 @@ public static class BuildingConfig
 
     // parses data/buildings.csv into Levels.
     // I = parse int (empty → 0), M = parse double (empty → 1, for multipliers)
-    // csv columns: Building,Level, CostW,CostC,CostI,CostB, Time, ProdW,ProdC,ProdB,ProdBe, WhCap,GrCap,TrainM,DefM,CrCap,Rate,BuildSpd,AtkInf,AtkCav,Score,TrainInf,TrainCav
-    //                         [0]   [1]   [2]   [3]   [4]   [5]  [6]   [7]   [8]   [9]  [10]  [11]  [12]  [13]  [14] [15]  [16]  [17]    [18]   [19]   [20]   [21]    [22]
+    // csv columns: Building,Level, CostW,CostC,CostI,CostB, Time, ProdW,ProdC,ProdB,ProdBe, WhCap,GrCap,TrainM,DefM,CrCap,Rate,BuildSpd,AtkInf,AtkCav,TrainInf,TrainCav,Score
+    //                         [0]   [1]   [2]   [3]   [4]   [5]  [6]   [7]   [8]   [9]  [10]  [11]  [12]  [13]  [14] [15]  [16]  [17]    [18]   [19]   [20]    [21]    [22]
     private static Dictionary<BuildingType, List<BuildingLevelConfig>> LoadFromCsv()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "data", "buildings.csv");
@@ -105,12 +106,13 @@ public static class BuildingConfig
                 crannyCapacity: I(parts[15]),
                 tradeRate: M(parts[16]),
                 buildSpeedMultiplier: parts.Length > 17 ? M(parts[17]) : 1.0,
-                barracksTrainingSpeed: parts.Length > 21 ? M(parts[21]) : 1.0,
-                stableTrainingSpeed: parts.Length > 22 ? M(parts[22]) : 1.0,
+                barracksTrainingSpeed: parts.Length > 20 ? M(parts[20]) : 1.0,
+                stableTrainingSpeed: parts.Length > 21 ? M(parts[21]) : 1.0,
                 barracksAttackMultiplier: parts.Length > 18 ? M(parts[18]) : 1.0,
                 stableAttackMultiplier: parts.Length > 19 ? M(parts[19]) : 1.0);
 
-            currentList!.Add(new BuildingLevelConfig(level, cost, upgradeTime, effects));
+            var score = parts.Length > 22 ? I(parts[22]) : 0;
+            currentList!.Add(new BuildingLevelConfig(level, cost, upgradeTime, effects, score));
         }
 
         return result;

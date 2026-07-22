@@ -41,7 +41,7 @@ public class SettleMovementResolver(
                 movement.TargetCoordinates, movement.VillageId);
 
             var returningSettlers = new Troops();
-            returningSettlers.Add(TroopType.Settler, movement.Troops.Get(TroopType.Settler));
+            returningSettlers = returningSettlers.Add(TroopType.Settler, movement.Troops.Get(TroopType.Settler));
             if (returningSettlers.IsEmpty()) return;
 
             TimeSpan travelTime = movement.ArrivesAt - movement.DepartureAt;

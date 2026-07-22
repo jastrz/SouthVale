@@ -225,7 +225,7 @@ Respond with a JSON array of actions. Each action is an object:
 { "action": "build", "village_id": "guid", "building_type": "ClayPit" }
 { "action": "train", "village_id": "guid", "troops": { "Swordsman": 10, "Archer": 5 } }
 { "action": "attack", "village_id": "guid", "target_village_id": "guid", "troops": { "Swordsman": 20 } }
-{ "action": "transport", "village_id": "guid", "target_village_id": "guid", "troops": { "Swordsman": 5 }, "resources": { "wood": 100, "clay": 100, "iron": 100, "crop": 100 } }
+{ "action": "transport", "village_id": "guid", "target_village_id": "guid", "troops": { "Swordsman": 5 }, "resources": { "wood": 100, "clay": 100, "iron": 100, "beer": 100 } }
 { "action": "settle", "village_id": "guid", "target": { "x": 10, "y": 10 } }
 
 Building types: WoodCutter, ClayPit, IronMine, Brewery, Warehouse, Barracks, Stable, Wall, Cranny, TradePost
@@ -243,6 +243,7 @@ IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.
 - Max {{config.MaxActionsPerTick}} actions per tick.
 - Always use existing settlers with settle command.
+- Water tiles and tiles with trees/bushes cannot be settled. Pick grass tiles only.
 - Respond with ONLY the JSON array, no other text. Never add any new fields outside of provided game config.
 """;
 
