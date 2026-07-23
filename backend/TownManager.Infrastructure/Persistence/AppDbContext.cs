@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TownManager.Domain.Entities;
@@ -6,7 +7,7 @@ using TownManager.Infrastructure.Identity;
 
 namespace TownManager.Infrastructure.Persistence;
 
-public class AppDbContext(DbContextOptions options) : IdentityDbContext<ApplicationUser>(options)
+public class AppDbContext(DbContextOptions options, IMediator mediator) : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<Player> Players  => Set<Player>();
     public DbSet<Village> Villages => Set<Village>();
@@ -22,7 +23,7 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<Applicat
         builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
     
-    public override Task<int> SaveChangesAsync(CancellationToken ct = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
         var entries = ChangeTracker.Entries<Entity>();
         foreach (var entry in entries)
@@ -38,6 +39,18 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<Applicat
                     break;
             }
         }
-        return base.SaveChangesAsync(ct);
+
+        var entitiesWithEvents = ChangeTracker.Entries<Entity>()
+            .Where(e => e.Entity.Events.Count > 0)
+            .Select(e => e.Entity)
+            .ToList();
+
+        var events = entitiesWithEvents.SelectMany(e => e.Events).ToList();
+        entitiesWithEvents.ForEach(e => e.ClearDomainEvents());
+
+        foreach (var _event in events)
+            await mediator.Publish(_event, ct);
+
+        return await base.SaveChangesAsync(ct);
     }
 }

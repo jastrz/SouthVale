@@ -44,7 +44,7 @@ public class CreateTransportOrderCommandHandler(
         );
         
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
-        village.ApplyProduction(effects);
+        village.Tick(effects);
 
         if (!village.Troops.HasEnough(troops))
             return Result.Failure(["Not enough troops in garrison."]);

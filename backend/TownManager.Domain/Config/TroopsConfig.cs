@@ -22,7 +22,8 @@ public record TroopConfig(
     TimeSpan TrainingTime,
     TroopStats Stats,
     BuildingType TrainedAt,
-    int Score
+    int Score,
+    double Upkeep
 );
 
 public static class TroopsConfig
@@ -38,7 +39,7 @@ public static class TroopsConfig
 
     // csv/troops.csv columns:
     //   Type,Attack,Defense,CarryCapacity,Speed,
-    //   CostWood,CostClay,CostIron,CostBrewery,TrainingTime,TrainedAt,Score
+    //   CostWood,CostClay,CostIron,CostBrewery,TrainingTime,TrainedAt,Score,Upkeep
     private static Dictionary<TroopType, TroopConfig> LoadFromCsv()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "data", "troops.csv");
@@ -57,13 +58,15 @@ public static class TroopsConfig
                 T(parts[9]),
                 new TroopStats(I(parts[1]), I(parts[2]), I(parts[3]), I(parts[4])),
                 trainedAt,
-                I(parts[11])
+                I(parts[11]),
+                D(parts.Length > 12 ? parts[12] : "0") // Upkeep
             );
         }
 
         return result;
 
         static int I(string s) => string.IsNullOrEmpty(s) ? 0 : int.Parse(s);
+        static double D(string s) => string.IsNullOrEmpty(s) ? 0 : double.Parse(s);
     }
 
     public static readonly Dictionary<TroopType, TroopConfig> All = LoadFromCsv();

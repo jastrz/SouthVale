@@ -49,10 +49,11 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
                 t.Value.Stats.Defense,
                 t.Value.Stats.CarryCapacity,
                 t.Value.Stats.Speed,
-                t.Value.TrainedAt.ToString()
+                t.Value.TrainedAt.ToString(),
+                t.Value.Upkeep
             )
         );
 
-        return new GameConfigDto(buildings, troops, MapConfig.MaxVillagesPerPlayer);
+        return new GameConfigDto(buildings, troops, Domain.Config.GameSettings.MaxVillagesPerPlayer);
     }
 }

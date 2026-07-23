@@ -8,4 +8,5 @@ public enum ReportType
     Return,
     AttackCancelled,
     Transport,
+    Starvation,
 }

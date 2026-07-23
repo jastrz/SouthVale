@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Serilog;
 using TownManager.Application.Map.Services;
-using TownManager.Domain.Config;
 using TownManager.Api.Hubs;
 using TownManager.Infrastructure.Data;
 using TownManager.Infrastructure.Identity;

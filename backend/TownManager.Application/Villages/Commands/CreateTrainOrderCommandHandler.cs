@@ -19,7 +19,7 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
             return Result.Failure(["Village not found."], statusCode: 404);
 
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
-        village.ApplyProduction(effects);
+        village.Tick(effects);
 
         var villageCount = await repo.CountByPlayerAsync(village.PlayerId, ct);
 

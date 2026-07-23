@@ -65,7 +65,7 @@ public class AttackMovementResolver(
 
         // Applying effects
         var defenderEffects = BuildingConfig.AggregateEffects(targetVillage.Buildings);
-        targetVillage.ApplyProduction(defenderEffects);
+        targetVillage.Tick(defenderEffects);
 
         var playerVillages = await villageRepo.GetFullDetailsByPlayerAsync(village.PlayerId, ct);
         var allBuildings = playerVillages.SelectMany(v => v.Buildings);

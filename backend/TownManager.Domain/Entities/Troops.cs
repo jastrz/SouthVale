@@ -1,3 +1,4 @@
+using TownManager.Domain.Config;
 using TownManager.Domain.Enums;
 
 namespace TownManager.Domain.Entities;
@@ -50,4 +51,12 @@ public class Troops
 
     public bool HasEnough(Troops required) =>
         required.Counts.All(kv => Get(kv.Key) >= kv.Value);
+
+    public double GetUpkeepPerHour()
+    {
+        double total = 0;
+        foreach (var (type, count) in Counts)
+            total += TroopsConfig.Get(type).Upkeep * count;
+        return total;
+    }
 }

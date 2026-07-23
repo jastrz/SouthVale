@@ -33,7 +33,7 @@ public class TradeResourcesCommandHandler(
             return Result.Failure(["Amount must be positive."]);
 
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
-        village.ApplyProduction(effects);
+        village.Tick(effects);
 
         var hasTradePost = village.Buildings.Any(b => b.Type == BuildingType.TradePost && b.Level >= 1);
         if (!hasTradePost)

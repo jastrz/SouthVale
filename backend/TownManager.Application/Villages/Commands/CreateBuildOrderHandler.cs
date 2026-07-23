@@ -22,7 +22,7 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
         var nextLevel = (lastQueuedTarget ?? building?.Level ?? 0) + 1;
         var config = BuildingConfig.Get(cmd.BuildingType, nextLevel);
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
-        village.ApplyProduction(effects);
+        village.Tick(effects);
 
         if (!village.Resources.CanAfford(config.UpgradeCost))
             return Result.Failure(["Not enough resources"]);

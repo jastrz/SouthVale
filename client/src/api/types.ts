@@ -99,6 +99,7 @@ export interface TroopConfigDto {
   carryCapacity: number;
   speed: number;
   trainedAt: string;
+  upkeep: number;
 }
 
 export interface GameConfigDto {

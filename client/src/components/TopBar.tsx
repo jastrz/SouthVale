@@ -118,6 +118,24 @@ function VillageContent({ villageId }: { villageId: string }) {
     return total;
   }, [village, gameConfig]);
 
+  const upkeep = useMemo(() => {
+    if (!village || !gameConfig) return 0;
+    const fields: { type: string; key: keyof typeof village.troops }[] = [
+      { type: "Swordsman", key: "swordsmen" },
+      { type: "Archer", key: "archers" },
+      { type: "Settler", key: "settlers" },
+      { type: "Dogs", key: "dogs" },
+      { type: "Horsemen", key: "horsemen" },
+      { type: "LlamaRiders", key: "llamaRiders" },
+    ];
+    let beer = 0;
+    for (const f of fields) {
+      const cfg = gameConfig.troops[f.type];
+      if (cfg) beer += cfg.upkeep * village.troops[f.key];
+    }
+    return beer;
+  }, [village, gameConfig]);
+
   if (!village)
     return <div className="h-5 w-32 animate-pulse rounded bg-slate-800" />;
 
@@ -209,8 +227,11 @@ function VillageContent({ villageId }: { villageId: string }) {
                 )}
               </div>
               {production && (
-                <div className="text-[10px] leading-tight text-green-400">
-                  +{Math.floor(production[r.key])}/h
+                <div className="text-[10px] leading-tight">
+                  <span className="text-green-400">+{Math.floor(production[r.key])}/h</span>
+                  {r.key === "beer" && upkeep > 0 && (
+                    <span className="text-red-400"> -{upkeep.toFixed(1)}/h</span>
+                  )}
                 </div>
               )}
             </div>

@@ -1,7 +1,7 @@
-Type,Attack,Defense,CarryCapacity,Speed,CostWood,CostClay,CostIron,CostBrewery,TrainingTime,TrainedAt,Score
-Swordsman,60,30,50,6,95,75,40,30,1m,Barracks,2
-Archer,30,75,30,7,70,90,60,30,1m,Barracks,2
-Dogs,20,10,20,12,40,20,10,10,30s,Barracks,1
-Horsemen,90,45,80,14,180,120,140,60,3m,Stable,6
-LlamaRiders,10,25,175,8,120,80,60,40,2m,Stable,4
-Settler,0,0,0,5,200,200,200,200,20m,Barracks,0
+Type,Attack,Defense,CarryCapacity,Speed,CostWood,CostClay,CostIron,CostBrewery,TrainingTime,TrainedAt,Score,Upkeep
+Swordsman,60,30,50,6,95,75,40,30,1m,Barracks,2,1
+Archer,30,75,30,7,70,90,60,30,1m,Barracks,2,1
+Dogs,20,10,20,12,40,20,10,10,30s,Barracks,1,0.5
+Horsemen,90,45,80,14,180,120,140,60,3m,Stable,6,2
+LlamaRiders,10,25,175,8,120,80,60,40,2m,Stable,4,1
+Settler,0,0,0,5,200,200,200,200,20m,Barracks,0,1

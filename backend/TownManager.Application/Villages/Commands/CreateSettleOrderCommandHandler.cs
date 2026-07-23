@@ -24,7 +24,7 @@ public class CreateSettleOrderCommandHandler(
         if (village is null)
             return Result.Failure(["Village not found."], statusCode: 404);
 
-        if (await repo.CountByPlayerAsync(village.PlayerId, ct) >= MapConfig.MaxVillagesPerPlayer)
+        if (await repo.CountByPlayerAsync(village.PlayerId, ct) >= Domain.Config.GameSettings.MaxVillagesPerPlayer)
             return Result.Failure(["You have reached the maximum number of villages."]);
 
         if (!mapService.IsWalkable(request.Target))

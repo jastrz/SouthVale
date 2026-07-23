@@ -108,6 +108,18 @@ public static class ReportFactory
         };
     }
 
+    public static Report StarvationReport(Guid playerId, string villageName, Troops starved)
+    {
+        return new Report
+        {
+            Id = Guid.NewGuid(),
+            PlayerId = playerId,
+            Type = ReportType.Starvation,
+            Title = $"Troops fled in {villageName}",
+            Body = $"{TroopBreakdown(starved)} fled from village due to beer shortage.",
+        };
+    }
+
     public static Report TransportReport(Guid playerId, string fromVillage, string toVillage,
         Troops troops, Resources resources)
     {

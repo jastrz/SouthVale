@@ -1,5 +1,6 @@
 using TownManager.Domain.Config;
 using TownManager.Domain.Enums;
+using TownManager.Domain.Events;
 
 namespace TownManager.Domain.Entities.Villages;
 
@@ -39,7 +40,7 @@ public class Village : Entity
         Id = Guid.NewGuid(),
         Name = villageName,
         VillageType = VillageType.Player,
-        Resources = new Resources(500, 500, 500, 500),
+        Resources = GameSettings.StartingResources,
         Troops = Troops.Zero,
         LastTickAt = DateTime.UtcNow,
         Buildings =
@@ -54,23 +55,87 @@ public class Village : Entity
         Coordinates = coordinates
     };
 
-    public void ApplyProduction(BuildingEffects effects)
+    public void Tick(BuildingEffects effects)
     {
         var elapsed = DateTime.UtcNow - LastTickAt;
-        Resources = Cap(Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours)), effects);
+        var produced = effects.ProductionPerHour.Multiply(elapsed.TotalHours);
+
+        AddProduction(produced);
+        var deficit = ApplyUpkeep(elapsed);
+        if (deficit > 0)
+            ResolveStarvation(deficit, elapsed);
+
+        Resources = Cap(Resources, effects);
         LastTickAt = DateTime.UtcNow;
     }
 
     public Resources GetCurrentResources(BuildingEffects effects)
     {
         var elapsed = DateTime.UtcNow - LastTickAt;
-        return Cap(Resources.Add(effects.ProductionPerHour.Multiply(elapsed.TotalHours)), effects);
+        var produced = effects.ProductionPerHour.Multiply(elapsed.TotalHours);
+        var upkeep = Troops.GetUpkeepPerHour() * elapsed.TotalHours;
+        return Cap(Resources.Add(produced).Subtract(new Resources(0, 0, 0, upkeep)), effects);
+    }
+
+    private void AddProduction(Resources produced)
+    {
+        Resources = Resources.Add(produced);
+    }
+
+    private double ApplyUpkeep(TimeSpan elapsed)
+    {
+        var upkeep = Troops.GetUpkeepPerHour() * elapsed.TotalHours;
+        Resources = Resources.Subtract(new Resources(0, 0, 0, upkeep));
+        return Math.Max(0, -Resources.Beer);
+    }
+
+    private void ResolveStarvation(double deficit, TimeSpan elapsed)
+    {
+        var (remaining, starved) = CalculateStarvation(deficit, Troops, elapsed);
+        Troops = remaining;
+        if (!starved.IsEmpty())
+            AddDomainEvent(new TroopsStarvedEvent(PlayerId, Name, starved));
+    }
+
+    internal static (Troops remaining, Troops starved) CalculateStarvation(
+        double deficit, Troops troops, TimeSpan elapsed)
+    {
+        var starved = Troops.Zero;
+
+        var typesOrderedByUpkeep = TroopsConfig.All
+            .Select(x => x.Value)
+            .Where(x => x.Upkeep > 0)
+            .OrderByDescending(x => x.Upkeep)
+            .ToList();
+
+        foreach(var troopConfig in typesOrderedByUpkeep)
+        {
+            var count = troops.Get(troopConfig.Type); 
+            if(count <= 0) continue;
+                
+            var upkeepPerTroop = troopConfig.Upkeep * elapsed.TotalHours;
+
+            if(upkeepPerTroop <= 0) continue;
+
+            var maxLosable = (int)Math.Min(count, Math.Ceiling(deficit / upkeepPerTroop));
+
+            if(maxLosable <= 0) continue;
+
+            troops = troops.Subtract(new Troops { Counts = new() { [troopConfig.Type] = maxLosable } });
+            starved = starved.Add(troopConfig.Type, maxLosable);
+
+            deficit -= maxLosable * upkeepPerTroop;
+
+            if(deficit <= 0) break;
+        }
+
+        return (troops, starved);
     }
 
     private static Resources Cap(Resources r, BuildingEffects e) => new(
-        Math.Min(r.Wood, e.WarehouseCapacity),
-        Math.Min(r.Clay, e.WarehouseCapacity),
-        Math.Min(r.Iron, e.WarehouseCapacity),
-        Math.Min(r.Beer, e.WarehouseCapacity)
+        Math.Max(0, Math.Min(r.Wood, e.WarehouseCapacity)),
+        Math.Max(0, Math.Min(r.Clay, e.WarehouseCapacity)),
+        Math.Max(0, Math.Min(r.Iron, e.WarehouseCapacity)),
+        Math.Max(0, Math.Min(r.Beer, e.WarehouseCapacity))
     );
 }

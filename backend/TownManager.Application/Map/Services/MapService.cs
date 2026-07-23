@@ -12,8 +12,8 @@ public class MapService(IVillageRepository villageRepo) : IMapService
             await villageRepo.GetAllCoordinatesAsync(ct));
 
         var all = (
-            from x in Enumerable.Range(0, MapConfig.MapSize)
-            from y in Enumerable.Range(0, MapConfig.MapSize)
+            from x in Enumerable.Range(0, GameSettings.MapSize)
+            from y in Enumerable.Range(0, GameSettings.MapSize)
             select new Coordinates(x, y)
         ).Where(c => !occupied.Contains(c) && MapTerrain.IsWalkable(c))
          .ToList();
