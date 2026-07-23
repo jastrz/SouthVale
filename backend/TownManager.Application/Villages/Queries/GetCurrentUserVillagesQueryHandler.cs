@@ -3,6 +3,7 @@ using TownManager.Application.Common;
 using TownManager.Application.Dtos;
 using TownManager.Application.Interfaces;
 using TownManager.Domain.Config;
+using TownManager.Domain.Enums;
 
 namespace TownManager.Application.Villages.Queries;
 
@@ -27,8 +28,8 @@ public class GetCurrentUserVillagesQueryHandler(
             return new VillageListItemDto(
                 v.Id,
                 v.Name,
-                new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Crop),
-                new TroopsDto(v.Troops.Swordsmen, v.Troops.Archers, v.Troops.Settlers),
+                new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Beer),
+                new TroopsDto(v.Troops.Get(TroopType.Swordsman), v.Troops.Get(TroopType.Archer), v.Troops.Get(TroopType.Settler), v.Troops.Get(TroopType.Dogs), v.Troops.Get(TroopType.Horsemen), v.Troops.Get(TroopType.LlamaRiders)),
                 v.Coordinates
             );
         }).ToList();

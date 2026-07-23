@@ -13,7 +13,14 @@ public record BuildingLevelConfigDto(
     int WarehouseCapacity,
     int GranaryCapacity,
     ResourcesDto? ProductionPerHour,
-    double TrainingSpeedMultiplier
+    double DefenseMultiplier,
+    int CrannyCapacity,
+    double TradeRate,
+    double BuildSpeedMultiplier,
+    double BarracksTrainingSpeed,
+    double StableTrainingSpeed,
+    double BarracksAttackMultiplier,
+    double StableAttackMultiplier
 );
 
 public record TroopConfigDto(
@@ -23,10 +30,13 @@ public record TroopConfigDto(
     int Attack,
     int Defense,
     int CarryCapacity,
-    int Speed
+    int Speed,
+    string TrainedAt,
+    double Upkeep
 );
 
 public record GameConfigDto(
     Dictionary<string, List<BuildingLevelConfigDto>> Buildings,
-    Dictionary<string, TroopConfigDto> Troops
+    Dictionary<string, TroopConfigDto> Troops,
+    int MaxVillagesPerPlayer
 );

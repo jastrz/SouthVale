@@ -44,7 +44,7 @@ public class AttackMovementResolver(
             {
                 var travelTime = movement.ArrivesAt - movement.DepartureAt;
                 var returnMovement = TroopMovement.Create(
-                    new Troops(movement.Troops.Swordsmen, movement.Troops.Archers, movement.Troops.Settlers),
+                    movement.Troops,
                     Resources.Zero, movement.VillageId,
                     travelTime, DateTime.UtcNow, MovementType.Return);
                 home.TroopMovements.Add(returnMovement);
@@ -63,11 +63,30 @@ public class AttackMovementResolver(
             return;
         }
 
-        var effects = BuildingConfig.AggregateEffects(targetVillage.Buildings);
-        targetVillage.ApplyProduction(effects);
+        // Applying effects
+        var defenderEffects = BuildingConfig.AggregateEffects(targetVillage.Buildings);
+        targetVillage.Tick(defenderEffects);
+
+        var playerVillages = await villageRepo.GetFullDetailsByPlayerAsync(village.PlayerId, ct);
+        var allBuildings = playerVillages.SelectMany(v => v.Buildings);
+        var attackerEffects = BuildingConfig.AggregateEffects(allBuildings);
 
         var originalDefenders = targetVillage.Troops;
-        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, targetVillage.Resources);
+        var crannyCap = defenderEffects.CrannyCapacity;
+        var lootable = crannyCap > 0
+            ? new Resources(
+                Math.Max(0, targetVillage.Resources.Wood - crannyCap),
+                Math.Max(0, targetVillage.Resources.Clay - crannyCap),
+                Math.Max(0, targetVillage.Resources.Iron - crannyCap),
+                Math.Max(0, targetVillage.Resources.Beer - crannyCap))
+            : targetVillage.Resources;
+        
+        
+        // Combat resolution
+        var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, lootable,
+            defenderEffects.DefenseMultiplier,
+            attackerEffects.BarracksAttackMultiplier,
+            attackerEffects.StableAttackMultiplier);
 
         targetVillage.Troops = combatResult.DefenderTroops;
         targetVillage.Resources = targetVillage.Resources.Subtract(combatResult.AttackerLoot);

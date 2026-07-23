@@ -105,17 +105,35 @@ function VillageContent({ villageId }: { villageId: string }) {
 
   const production = useMemo(() => {
     if (!village || !gameConfig) return null;
-    const total = { wood: 0, clay: 0, iron: 0, crop: 0 };
+    const total = { wood: 0, clay: 0, iron: 0, beer: 0 };
     for (const b of village.buildings) {
       const cfg = gameConfig.buildings[b.type]?.find((l) => l.level === b.level)?.productionPerHour;
       if (cfg) {
         total.wood += cfg.wood;
         total.clay += cfg.clay;
         total.iron += cfg.iron;
-        total.crop += cfg.crop;
+        total.beer += cfg.beer;
       }
     }
     return total;
+  }, [village, gameConfig]);
+
+  const upkeep = useMemo(() => {
+    if (!village || !gameConfig) return 0;
+    const fields: { type: string; key: keyof typeof village.troops }[] = [
+      { type: "Swordsman", key: "swordsmen" },
+      { type: "Archer", key: "archers" },
+      { type: "Settler", key: "settlers" },
+      { type: "Dogs", key: "dogs" },
+      { type: "Horsemen", key: "horsemen" },
+      { type: "LlamaRiders", key: "llamaRiders" },
+    ];
+    let beer = 0;
+    for (const f of fields) {
+      const cfg = gameConfig.troops[f.type];
+      if (cfg) beer += cfg.upkeep * village.troops[f.key];
+    }
+    return beer;
   }, [village, gameConfig]);
 
   if (!village)
@@ -123,14 +141,9 @@ function VillageContent({ villageId }: { villageId: string }) {
 
   const warehouseLevel =
     village.buildings.find((b) => b.type === "Warehouse")?.level ?? 0;
-  const granaryLevel =
-    village.buildings.find((b) => b.type === "Granary")?.level ?? 0;
   const warehouseCapacity = gameConfig?.buildings["Warehouse"]?.find(
     (l) => l.level === warehouseLevel,
   )?.warehouseCapacity;
-  const granaryCapacity = gameConfig?.buildings["Granary"]?.find(
-    (l) => l.level === granaryLevel,
-  )?.granaryCapacity;
 
   const resources = [
     {
@@ -152,10 +165,10 @@ function VillageContent({ villageId }: { villageId: string }) {
       icon: RESOURCE_ICONS.iron,
     },
     {
-      key: "crop" as const,
-      value: Math.floor(village.resources.crop),
-      max: granaryCapacity,
-      icon: RESOURCE_ICONS.crop,
+      key: "beer" as const,
+      value: Math.floor(village.resources.beer),
+      max: warehouseCapacity,
+      icon: RESOURCE_ICONS.beer,
     },
   ];
 
@@ -214,8 +227,11 @@ function VillageContent({ villageId }: { villageId: string }) {
                 )}
               </div>
               {production && (
-                <div className="text-[10px] leading-tight text-green-400">
-                  +{Math.floor(production[r.key])}/h
+                <div className="text-[10px] leading-tight">
+                  <span className="text-green-400">+{Math.floor(production[r.key])}/h</span>
+                  {r.key === "beer" && upkeep > 0 && (
+                    <span className="text-red-400"> -{upkeep.toFixed(1)}/h</span>
+                  )}
                 </div>
               )}
             </div>

@@ -44,18 +44,18 @@ public class CreateTransportOrderCommandHandler(
         );
         
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
-        village.ApplyProduction(effects);
+        village.Tick(effects);
 
         if (!village.Troops.HasEnough(troops))
             return Result.Failure(["Not enough troops in garrison."]);
 
-        var sentResources = new Resources(request.Resources.Wood, request.Resources.Clay, request.Resources.Iron, request.Resources.Crop);
+        var sentResources = new Resources(request.Resources.Wood, request.Resources.Clay, request.Resources.Iron, request.Resources.Beer);
         if (!village.Resources.CanAfford(sentResources))
             return Result.Failure(["Not enough resources."]);
 
         var totalCarry = request.Troops
             .Sum(t => TroopsConfig.All[t.TroopType].Stats.CarryCapacity * t.Count);
-        var totalSent = sentResources.Wood + sentResources.Clay + sentResources.Iron + sentResources.Crop;
+        var totalSent = sentResources.Wood + sentResources.Clay + sentResources.Iron + sentResources.Beer;
         if (totalSent > totalCarry)
             return Result.Failure(["Resources exceed troop carry capacity."]);
 

@@ -6,10 +6,15 @@ namespace TownManager.Domain.Enums;
 public enum BuildingType
 {
     Warehouse = 0,
-    Granary = 1,
+    [Obsolete] Granary = 1,
     Barracks = 2,
     IronMine = 3,
     WoodCutter = 4,
-    CropField = 5,
-    ClayPit = 6
+    Brewery = 5,
+    ClayPit = 6,
+    Stable = 7,
+    Wall = 8,
+    Cranny = 9,
+    TradePost = 10,
+    TownHall = 11
 }

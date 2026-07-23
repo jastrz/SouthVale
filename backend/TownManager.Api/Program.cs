@@ -59,6 +59,8 @@ try
         .AddApplication()
         .AddInfrastructure(builder.Configuration);
 
+    builder.Services.Configure<ServiceProviderOptions>(o => o.ValidateOnBuild = false);
+
     var app = builder.Build()
         .ConfigurePipeline();
 
@@ -67,29 +69,31 @@ try
 
     app.MapEndpoints();
 
-    var llmCfg = app.Services.GetRequiredService<LlmPlayerConfig>();
-    Log.Information("LLM config: model={Model}, api={Api}",
-        llmCfg.Model, llmCfg.ApiUrl,
-        string.IsNullOrEmpty(llmCfg.ApiKey) ? "not set" : "set");
-
-    if (!string.IsNullOrEmpty(llmCfg.ApiKey))
+    if (bool.TryParse(app.Configuration["Features:UseLlmPlayers"], out var useLlm) && useLlm)
     {
-        try
+        var llmCfg = app.Services.GetRequiredService<LlmPlayerConfig>();
+        Log.Information("LLM config: model={Model}, api={Api}",
+            llmCfg.Model, llmCfg.ApiUrl,
+            string.IsNullOrEmpty(llmCfg.ApiKey) ? "not set" : "set");
+
+        if (!string.IsNullOrEmpty(llmCfg.ApiKey)) 
         {
-            using var http = new HttpClient();
-            http.DefaultRequestHeaders.Authorization = new("Bearer", llmCfg.ApiKey);
-            var res = await http.GetAsync($"{llmCfg.ApiUrl.TrimEnd('/')}/models", CancellationToken.None);
-            if (res.IsSuccessStatusCode)
-                Log.Information("LLM API connected, models endpoint OK");
-            else
-                Log.Warning("LLM API returned {Status} — check key and URL", res.StatusCode);
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "LLM API unreachable — check URL and network");
+            try
+            {
+                using var http = new HttpClient();
+                http.DefaultRequestHeaders.Authorization = new("Bearer", llmCfg.ApiKey);
+                var res = await http.GetAsync($"{llmCfg.ApiUrl.TrimEnd('/')}/models", CancellationToken.None);
+                if (res.IsSuccessStatusCode)
+                    Log.Information("LLM API connected, models endpoint OK");
+                else
+                    Log.Warning("LLM API returned {Status} — check key and URL", res.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "LLM API unreachable — check URL and network");
+            }
         }
     }
-
     Log.Information("Starting application...");
     app.Run();
 }

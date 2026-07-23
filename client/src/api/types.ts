@@ -1,13 +1,17 @@
 export type BuildingType =
   | "Warehouse"
-  | "Granary"
   | "Barracks"
   | "IronMine"
   | "WoodCutter"
-  | "CropField"
-  | "ClayPit";
+  | "Brewery"
+  | "ClayPit"
+  | "Stable"
+  | "Wall"
+  | "Cranny"
+  | "TradePost"
+  | "TownHall";
 
-export type TroopType = "Swordsman" | "Archer" | "Settler";
+export type TroopType = "Swordsman" | "Archer" | "Settler" | "Dogs" | "Horsemen" | "LlamaRiders";
 
 export interface TroopEntry {
   troopType: TroopType;
@@ -66,7 +70,7 @@ export interface ResourcesDto {
   wood: number;
   clay: number;
   iron: number;
-  crop: number;
+  beer: number;
 }
 
 export interface BuildingLevelConfigDto {
@@ -76,7 +80,14 @@ export interface BuildingLevelConfigDto {
   warehouseCapacity: number;
   granaryCapacity: number;
   productionPerHour: ResourcesDto | null;
-  trainingSpeedMultiplier: number;
+  defenseMultiplier: number;
+  crannyCapacity: number;
+  tradeRate: number;
+  buildSpeedMultiplier: number;
+  barracksTrainingSpeed: number;
+  stableTrainingSpeed: number;
+  barracksAttackMultiplier: number;
+  stableAttackMultiplier: number;
 }
 
 export interface TroopConfigDto {
@@ -87,17 +98,23 @@ export interface TroopConfigDto {
   defense: number;
   carryCapacity: number;
   speed: number;
+  trainedAt: string;
+  upkeep: number;
 }
 
 export interface GameConfigDto {
   buildings: Record<string, BuildingLevelConfigDto[]>;
   troops: Record<string, TroopConfigDto>;
+  maxVillagesPerPlayer: number;
 }
 
 export interface TroopsDto {
   swordsmen: number;
   archers: number;
   settlers: number;
+  dogs: number;
+  horsemen: number;
+  llamaRiders: number;
 }
 
 export interface BuildingDto {
@@ -218,11 +235,19 @@ export interface LeaderboardResult {
   totalCount: number;
 }
 
+export interface TradeRequest {
+  giveType: ResourceType;
+  giveAmount: number;
+  receiveType: ResourceType;
+}
+
+export type ResourceType = "Wood" | "Clay" | "Iron" | "Beer";
+
 export interface AddResourcesRequest {
   wood: number;
   clay: number;
   iron: number;
-  crop: number;
+  beer: number;
 }
 
 export type MapVillage =

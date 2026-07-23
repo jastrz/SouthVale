@@ -32,6 +32,10 @@ public class CreateAttackOrderCommandHandler(
         if (targetVillage is null)
             return Result.Failure(["Target village not found."], statusCode: 404);
 
+        // Update Village state
+        var effects = BuildingConfig.AggregateEffects(village.Buildings);
+        village.Tick(effects);
+
         // Validate troops are available in garrison
         if (!village.Troops.HasEnough(troops))
             return Result.Failure(["Not enough troops in garrison."]);

@@ -97,6 +97,46 @@ public class CreateTrainOrderCommandHandlerTests
     }
 
     [Fact]
+    public async Task SingleSettler_CostScalesWithVillageCount()
+    {
+        var village = CreateVillage();
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.CountByPlayerAsync(village.PlayerId, CancellationToken.None).Returns(3);
+
+        var result = await _handler.Handle(
+            new(village.Id, [new(TroopType.Settler, 1)]), CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        // 1st settler cost: 200
+        // 200 × 2^(3+0-1)=4
+        var expectedDeduction = 800; 
+        village.Resources.Wood.Should().BeApproximately(99999 - expectedDeduction, 0.01);
+        village.Resources.Clay.Should().BeApproximately(99999 - expectedDeduction, 0.01);
+        village.Resources.Iron.Should().BeApproximately(99999 - expectedDeduction, 0.01);
+        village.Resources.Beer.Should().BeApproximately(99999 - expectedDeduction, 0.01);
+    }
+
+    [Fact]
+    public async Task BatchSettlers_CostGeometric()
+    {
+        var village = CreateVillage();
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.CountByPlayerAsync(village.PlayerId, CancellationToken.None).Returns(1);
+
+        var result = await _handler.Handle(
+            new(village.Id, [new(TroopType.Settler, 3)]), CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        // 1st settler cost: 200
+        // 1 village, 0 settlers  k=0, total=2^0×(2^3-1)=7 → 200×7=1400
+        var expectedDeduction = 1400;
+        village.Resources.Wood.Should().BeApproximately(99999 - expectedDeduction, 0.01);
+        village.Resources.Clay.Should().BeApproximately(99999 - expectedDeduction, 0.01);
+        village.Resources.Iron.Should().BeApproximately(99999 - expectedDeduction, 0.01);
+        village.Resources.Beer.Should().BeApproximately(99999 - expectedDeduction, 0.01);
+    }
+
+    [Fact]
     public async Task Success_SavesAndSchedules()
     {
         var village = CreateVillage();
@@ -113,6 +153,8 @@ public class CreateTrainOrderCommandHandlerTests
     private static Village CreateVillage()
     {
         var village = Village.CreateStarter("test", new Coordinates(0, 0));
+        village.Buildings.Add(Building.Create(BuildingType.Barracks, 5));
+        village.Buildings.Add(Building.Create(BuildingType.Warehouse, 20));
         village.Resources = new Resources(99999, 99999, 99999, 99999);
         return village;
     }

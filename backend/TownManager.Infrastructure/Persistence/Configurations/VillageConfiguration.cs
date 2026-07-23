@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TownManager.Domain.Entities.Villages;
+using TownManager.Domain.Enums;
 
 namespace TownManager.Infrastructure.Persistence.Configurations;
 
@@ -41,14 +42,16 @@ public class VillageConfiguration : IEntityTypeConfiguration<Village>
           rb.Property(p => p.Wood).HasColumnName("Wood");
           rb.Property(p => p.Clay).HasColumnName("Clay");
           rb.Property(p => p.Iron).HasColumnName("Iron");
-          rb.Property(p => p.Crop).HasColumnName("Crop");
+          rb.Property(p => p.Beer).HasColumnName("Beer");
         });
 
-        b.OwnsOne(v => v.Troops, gb =>
+        b.OwnsOne(v => v.Troops, tb =>
         {
-          gb.Property(p => p.Swordsmen).HasColumnName("Swordsmen");
-          gb.Property(p => p.Archers).HasColumnName("Archers");
-          gb.Property(p => p.Settlers).HasColumnName("Settler");
+            tb.Property(p => p.Counts)
+              .HasColumnType("jsonb")
+              .HasConversion(
+                  v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                  v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<TroopType, int>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new Dictionary<TroopType, int>());
         });
 
         b.ComplexProperty(v => v.Coordinates, cb =>

@@ -1,35 +1,51 @@
 export const BUILDING_ORDER = [
+  "TownHall",
   "WoodCutter",
   "ClayPit",
   "IronMine",
-  "CropField",
+  "Brewery",
   "Warehouse",
-  "Granary",
   "Barracks",
+  "Stable",
+  "TradePost",
+  "Cranny",
+  "Wall",
+
 ] as const;
 
 export const BUILDING_LABELS: Record<string, string> = {
   WoodCutter: "Woodcutter",
   ClayPit: "Clay Pit",
   IronMine: "Iron Mine",
-  CropField: "Crop Field",
+  Brewery: "Brewery",
   Warehouse: "Warehouse",
-  Granary: "Granary",
   Barracks: "Barracks",
+  Stable: "Stable",
+  Wall: "Wall",
+  Cranny: "Cranny",
+  TradePost: "Trade Post",
+  TownHall: "Town Hall",
 };
 
 export const BUILDING_DESCRIPTIONS: Record<string, string> = {
   WoodCutter: "Produces wood",
   ClayPit: "Produces clay",
   IronMine: "Produces iron",
-  CropField: "Produces crop",
-  Warehouse: "Stores wood, clay, iron",
-  Granary: "Stores crop",
-  Barracks: "Trains troops",
+  Brewery: "Produces beer",
+  Warehouse: "Stores all resources",
+  Barracks: "Trains infantry",
+  Stable: "Trains cavalry",
+  Wall: "Defends village",
+  Cranny: "Hides resources from attackers",
+  TradePost: "Improves trade rates",
+  TownHall: "Speeds up construction",
 };
 
 export const TROOP_LABELS: Record<string, string> = {
   Swordsman: "Swordsman",
   Archer: "Archer",
   Settler: "Settler",
+  Dogs: "Dogs",
+  Horsemen: "Horsemen",
+  LlamaRiders: "Llama Riders",
 };

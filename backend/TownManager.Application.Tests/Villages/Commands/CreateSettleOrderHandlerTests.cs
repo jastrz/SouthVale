@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Xunit;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Map.Services;
 using TownManager.Application.Villages.Commands;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
@@ -15,6 +16,7 @@ public class CreateSettleOrderHandlerTests
     private readonly IPlayerRepository _playerRepo;
     private readonly IGameNotificationService _notifications;
     private readonly IJobScheduler _scheduler;
+    private readonly IMapService _mapService;
     private readonly CreateSettleOrderCommandHandler _handler;
 
     public CreateSettleOrderHandlerTests()
@@ -23,7 +25,9 @@ public class CreateSettleOrderHandlerTests
         _playerRepo = Substitute.For<IPlayerRepository>();
         _notifications = Substitute.For<IGameNotificationService>();
         _scheduler = Substitute.For<IJobScheduler>();
-        _handler = new CreateSettleOrderCommandHandler(_repo, _playerRepo, _notifications, _scheduler);
+        _mapService = Substitute.For<IMapService>();
+        _mapService.IsWalkable(Arg.Any<Coordinates>()).Returns(true);
+        _handler = new CreateSettleOrderCommandHandler(_repo, _playerRepo, _notifications, _scheduler, _mapService);
     }
 
     [Fact]
@@ -37,7 +41,7 @@ public class CreateSettleOrderHandlerTests
         var result = await _handler.Handle(new(village.Id, target), CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
-        village.Troops.Settlers.Should().Be(0);
+        village.Troops.Get(TroopType.Settler).Should().Be(0);
         village.TroopMovements.Should().ContainSingle(m =>
             m.Type == MovementType.Settle && m.TargetCoordinates == target);
         await _repo.Received(1).SaveChangesAsync(CancellationToken.None);
@@ -65,7 +69,7 @@ public class CreateSettleOrderHandlerTests
         var result = await _handler.Handle(new(village.Id, new(5, 5)), CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
-        village.Troops.Settlers.Should().Be(0);
+        village.Troops.Get(TroopType.Settler).Should().Be(0);
     }
 
     [Fact]
@@ -81,7 +85,7 @@ public class CreateSettleOrderHandlerTests
 
         result.Succeeded.Should().BeFalse();
         result.StatusCode.Should().Be(409);
-        village.Troops.Settlers.Should().Be(1);
+        village.Troops.Get(TroopType.Settler).Should().Be(1);
     }
 
     private static Village CreateVillageWithSettlers(int count)

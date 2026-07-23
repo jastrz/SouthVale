@@ -5,7 +5,7 @@ using MediatR;
 using TownManager.Application.GameConfig.Queries;
 using TownManager.Domain.Config;
 
-namespace TownManager.Api.Endpoints.Gameplay;
+namespace TownManager.Api.Endpoints.Gameplay.Config;
 
 public class GameConfigEndpoint : IEndpoint
 {

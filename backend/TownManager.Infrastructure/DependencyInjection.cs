@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using TownManager.Application.Interfaces;
 using TownManager.Application.Barbarians;
 using TownManager.Application.Llm;
+using TownManager.Application.Map.Services;
 using TownManager.Domain.Config;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Jobs;
@@ -121,11 +122,11 @@ public static class DependencyInjection
                 sp.GetRequiredService<BarbarianOptions>()) { TickAtStart = false });
         }
         
+        var llmConfig = configuration.GetSection(LlmPlayerConfig.SectionName).Get<LlmPlayerConfig>() ?? new();
+        services.AddSingleton(llmConfig);
+
         if (features.UseLlmPlayers)
         {
-            var llmConfig = configuration.GetSection(LlmPlayerConfig.SectionName).Get<LlmPlayerConfig>() ?? new();
-            services.AddSingleton(llmConfig);
-            
             services.AddHostedService(sp => new LlmPlayerJobScheduler(
                 sp.GetRequiredService<IServiceScopeFactory>(),
                 sp.GetRequiredService<IRecurringJobManager>(),

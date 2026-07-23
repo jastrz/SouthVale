@@ -4,16 +4,15 @@ import type {
   BuildingType,
   BuildRequest,
   BuildingLevelConfigDto,
+  ResourcesDto,
 } from "../../api/types";
 import {
   formatTime,
-  timeRemaining,
   parseTimeSpanMs,
   RESOURCE_ICONS,
   BUILDING_ICONS,
 } from "../../lib/helpers";
 import { ResourceCost } from "./ResourceCost";
-import { useTick } from "../../hooks/useTick";
 import { useGameConfig } from "../../api/hooks/useQueries";
 import { Icon } from "../Icon";
 import { Tooltip } from "../Tooltip";
@@ -23,10 +22,12 @@ function BuildingTooltip({
   building,
   config,
   nextConfig,
+  buildSpeedMultiplier = 1,
 }: {
   building: { type: string; level: number };
   config: BuildingLevelConfigDto | undefined;
   nextConfig: BuildingLevelConfigDto | undefined;
+  buildSpeedMultiplier?: number;
 }) {
   const currentPerHour = config?.productionPerHour;
   const nextPerHour = nextConfig?.productionPerHour;
@@ -42,9 +43,6 @@ function BuildingTooltip({
       {config && <div className="text-slate-400">Level {building.level}</div>}
       {(config?.warehouseCapacity ?? 0) > 0 && (
         <div className="text-slate-300">Capacity: {config!.warehouseCapacity}</div>
-      )}
-      {(config?.granaryCapacity ?? 0) > 0 && (
-        <div className="text-slate-300">Capacity: {config!.granaryCapacity}</div>
       )}
       {currentPerHour && (
         <div className="flex flex-wrap gap-x-2.5 gap-y-0.5">
@@ -64,16 +62,51 @@ function BuildingTooltip({
               <Icon src={RESOURCE_ICONS.iron} size={12} /> {currentPerHour.iron}/h
             </span>
           )}
-          {currentPerHour.crop > 0 && (
+          {currentPerHour.beer > 0 && (
             <span className="flex items-center gap-1 text-slate-300 whitespace-nowrap">
-              <Icon src={RESOURCE_ICONS.crop} size={12} /> {currentPerHour.crop}/h
+              <Icon src={RESOURCE_ICONS.beer} size={12} /> {currentPerHour.beer}/h
             </span>
           )}
         </div>
       )}
-      {(config?.trainingSpeedMultiplier ?? 0) > 1 && (
+      {(config?.barracksTrainingSpeed ?? 0) > 1 && building.type === "Barracks" && (
         <div className="text-slate-300">
-          Training Speed: {config!.trainingSpeedMultiplier}x
+          Training Speed: {config!.barracksTrainingSpeed}x
+        </div>
+      )}
+      {(config?.stableTrainingSpeed ?? 0) > 1 && building.type === "Stable" && (
+        <div className="text-slate-300">
+          Training Speed: {config!.stableTrainingSpeed}x
+        </div>
+      )}
+      {(config?.barracksAttackMultiplier ?? 0) > 1 && building.type === "Barracks" && (
+        <div className="text-slate-300">
+          Infantry Attack: {config!.barracksAttackMultiplier}x (Empire-wide)
+        </div>
+      )}
+      {(config?.stableAttackMultiplier ?? 0) > 1 && building.type === "Stable" && (
+        <div className="text-slate-300">
+          Cavalry Attack: {config!.stableAttackMultiplier}x (Empire-wide)
+        </div>
+      )}
+      {(config?.defenseMultiplier ?? 0) > 1 && (
+        <div className="text-slate-300">
+          Defense: {config!.defenseMultiplier}x
+        </div>
+      )}
+      {(config?.crannyCapacity ?? 0) > 0 && (
+        <div className="text-slate-300">
+          Hides: {config!.crannyCapacity} of each resource
+        </div>
+      )}
+      {(config?.tradeRate ?? 1) < 1 && (
+        <div className="text-slate-300">
+          Trade Rate: {config!.tradeRate}x
+        </div>
+      )}
+      {config != null && (config.buildSpeedMultiplier > 1 || building.type === "TownHall") && (
+        <div className="text-slate-300">
+          Build Speed: {config.buildSpeedMultiplier}x
         </div>
       )}
       {nextConfig && (
@@ -86,7 +119,7 @@ function BuildingTooltip({
           <ResourceCost value={nextConfig.upgradeCost} />
           <div className="border-t border-slate-700 pt-1" />
           <div className="text-slate-300">
-            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime))}
+            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime) / buildSpeedMultiplier)}{buildSpeedMultiplier > 1 && <span className="text-green-400"> ({buildSpeedMultiplier}x build speed)</span>}
           </div>
           <div className="border-t border-slate-700 pt-1" />
           {nextConfig.warehouseCapacity > 0 && (
@@ -96,17 +129,6 @@ function BuildingTooltip({
                 <span className="text-green-400">
                   {" "}
                   (+{nextConfig.warehouseCapacity - config.warehouseCapacity})
-                </span>
-              )}
-            </div>
-          )}
-          {nextConfig.granaryCapacity > 0 && (
-            <div className="text-slate-300">
-              Capacity: {nextConfig.granaryCapacity}
-              {config && (
-                <span className="text-green-400">
-                  {" "}
-                  (+{nextConfig.granaryCapacity - config.granaryCapacity})
                 </span>
               )}
             </div>
@@ -144,31 +166,120 @@ function BuildingTooltip({
                   )}
                 </span>
               )}
-              {nextPerHour.crop > 0 && (
+              {nextPerHour.beer > 0 && (
                 <span className="flex items-center gap-1 text-slate-300 whitespace-nowrap">
-                  <Icon src={RESOURCE_ICONS.crop} size={12} /> {nextPerHour.crop}/h
-                  {currentPerHour && nextPerHour.crop > currentPerHour.crop && (
+                  <Icon src={RESOURCE_ICONS.beer} size={12} /> {nextPerHour.beer}/h
+                  {currentPerHour && nextPerHour.beer > currentPerHour.beer && (
                     <span className="text-green-400">
-                      (+{nextPerHour.crop - currentPerHour.crop}/h)
+                      (+{nextPerHour.beer - currentPerHour.beer}/h)
                     </span>
                   )}
                 </span>
               )}
             </div>
           )}
-          {nextConfig.trainingSpeedMultiplier > 1 && (
+          {nextConfig.barracksTrainingSpeed > 1 && building.type === "Barracks" && (
             <div className="text-slate-300">
-              Speed: {nextConfig.trainingSpeedMultiplier}x
+              Training Speed: {nextConfig.barracksTrainingSpeed}x
               {config && (
                 <span className="text-green-400">
                   {" "}
                   (+
                   {(
-                    (nextConfig.trainingSpeedMultiplier -
-                      config.trainingSpeedMultiplier) *
+                    (nextConfig.barracksTrainingSpeed -
+                      config.barracksTrainingSpeed) *
                     100
                   ).toFixed(0)}
                   %)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.stableTrainingSpeed > 1 && building.type === "Stable" && (
+            <div className="text-slate-300">
+              Training Speed: {nextConfig.stableTrainingSpeed}x
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+
+                  {(
+                    (nextConfig.stableTrainingSpeed -
+                      config.stableTrainingSpeed) *
+                    100
+                  ).toFixed(0)}
+                  %)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.barracksAttackMultiplier > 1 && building.type === "Barracks" && (
+            <div className="text-slate-300">
+              Infantry Attack: {nextConfig.barracksAttackMultiplier}x (Empire-wide)
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{((nextConfig.barracksAttackMultiplier - config.barracksAttackMultiplier) * 100).toFixed(0)}%)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.stableAttackMultiplier > 1 && building.type === "Stable" && (
+            <div className="text-slate-300">
+              Cavalry Attack: {nextConfig.stableAttackMultiplier}x (Empire-wide)
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{((nextConfig.stableAttackMultiplier - config.stableAttackMultiplier) * 100).toFixed(0)}%)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.defenseMultiplier > 1 && (
+            <div className="text-slate-300">
+              Defense: {nextConfig.defenseMultiplier}x
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+
+                  {(
+                    (nextConfig.defenseMultiplier -
+                      config.defenseMultiplier) *
+                    100
+                  ).toFixed(0)}
+                  %)
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.crannyCapacity > 0 && (
+            <div className="text-slate-300">
+              Hides: {nextConfig.crannyCapacity}
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{nextConfig.crannyCapacity - config.crannyCapacity})
+                </span>
+              )}
+            </div>
+          )}
+          {nextConfig.tradeRate < 1 && (
+            <div className="text-slate-300">
+              Trade Rate: {nextConfig.tradeRate}x
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{((nextConfig.tradeRate - config.tradeRate) * 100).toFixed(0)}%)
+                </span>
+              )}
+            </div>
+          )}
+          {(nextConfig.buildSpeedMultiplier > 1 || building.type === "TownHall") && (
+            <div className="text-slate-300">
+              Build Speed: {nextConfig.buildSpeedMultiplier}x
+              {config && (
+                <span className="text-green-400">
+                  {" "}
+                  (+{((nextConfig.buildSpeedMultiplier - config.buildSpeedMultiplier) * 100).toFixed(0)}%)
                 </span>
               )}
             </div>
@@ -185,12 +296,16 @@ function BuildingCard({
   disabled,
   onUpgrade,
   maxLevel,
+  resources,
+  buildSpeedMultiplier = 1,
 }: {
   building: { id: string; type: string; level: number };
   orders: readonly { completesAt: string; targetLevel: number }[];
   disabled?: boolean;
   onUpgrade: () => void;
   maxLevel: number;
+  resources?: ResourcesDto;
+  buildSpeedMultiplier?: number;
 }) {
   const { data: config } = useGameConfig();
   const isNew = building.level === 0;
@@ -207,6 +322,13 @@ function BuildingCard({
   );
   const nextCfg = levels?.find((l) => l.level === (isNew ? 1 : highestQueued + 1));
 
+  const canAfford = !nextCfg || !resources || (
+    resources.wood >= nextCfg.upgradeCost.wood &&
+    resources.clay >= nextCfg.upgradeCost.clay &&
+    resources.iron >= nextCfg.upgradeCost.iron &&
+    resources.beer >= nextCfg.upgradeCost.beer
+  );
+
   return (
     <Tooltip
       content={
@@ -215,6 +337,7 @@ function BuildingCard({
             building={building}
             config={currentCfg}
             nextConfig={nextCfg}
+            buildSpeedMultiplier={buildSpeedMultiplier}
           />
         )
       }
@@ -235,12 +358,7 @@ function BuildingCard({
           </span>
           {nextOrder && (
               <div className="mt-0.5 flex items-center gap-2 text-slate-400">
-                <span>
-                  → {nextOrder.targetLevel}
-                </span>
-                <span className="text-yellow-400">
-                  {formatTime(timeRemaining(nextOrder.completesAt))}
-                </span>
+                <span>→ {nextOrder.targetLevel}</span>
                 {orders.length > 1 && (
                   <span className="text-[10px] text-slate-500">
                     +{orders.length - 1} more
@@ -252,7 +370,7 @@ function BuildingCard({
         <button
           type="button"
           onClick={onUpgrade}
-          disabled={disabled || building.level >= maxLevel}
+          disabled={disabled || building.level >= maxLevel || !canAfford}
           className="cursor-pointer rounded bg-blue-600 px-2.5 p-2 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
         >
           {disabled ? "..." : isNew ? "Build" : building.level >= maxLevel ? "Max" : "Upgrade"}
@@ -266,6 +384,7 @@ export function BuildingsPanel({
   buildings,
   buildOrders,
   mutation,
+  resources,
 }: {
   buildings: readonly { id: string; type: string; level: number }[];
   buildOrders: readonly {
@@ -274,11 +393,17 @@ export function BuildingsPanel({
     completesAt: string;
   }[];
   mutation: UseMutationResult<unknown, unknown, BuildRequest, unknown>;
+  resources?: ResourcesDto;
 }) {
-  useTick();
+  const { data: gameConfig } = useGameConfig();
 
   const byType = Object.fromEntries(buildings.map((b) => [b.type, b]));
   const maxLevels = useMaxLevels();
+
+  const townHall = buildings.find((b) => b.type === "TownHall");
+  const buildSpeedMultiplier = townHall && gameConfig
+    ? gameConfig.buildings["TownHall"]?.find((l) => l.level === townHall.level)?.buildSpeedMultiplier ?? 1
+    : 1;
 
   const allBuildings = BUILDING_ORDER.map((type) =>
     byType[type] ?? { id: `new-${type}`, type, level: 0 },
@@ -297,6 +422,8 @@ export function BuildingsPanel({
             orders={buildOrders.filter((o) => o.buildingType === b.type)}
             disabled={mutation.isPending}
             maxLevel={maxLevels[b.type] ?? 5}
+            resources={resources}
+            buildSpeedMultiplier={buildSpeedMultiplier}
             onUpgrade={() =>
               mutation.mutate({ buildingType: b.type as BuildingType })
             }

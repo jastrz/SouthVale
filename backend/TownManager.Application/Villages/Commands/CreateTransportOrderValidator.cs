@@ -9,7 +9,7 @@ public class CreateTransportOrderValidator : AbstractValidator<CreateTransportOr
         RuleFor(x => x.TargetVillageId).NotEmpty();
 
         RuleFor(x => new { x.Troops, x.Resources })
-            .Must(x => x.Troops.Count > 0 || x.Resources.Wood > 0 || x.Resources.Clay > 0 || x.Resources.Iron > 0 || x.Resources.Crop > 0)
+            .Must(x => x.Troops.Count > 0 || x.Resources.Wood > 0 || x.Resources.Clay > 0 || x.Resources.Iron > 0 || x.Resources.Beer > 0)
             .WithMessage("Send at least some troops or resources.");
 
         RuleForEach(x => x.Troops)
@@ -19,6 +19,6 @@ public class CreateTransportOrderValidator : AbstractValidator<CreateTransportOr
         RuleFor(x => x.Resources.Wood).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Resources.Clay).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Resources.Iron).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.Resources.Crop).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Resources.Beer).GreaterThanOrEqualTo(0);
     }
 }

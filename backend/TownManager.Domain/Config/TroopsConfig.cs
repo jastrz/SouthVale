@@ -8,18 +8,11 @@ public record TroopStats
     public int Attack { get; init; }
     public int Defense { get; init; }
     public int CarryCapacity { get; init; }
-    public int Speed { get; init; }        // fields per hour
+    public int Speed { get; init; }
 
-    public TroopStats(
-        int attack,
-        int defense,
-        int carryCapacity,
-        int speed)
+    public TroopStats(int attack, int defense, int carryCapacity, int speed)
     {
-        Attack = attack;
-        Defense = defense;
-        CarryCapacity = carryCapacity;
-        Speed = speed;
+        Attack = attack; Defense = defense; CarryCapacity = carryCapacity; Speed = speed;
     }
 }
 
@@ -27,38 +20,56 @@ public record TroopConfig(
     TroopType Type,
     Resources TrainingCost,
     TimeSpan TrainingTime,
-    TroopStats Stats
+    TroopStats Stats,
+    BuildingType TrainedAt,
+    int Score,
+    double Upkeep
 );
 
 public static class TroopsConfig
 {
-    public static readonly Dictionary<TroopType, TroopConfig> All = new()
+    private static TimeSpan T(string s) => s switch
     {
-        [TroopType.Swordsman] = new(
-            TroopType.Swordsman,
-            // new Resources(120, 100, 150, 30),
-            new Resources(1,1,1,1),
-            
-            TimeSpan.FromSeconds(10),
-            new TroopStats(attack: 60, defense: 30, carryCapacity: 50, speed: 6)
-        ),
-
-        [TroopType.Archer] = new(
-            TroopType.Archer,
-            new Resources(1,1,1,1),
-
-            // new Resources(80, 60, 120, 40),
-            TimeSpan.FromSeconds(10),
-            new TroopStats(attack: 45, defense: 50, carryCapacity: 30, speed: 7)
-        ),
-
-        [TroopType.Settler] = new(
-            TroopType.Settler,
-            new Resources(100, 100, 100, 100),
-            TimeSpan.FromSeconds(20),
-            new TroopStats(attack: 0, defense: 0, carryCapacity: 0, speed: 5)
-        ),
+        not null when s.EndsWith('d') => TimeSpan.FromDays(double.Parse(s[..^1])),
+        not null when s.EndsWith('h') => TimeSpan.FromHours(double.Parse(s[..^1])),
+        not null when s.EndsWith('m') => TimeSpan.FromMinutes(double.Parse(s[..^1])),
+        not null when s.EndsWith('s') => TimeSpan.FromSeconds(double.Parse(s[..^1])),
+        _ => throw new FormatException($"Unknown duration: {s}")
     };
+
+    // csv/troops.csv columns:
+    //   Type,Attack,Defense,CarryCapacity,Speed,
+    //   CostWood,CostClay,CostIron,CostBrewery,TrainingTime,TrainedAt,Score,Upkeep
+    private static Dictionary<TroopType, TroopConfig> LoadFromCsv()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "data", "troops.csv");
+        var lines = File.ReadAllLines(path);
+        var result = new Dictionary<TroopType, TroopConfig>();
+
+        foreach (var line in lines.Skip(1))
+        {
+            var parts = line.Split(',');
+            if (!Enum.TryParse<TroopType>(parts[0], out var type)) continue;
+            if (!Enum.TryParse<BuildingType>(parts[10], out var trainedAt)) continue;
+
+            result[type] = new(
+                type,
+                new Resources(I(parts[5]), I(parts[6]), I(parts[7]), I(parts[8])),
+                T(parts[9]),
+                new TroopStats(I(parts[1]), I(parts[2]), I(parts[3]), I(parts[4])),
+                trainedAt,
+                I(parts[11]),
+                D(parts.Length > 12 ? parts[12] : "0") // Upkeep
+            );
+        }
+
+        return result;
+
+        static int I(string s) => string.IsNullOrEmpty(s) ? 0 : int.Parse(s);
+        static double D(string s) => string.IsNullOrEmpty(s) ? 0 : double.Parse(s);
+    }
+
+    public static readonly Dictionary<TroopType, TroopConfig> All = LoadFromCsv();
 
     public static TroopConfig Get(TroopType type) => All[type];
 
@@ -67,10 +78,11 @@ public static class TroopsConfig
 
     public static int GetSlowestSpeed(Troops troops)
     {
-        var speeds = new List<int>();
-        if (troops.Swordsmen > 0) speeds.Add(All[TroopType.Swordsman].Stats.Speed);
-        if (troops.Archers > 0) speeds.Add(All[TroopType.Archer].Stats.Speed);
-        if (troops.Settlers > 0) speeds.Add(All[TroopType.Settler].Stats.Speed);
-        return speeds.Min();
+        if (troops.IsEmpty()) return 0;
+        return Enum.GetValues<TroopType>()
+            .Select(t => (type: t, count: troops.Get(t)))
+            .Where(x => x.count > 0)
+            .Select(x => All[x.type].Stats.Speed)
+            .Min();
     }
 }

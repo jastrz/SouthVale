@@ -200,8 +200,8 @@ You are a player in browser strategy game. Your personality: {bot.BotPersonality
             prompt += $"""
 Village {i + 1}: "{v.Name}" (ID: {v.Id})
   Location: ({v.Coordinates.X}, {v.Coordinates.Y})
-  Resources: {(int)current.Wood}W {(int)current.Clay}C {(int)current.Iron}I {(int)current.Crop}Cr
-  Troops: {v.Troops.Swordsmen}S {v.Troops.Archers}A {v.Troops.Settlers}St
+  Resources: {(int)current.Wood}W {(int)current.Clay}C {(int)current.Iron}I {(int)current.Beer}B
+  Troops: {v.Troops.Get(TroopType.Swordsman)}S {v.Troops.Get(TroopType.Archer)}A {v.Troops.Get(TroopType.Settler)}St
   Buildings: {buildings}
   Build queue: {(buildOrders.Length > 0 ? buildOrders : "empty")}
   Train queue: {(trainOrders.Length > 0 ? trainOrders : "empty")}
@@ -225,10 +225,10 @@ Respond with a JSON array of actions. Each action is an object:
 { "action": "build", "village_id": "guid", "building_type": "ClayPit" }
 { "action": "train", "village_id": "guid", "troops": { "Swordsman": 10, "Archer": 5 } }
 { "action": "attack", "village_id": "guid", "target_village_id": "guid", "troops": { "Swordsman": 20 } }
-{ "action": "transport", "village_id": "guid", "target_village_id": "guid", "troops": { "Swordsman": 5 }, "resources": { "wood": 100, "clay": 100, "iron": 100, "crop": 100 } }
+{ "action": "transport", "village_id": "guid", "target_village_id": "guid", "troops": { "Swordsman": 5 }, "resources": { "wood": 100, "clay": 100, "iron": 100, "beer": 100 } }
 { "action": "settle", "village_id": "guid", "target": { "x": 10, "y": 10 } }
 
-Building types: WoodCutter, ClayPit, IronMine, CropField, Warehouse, Granary
+Building types: WoodCutter, ClayPit, IronMine, Brewery, Warehouse, Barracks, Stable, Wall, Cranny, TradePost
 Troop types: Swordsman, Archer, Settler
 Combat roles: Swordsman = high attack (good for offense), Archer = high defense. Same cost. Mix them according to your role.
 
@@ -243,6 +243,7 @@ IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.
 - Max {{config.MaxActionsPerTick}} actions per tick.
 - Always use existing settlers with settle command.
+- Water tiles and tiles with trees/bushes cannot be settled. Pick grass tiles only.
 - Respond with ONLY the JSON array, no other text. Never add any new fields outside of provided game config.
 """;
 
@@ -260,10 +261,11 @@ IMPORTANT:
             foreach (var l in levels)
             {
                 var c = l.UpgradeCost;
-                sb.Append($" lv{l.Level}({c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Crop}Crop,{l.UpgradeTime.TotalMinutes:F0}m");
-                if (l.ProductionPerHour is { } p && p.Wood + p.Clay + p.Iron + p.Crop > 0)
-                    sb.Append($" -> {(p.Wood > 0 ? $"+{p.Wood}Wood/h " : "")}{(p.Clay > 0 ? $"+{p.Clay}Clay/h " : "")}{(p.Iron > 0 ? $"+{p.Iron}Iron/h " : "")}{(p.Crop > 0 ? $"+{p.Crop}Crop/h" : "")}".TrimEnd());
-                if (l.TrainingSpeedMultiplier > 0) sb.Append($" train×{l.TrainingSpeedMultiplier}");
+                sb.Append($" lv{l.Level}({c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Beer}Beer,{l.UpgradeTime.TotalMinutes:F0}m");
+                if (l.ProductionPerHour is { } p && p.Wood + p.Clay + p.Iron + p.Beer > 0)
+                    sb.Append($" -> {(p.Wood > 0 ? $"+{p.Wood}Wood/h " : "")}{(p.Clay > 0 ? $"+{p.Clay}Clay/h " : "")}{(p.Iron > 0 ? $"+{p.Iron}Iron/h " : "")}{(p.Beer > 0 ? $"+{p.Beer}Beer/h" : "")}".TrimEnd());
+                if (l.BarracksTrainingSpeed > 1) sb.Append($" train×{l.BarracksTrainingSpeed}");
+                if (l.StableTrainingSpeed > 1) sb.Append($" stable×{l.StableTrainingSpeed}");
                 sb.Append(')');
             }
             sb.AppendLine();
@@ -272,7 +274,7 @@ IMPORTANT:
         foreach (var (type, t) in cfg.Troops)
         {
             var c = t.TrainingCost;
-            sb.AppendLine($"  {type}: {c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Crop}Crop, {t.TrainingTime.TotalSeconds:F0}s atk={t.Attack} def={t.Defense} speed={t.Speed} carry={t.CarryCapacity}");
+            sb.AppendLine($"  {type}: {c.Wood}Wood,{c.Clay}Clay,{c.Iron}Iron,{c.Beer}Beer, {t.TrainingTime.TotalSeconds:F0}s atk={t.Attack} def={t.Defense} speed={t.Speed} carry={t.CarryCapacity}");
         }
         return sb.ToString();
     }
@@ -364,7 +366,7 @@ IMPORTANT:
                     details["target"] = action.TargetVillageId;
                     details["resources"] = res;
                     result = await mediator.Send(new CreateTransportOrderCommand(action.VillageId, action.TargetVillageId.Value, entries,
-                        new ResourcesDto(res.Wood, res.Clay, res.Iron, res.Crop)), ct);
+                        new ResourcesDto(res.Wood, res.Clay, res.Iron, res.Beer)), ct);
                     break;
                 }
                 case "settle" when action.Target is not null:

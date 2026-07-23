@@ -7,12 +7,16 @@ export function SettlePanel({
   targetX,
   targetY,
   settlers,
+  villageCount,
+  maxVillages,
   mutation,
   onClearTarget,
 }: {
   targetX: number;
   targetY: number;
   settlers: number;
+  villageCount: number;
+  maxVillages: number;
   mutation: UseMutationResult<unknown, unknown, SettleRequest, unknown>;
   onClearTarget: () => void;
 }) {
@@ -39,6 +43,9 @@ export function SettlePanel({
         </div>
         <div className="text-slate-400">
           Settlers available: {settlers}
+        </div>
+        <div className="text-slate-400">
+          Villages: {villageCount} / {maxVillages}
         </div>
         <TravelEta toX={targetX} toY={targetY} speed={getSpeed("Settler")} />
       </div>

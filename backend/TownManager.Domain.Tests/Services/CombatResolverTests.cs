@@ -1,5 +1,6 @@
 using FluentAssertions;
 using TownManager.Domain.Entities;
+using TownManager.Domain.Enums;
 using TownManager.Domain.Services;
 
 namespace TownManager.Domain.Tests.Services;
@@ -23,7 +24,7 @@ public class CombatResolverTests
     [Fact]
     public void NoDefenders_AttackersUnaffected_FullLoot()
     {
-        var resources = new Resources(wood: 100, clay: 200, iron: 300, crop: 400);
+        var resources = new Resources(wood: 100, clay: 200, iron: 300, beer: 400);
 
         var result = CombatResolver.Resolve(
             new Troops(swordsmen: 50),
@@ -38,21 +39,22 @@ public class CombatResolverTests
         result.AttackerLoot.Wood.Should().Be(resources.Wood);
         result.AttackerLoot.Clay.Should().Be(resources.Clay);
         result.AttackerLoot.Iron.Should().Be(resources.Iron);
-        result.AttackerLoot.Crop.Should().Be(resources.Crop);
+        result.AttackerLoot.Beer.Should().Be(resources.Beer);
     }
 
     [Fact]
     public void MixedTroops_CombinesSwordsmenAndArchers()
     {
+        // Overwhelming force ratio ensures clean wipe (avoid floating-point edge cases)
         var result = CombatResolver.Resolve(
-            new Troops(swordsmen: 50, archers: 50),
-            new Troops(swordsmen: 50, archers: 50),
+            new Troops(swordsmen: 100, archers: 100),
+            new Troops(swordsmen: 10, archers: 10),
             Resources.Zero
         );
         
         result.DefenderTroops.Should().BeEquivalentTo(Troops.Zero);
-        result.AttackerTroops.Swordsmen.Should().BeGreaterThan(0);
-        result.AttackerTroops.Archers.Should().BeGreaterThan(0);
+        result.AttackerTroops.Get(TroopType.Swordsman).Should().BeGreaterThan(0);
+        result.AttackerTroops.Get(TroopType.Archer).Should().BeGreaterThan(0);
     }
 
     [Fact]
@@ -64,9 +66,93 @@ public class CombatResolverTests
             Resources.Zero
         );
 
-        // Settlers have 0 attack/defense - same outcome as 100 swordsmen vs 100
-        result.AttackerTroops.Swordsmen.Should().BeGreaterThan(0);
-        result.AttackerTroops.Settlers.Should().Be(0);
+        // Settlers have 0 attack/defense — survive combat untouched
+        result.AttackerTroops.Get(TroopType.Swordsman).Should().BeGreaterThan(0);
+        result.AttackerTroops.Get(TroopType.Settler).Should().Be(100);
+    }
+
+    [Fact]
+    public void Cranny_ReducesLoot()
+    {
+        var resources = new Resources(wood: 1000, clay: 1000, iron: 1000, beer: 1000);
+        var crannyCap = 800;
+
+        var lootable = new Resources(
+            Math.Max(0, resources.Wood - crannyCap),
+            Math.Max(0, resources.Clay - crannyCap),
+            Math.Max(0, resources.Iron - crannyCap),
+            Math.Max(0, resources.Beer - crannyCap));
+
+        var withoutCranny = CombatResolver.Resolve(
+            new Troops(swordsmen: 100), Troops.Zero, resources);
+        var withCranny = CombatResolver.Resolve(
+            new Troops(swordsmen: 100), Troops.Zero, lootable);
+
+        withCranny.AttackerLoot.Wood.Should().BeLessThan(withoutCranny.AttackerLoot.Wood);
+        withCranny.AttackerLoot.Clay.Should().BeLessThan(withoutCranny.AttackerLoot.Clay);
+        withCranny.AttackerLoot.Iron.Should().BeLessThan(withoutCranny.AttackerLoot.Iron);
+        withCranny.AttackerLoot.Beer.Should().BeLessThan(withoutCranny.AttackerLoot.Beer);
+    }
+
+    [Fact]
+    public void WallMultiplier_ReducesDefenderLosses()
+    {
+        var attackers = new Troops(swordsmen: 10);
+        var defenders = new Troops(swordsmen: 50);
+
+        var withoutWall = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0);
+        var withWall = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 2.0);
+
+        // 2x defense power → fewer defender casualties
+        withWall.DefenderTroops.TotalCount.Should().BeGreaterThan(withoutWall.DefenderTroops.TotalCount);
+    }
+
+    [Fact]
+    public void BarracksAttackMultiplier_ReducesAttackerLosses()
+    {
+        var attackers = new Troops(swordsmen: 40);
+        var defenders = new Troops(swordsmen: 50);
+
+        var withoutBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0, barracksAttackMultiplier: 1.0);
+        var withBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0, barracksAttackMultiplier: 2.0);
+
+        withBonus.AttackerTroops.TotalCount.Should().BeGreaterThan(withoutBonus.AttackerTroops.TotalCount);
+    }
+
+    [Fact]
+    public void StableAttackMultiplier_ReducesAttackerLosses()
+    {
+        var attackers = new Troops(horsemen: 40);
+        var defenders = new Troops(horsemen: 50);
+
+        var withoutBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0, stableAttackMultiplier: 1.0);
+        var withBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, defenseMultiplier: 1.0, stableAttackMultiplier: 2.0);
+
+        withBonus.AttackerTroops.TotalCount.Should().BeGreaterThan(withoutBonus.AttackerTroops.TotalCount);
+    }
+
+    [Fact]
+    public void BarracksMultiplier_DoesNotAffectStableTroops()
+    {
+        var attackers = new Troops(horsemen: 40);
+        var defenders = new Troops(horsemen: 50);
+
+        var withoutBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, barracksAttackMultiplier: 1.0, stableAttackMultiplier: 1.0);
+        var withBarracksBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, barracksAttackMultiplier: 2.0, stableAttackMultiplier: 1.0);
+
+        withBarracksBonus.AttackerTroops.TotalCount.Should().Be(withoutBonus.AttackerTroops.TotalCount);
+    }
+
+    [Fact]
+    public void StableMultiplier_DoesNotAffectBarracksTroops()
+    {
+        var attackers = new Troops(swordsmen: 40);
+        var defenders = new Troops(swordsmen: 50);
+
+        var withoutBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, barracksAttackMultiplier: 1.0, stableAttackMultiplier: 1.0);
+        var withStableBonus = CombatResolver.Resolve(attackers, defenders, Resources.Zero, barracksAttackMultiplier: 1.0, stableAttackMultiplier: 2.0);
+
+        withStableBonus.AttackerTroops.TotalCount.Should().Be(withoutBonus.AttackerTroops.TotalCount);
     }
 
     [Fact]
@@ -78,11 +164,11 @@ public class CombatResolverTests
             Resources.Zero
         );
 
-        result.AttackerTroops.Swordsmen.Should().BeGreaterThanOrEqualTo(0);
-        result.AttackerTroops.Archers.Should().BeGreaterThanOrEqualTo(0);
-        result.AttackerTroops.Settlers.Should().BeGreaterThanOrEqualTo(0);
-        result.DefenderTroops.Swordsmen.Should().BeGreaterThanOrEqualTo(0);
-        result.DefenderTroops.Archers.Should().BeGreaterThanOrEqualTo(0);
-        result.DefenderTroops.Settlers.Should().BeGreaterThanOrEqualTo(0);
+        result.AttackerTroops.Get(TroopType.Swordsman).Should().BeGreaterThanOrEqualTo(0);
+        result.AttackerTroops.Get(TroopType.Archer).Should().BeGreaterThanOrEqualTo(0);
+        result.AttackerTroops.Get(TroopType.Settler).Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Get(TroopType.Swordsman).Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Get(TroopType.Archer).Should().BeGreaterThanOrEqualTo(0);
+        result.DefenderTroops.Get(TroopType.Settler).Should().BeGreaterThanOrEqualTo(0);
     }
 }

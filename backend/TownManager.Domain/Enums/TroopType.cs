@@ -1,11 +1,11 @@
 namespace TownManager.Domain.Enums;
 
-/// <summary>
-/// Types of troops that can be trained in a village and stationed in its garrison.
-/// </summary>
 public enum TroopType
 {
     Swordsman = 0,
     Archer = 1,
-    Settler = 2
+    Settler = 2,
+    Dogs = 3,
+    Horsemen = 4,
+    LlamaRiders = 5
 }

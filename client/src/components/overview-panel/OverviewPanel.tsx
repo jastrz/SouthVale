@@ -14,6 +14,7 @@ import { VillageListItem } from "./VillageListItem";
 import { MovementsPanel } from "../village-panel/MovementsPanel";
 import { QueuePanel } from "../village-panel/QueuePanel";
 import { TransportController } from "../transport/TransportController";
+import { TradeController } from "../trade/TradeController";
 
 export function OverviewPanel() {
   const [openVillages, setOpenVillages] = useState(true);
@@ -122,7 +123,7 @@ export function OverviewPanel() {
               />
             </CollapsibleSection>
           )}
-          {activeVillageId && movements?.filter((m) => m.originVillageId === activeVillageId || m.targetVillageId === activeVillageId).length > 0 && (
+          {activeVillageId && (movements?.filter((m) => m.originVillageId === activeVillageId || m.targetVillageId === activeVillageId)?.length ?? 0) > 0 && (
             <CollapsibleSection
               label="Movements"
               open={openMovements}
@@ -131,11 +132,12 @@ export function OverviewPanel() {
             >
               <MovementsPanel
                 villageId={activeVillageId}
-                movements={movements}
+                movements={movements ?? []}
               />
             </CollapsibleSection>
           )}
           {activeVillageId && <TransportController villageId={activeVillageId} />}
+          {activeVillageId && <TradeController villageId={activeVillageId} />}
         </div>
       </div>
     </PanelContainer>

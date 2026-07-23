@@ -12,14 +12,17 @@ public class MapService(IVillageRepository villageRepo) : IMapService
             await villageRepo.GetAllCoordinatesAsync(ct));
 
         var all = (
-            from x in Enumerable.Range(0, MapConfig.MapSize)
-            from y in Enumerable.Range(0, MapConfig.MapSize)
+            from x in Enumerable.Range(0, GameSettings.MapSize)
+            from y in Enumerable.Range(0, GameSettings.MapSize)
             select new Coordinates(x, y)
-        ).Where(c => !occupied.Contains(c))
+        ).Where(c => !occupied.Contains(c) && MapTerrain.IsWalkable(c))
          .ToList();
 
         return all.Count <= count
             ? all
             : all.OrderBy(_ => Random.Shared.Next()).Take(count).ToList();
     }
+
+    public bool IsWalkable(Coordinates coords) => MapTerrain.IsWalkable(coords);
+    public string GetTerrainJson() => MapTerrain.GetTerrainJson();
 }

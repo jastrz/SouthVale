@@ -1,6 +1,7 @@
 using MediatR;
 using TownManager.Application.Common;
 using TownManager.Application.Interfaces;
+using TownManager.Application.Map.Services;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
@@ -13,7 +14,8 @@ public class CreateSettleOrderCommandHandler(
     IVillageRepository repo,
     IPlayerRepository playerRepo,
     IGameNotificationService notifications,
-    IJobScheduler scheduler)
+    IJobScheduler scheduler,
+    IMapService mapService)
     : IRequestHandler<CreateSettleOrderCommand, Result>
 {
     public async Task<Result> Handle(CreateSettleOrderCommand request, CancellationToken ct)
@@ -22,8 +24,11 @@ public class CreateSettleOrderCommandHandler(
         if (village is null)
             return Result.Failure(["Village not found."], statusCode: 404);
 
-        if (await repo.CountByPlayerAsync(village.PlayerId, ct) >= MapConfig.MaxVillagesPerPlayer)
+        if (await repo.CountByPlayerAsync(village.PlayerId, ct) >= Domain.Config.GameSettings.MaxVillagesPerPlayer)
             return Result.Failure(["You have reached the maximum number of villages."]);
+
+        if (!mapService.IsWalkable(request.Target))
+            return Result.Failure(["Cannot settle on water or impassable terrain."]);
 
         var settlersNeeded = new Troops(0, 0, 1);
         if (!village.Troops.HasEnough(settlersNeeded))

@@ -70,7 +70,7 @@ export function useMapRenderer(
       try {
         const [app, grid] = await Promise.all([
           createApplication(divRef.current!),
-          loadMap("/maps/default.json"),
+          loadMap(`${import.meta.env.VITE_API_URL ?? ""}/config/terrain`),
         ]);
         if (!mounted) {
           app.destroy(true);
@@ -112,8 +112,8 @@ export function useMapRenderer(
       allVillages,
       activeVillageId,
       targetVillage?.id ?? null,
-      // Own villages become the active selection; enemy villages set
-      // the attack target.
+      // Own villages become the active selection
+      // enemy villages set the attack target.
       (village) => {
         setSelectedTile(null);
         if (village.kind === "own") {

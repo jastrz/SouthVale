@@ -53,6 +53,7 @@ export function GameInfoPanel() {
                     <th className="px-2 py-2">Defense</th>
                     <th className="px-2 py-2">Carry</th>
                     <th className="px-2 py-2">Speed</th>
+                    <th className="px-2 py-2"><span className="flex items-center gap-1"><Icon src={RESOURCE_ICONS.beer} size={10} /> Upkeep</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -77,6 +78,7 @@ export function GameInfoPanel() {
                       <td className="px-2 py-1.5">{troop.defense}</td>
                       <td className="px-2 py-1.5">{troop.carryCapacity}</td>
                       <td className="px-2 py-1.5">{troop.speed}/h</td>
+                      <td className="px-2 py-1.5"><span className="flex items-center gap-1"><Icon src={RESOURCE_ICONS.beer} size={10} /> {troop.upkeep}/h</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -133,16 +135,34 @@ function BuildingTable({
                   {l.warehouseCapacity > 0 && (
                     <span>Warehouse: {l.warehouseCapacity}</span>
                   )}
-                  {l.granaryCapacity > 0 && (
-                    <span>Granary: {l.granaryCapacity}</span>
-                  )}
                   {l.productionPerHour && (
                     <span className="flex items-center gap-1">
                       Production: <CostIcons value={l.productionPerHour} perHour />
                     </span>
                   )}
-                  {l.trainingSpeedMultiplier > 1 && (
-                    <span>Training: {l.trainingSpeedMultiplier}x</span>
+                  {l.barracksTrainingSpeed > 1 && type === "Barracks" && (
+                    <span>Infantry Training: {l.barracksTrainingSpeed}x</span>
+                  )}
+                  {l.stableTrainingSpeed > 1 && type === "Stable" && (
+                    <span>Cavalry Training: {l.stableTrainingSpeed}x</span>
+                  )}
+                  {l.barracksAttackMultiplier > 1 && type === "Barracks" && (
+                    <span>Infantry Attack: {l.barracksAttackMultiplier}x (Empire-wide)</span>
+                  )}
+                  {l.stableAttackMultiplier > 1 && type === "Stable" && (
+                    <span>Cavalry Attack: {l.stableAttackMultiplier}x (Empire-wide)</span>
+                  )}
+                  {l.defenseMultiplier > 1 && (
+                    <span>Defense: {l.defenseMultiplier}x</span>
+                  )}
+                  {l.crannyCapacity > 0 && (
+                    <span>Hidden: {l.crannyCapacity}</span>
+                  )}
+                  {l.tradeRate < 1 && (
+                    <span>Trade: {l.tradeRate}x</span>
+                  )}
+                  {l.buildSpeedMultiplier > 1 && (
+                    <span>Build Speed: {l.buildSpeedMultiplier}x</span>
                   )}
                 </div>
               </td>
@@ -158,7 +178,7 @@ function CostIcons({
   value,
   perHour,
 }: {
-  value: { wood: number; clay: number; iron: number; crop: number };
+  value: { wood: number; clay: number; iron: number; beer: number };
   perHour?: boolean;
 }) {
   const entries = Object.entries(RESOURCE_ICONS).filter(

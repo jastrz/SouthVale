@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { TROOP_LABELS } from "../../config/game";
-import { TROOP_ICONS } from "../../lib/helpers";
+import { TROOP_ICONS, RESOURCE_ICONS } from "../../lib/helpers";
 import { Icon } from "../Icon";
 
 import type { UseMutationResult } from "@tanstack/react-query";
@@ -10,6 +10,8 @@ import type {
   TrainRequest,
   TroopConfigDto,
   ResourcesDto,
+  TroopsDto,
+  BuildingDto
 } from "../../api/types";
 import { useGameConfig } from "../../api/hooks/useQueries";
 import { Tooltip } from "../Tooltip";
@@ -17,11 +19,15 @@ import { formatTime, parseTimeSpanMs } from "../../lib/helpers";
 import { ResourceCost } from "./ResourceCost";
 import { NumberInput } from "../NumberInput";
 
-function TroopTooltip({ config }: { config: TroopConfigDto }) {
+function TroopTooltip({ config, cost }: { config: TroopConfigDto; cost: ResourcesDto }) {
   return (
     <div className="space-y-1">
       <div className="font-semibold text-white">
         {TROOP_LABELS[config.type as TroopType] ?? config.type}
+      </div>
+      <div className="text-[10px] leading-none"
+        style={{ color: config.trainedAt === "Stable" ? "#f59e0b" : "#22d3ee" }}>
+        {config.trainedAt === "Stable" ? "cavalry" : "infantry"}
       </div>
       <div className="border-t border-slate-700" />
       <div className="grid grid-cols-[auto_1fr] gap-x-3">
@@ -37,6 +43,9 @@ function TroopTooltip({ config }: { config: TroopConfigDto }) {
         <div className="text-slate-300">Speed:</div>
         <div className="text-white">{config.speed}</div>
 
+        <div className="text-slate-300">Upkeep:</div>
+        <div className="text-white"><span className="inline-flex items-center gap-0.5">{config.upkeep}/h<Icon src={RESOURCE_ICONS.beer} size={10} /></span></div>
+
         <div className="text-slate-300">Time:</div>
         <div className="text-white">
           {formatTime(parseTimeSpanMs(config.trainingTime))}
@@ -44,194 +53,157 @@ function TroopTooltip({ config }: { config: TroopConfigDto }) {
       </div>
       <div className="border-t border-slate-700" />
       <div className="text-slate-300">Cost</div>
-      <ResourceCost value={config.trainingCost} />
-    </div>
-  );
-}
-
-function TroopCount({
-  // label,
-  count,
-  icon,
-}: {
-  label: string;
-  count: number;
-  icon?: string;
-}) {
-  return (
-    <div className="rounded bg-slate-800/40 px-2 py-1.5 text-center">
-      {icon && (
-        <div className="mb-1 flex justify-center">
-          <Icon src={icon} size={32} />
+      <ResourceCost value={cost} />
+      {config.type === "Settler" && (
+        <div className="text-[10px] text-yellow-500">
+          ×{cost.wood / config.trainingCost.wood} cost (villages + existing settlers)
         </div>
       )}
-      <div className="font-medium text-white">{count}</div>
-      {/*<div className="text-[10px] text-slate-400">{label}</div>*/}
     </div>
   );
 }
 
-function TrainingForm({
+const settlerCostMultiplier = (villageCount: number, existingSettlers: number) =>
+  Math.max(1, Math.pow(2, villageCount + existingSettlers - 1));
+
+export function TroopsPanel({
   resources,
+  troops,
   mutation,
+  buildings,
+  villageCount,
+  settlersInTraining,
 }: {
   resources: ResourcesDto;
+  troops: TroopsDto;
   mutation: UseMutationResult<unknown, unknown, TrainRequest, unknown>;
+  buildings: readonly BuildingDto[];
+  villageCount: number;
+  settlersInTraining: number;
 }) {
   const { data: gameConfig } = useGameConfig();
   const [orders, setOrders] = useState<Record<string, number>>({});
 
-  const orderCost = (type: string, count: number): ResourcesDto => {
-    const c = gameConfig?.troops[type]?.trainingCost;
-    return c
-      ? {
-          wood: c.wood * count,
-          clay: c.clay * count,
-          iron: c.iron * count,
-          crop: c.crop * count,
-        }
-      : { wood: 0, clay: 0, iron: 0, crop: 0 };
+  const availableTypes: [string, TroopConfigDto][] =
+    (Object.entries(gameConfig?.troops ?? {}) as [string, TroopConfigDto][])
+      .filter(([, cfg]) => buildings.some(b => b.type === cfg.trainedAt && b.level >= 1));
+
+  const troopCount = (type: string) =>
+    ({ Swordsman: troops.swordsmen, Archer: troops.archers, Settler: troops.settlers, Dogs: troops.dogs, Horsemen: troops.horsemen, LlamaRiders: troops.llamaRiders } as Record<string, number>)[type] ?? 0;
+
+  const effectiveCost = (type: string): ResourcesDto => {
+    const base = gameConfig?.troops[type]?.trainingCost;
+    if (!base) return { wood: 0, clay: 0, iron: 0, beer: 0 };
+    if (type === "Settler") {
+      const m = settlerCostMultiplier(villageCount, troops.settlers + settlersInTraining);
+      return { wood: base.wood * m, clay: base.clay * m, iron: base.iron * m, beer: base.beer * m };
+    }
+    return base;
   };
 
-  const sumCost = (costs: ResourcesDto[]): ResourcesDto =>
-    costs.reduce(
-      (a, b) => ({
-        wood: a.wood + b.wood,
-        clay: a.clay + b.clay,
-        iron: a.iron + b.iron,
-        crop: a.crop + b.crop,
-      }),
-      { wood: 0, clay: 0, iron: 0, crop: 0 },
-    );
+  const totalBatchCost = (): ResourcesDto => {
+    const total = { wood: 0, clay: 0, iron: 0, beer: 0 };
+    let settlerCount = 0;
+    for (const [type, count] of Object.entries(orders)) {
+      if (count <= 0) continue;
+      const baseCost = gameConfig?.troops[type]?.trainingCost;
+      if (!baseCost) continue;
+      if (type === "Settler") {
+        const k = villageCount + troops.settlers + settlersInTraining + settlerCount - 1;
+        const m = Math.max(1, Math.pow(2, k) * (Math.pow(2, count) - 1));
+        total.wood += baseCost.wood * m;
+        total.clay += baseCost.clay * m;
+        total.iron += baseCost.iron * m;
+        total.beer += baseCost.beer * m;
+        settlerCount += count;
+      } else {
+        total.wood += baseCost.wood * count;
+        total.clay += baseCost.clay * count;
+        total.iron += baseCost.iron * count;
+        total.beer += baseCost.beer * count;
+      }
+    }
+    return total;
+  };
 
   const maxFor = (type: string): number => {
-    const unitCost = gameConfig?.troops[type]?.trainingCost;
-    if (!unitCost) return 0;
-
-    // subtract resources already committed to other pending orders
-    const otherOrders = Object.entries(orders).filter(
-      ([t, c]) => t !== type && c > 0,
+    const baseCost = gameConfig?.troops[type]?.trainingCost;
+    if (!baseCost) return 0;
+    const otherOrders = Object.entries(orders).filter(([t, c]) => t !== type && c > 0);
+    const committed = otherOrders.reduce(
+      (a, [t, c]) => {
+        const cost = effectiveCost(t);
+        return { wood: a.wood + cost.wood * c, clay: a.clay + cost.clay * c, iron: a.iron + cost.iron * c, beer: a.beer + cost.beer * c };
+      },
+      { wood: 0, clay: 0, iron: 0, beer: 0 },
     );
-    const committed = sumCost(otherOrders.map(([t, c]) => orderCost(t, c)));
-    const remaining: ResourcesDto = {
-      wood: resources.wood - committed.wood,
-      clay: resources.clay - committed.clay,
-      iron: resources.iron - committed.iron,
-      crop: resources.crop - committed.crop,
-    };
+    const remaining = { wood: resources.wood - committed.wood, clay: resources.clay - committed.clay, iron: resources.iron - committed.iron, beer: resources.beer - committed.beer };
+
+    if (type === "Settler") {
+      let count = 0;
+      let wood = remaining.wood, clay = remaining.clay, iron = remaining.iron, beer = remaining.beer;
+      const existing = troops.settlers + settlersInTraining;
+      while (true) {
+        const m = settlerCostMultiplier(villageCount, existing + count);
+        const nextCost = { wood: baseCost.wood * m, clay: baseCost.clay * m, iron: baseCost.iron * m, beer: baseCost.beer * m };
+        if (wood < nextCost.wood || clay < nextCost.clay || iron < nextCost.iron || beer < nextCost.beer) break;
+        wood -= nextCost.wood; clay -= nextCost.clay; iron -= nextCost.iron; beer -= nextCost.beer;
+        count++;
+      }
+      return count;
+    }
 
     return Math.min(
-      unitCost.wood > 0 ? Math.floor(remaining.wood / unitCost.wood) : Infinity,
-      unitCost.clay > 0 ? Math.floor(remaining.clay / unitCost.clay) : Infinity,
-      unitCost.iron > 0 ? Math.floor(remaining.iron / unitCost.iron) : Infinity,
-      unitCost.crop > 0 ? Math.floor(remaining.crop / unitCost.crop) : Infinity,
+      baseCost.wood > 0 ? Math.floor(remaining.wood / baseCost.wood) : Infinity,
+      baseCost.clay > 0 ? Math.floor(remaining.clay / baseCost.clay) : Infinity,
+      baseCost.iron > 0 ? Math.floor(remaining.iron / baseCost.iron) : Infinity,
+      baseCost.beer > 0 ? Math.floor(remaining.beer / baseCost.beer) : Infinity,
     );
   };
-
-  const handleTrain = () => {
-    const entries = Object.entries(orders).filter(([, count]) => count > 0);
-    if (entries.length === 0) return;
-    mutation.mutate(
-      {
-        orders: entries.map(([troopType, count]) => ({
-          troopType: troopType as TroopType,
-          count,
-        })),
-      },
-      { onSuccess: () => setOrders({}) },
-    );
-  };
-
-  const hasOrders = Object.values(orders).some((c) => c > 0);
-
-  const totalCost = hasOrders
-    ? sumCost(
-        Object.entries(orders)
-          .filter(([, c]) => c > 0)
-          .map(([t, c]) => orderCost(t, c)),
-      )
-    : null;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex gap-1">
-        {(["Swordsman", "Archer", "Settler"] as const).map((type) => {
-          const troopCfg = gameConfig?.troops[type];
-          const label = (
-            <label className="block text-[10px] text-slate-400">
-              {TROOP_LABELS[type]}
-            </label>
-          );
-          return (
-            <div key={type} className="flex-1">
-              {troopCfg ? (
-                <Tooltip content={<TroopTooltip config={troopCfg} />}>
-                  {label}
-                </Tooltip>
-              ) : (
-                label
-              )}
-              <NumberInput
-                value={orders[type] ?? 0}
-                onChange={(v) => setOrders((prev) => ({ ...prev, [type]: v }))}
-                max={maxFor(type)}
-              />
-            </div>
-          );
-        })}
-      </div>
-      {totalCost && <ResourceCost value={totalCost} />}
-      <button
-        type="button"
-        onClick={handleTrain}
-        disabled={!hasOrders || mutation.isPending}
-        className="w-full cursor-pointer rounded bg-green-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-green-700"
-      >
-        {mutation.isPending ? "Training…" : "Train"}
-      </button>
-    </div>
-  );
-}
-
-export function TroopsPanel({
-  resources,
-  swordsmen,
-  archers,
-  settlers,
-  mutation,
-}: {
-  resources: ResourcesDto;
-  swordsmen: number;
-  archers: number;
-  settlers: number;
-  mutation: UseMutationResult<unknown, unknown, TrainRequest, unknown>;
-}) {
-  const { data: gameConfig } = useGameConfig();
-  const troopList: [string, TroopType, number, string][] = [
-    ["Swordsmen", "Swordsman", swordsmen, TROOP_ICONS.Swordsman],
-    ["Archers", "Archer", archers, TROOP_ICONS.Archer],
-    ["Settlers", "Settler", settlers, TROOP_ICONS.Settler],
-  ];
 
   return (
     <section className="px-4 py-3">
-      {/*<h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
-        Troops
-      </h3>*/}
-      <div className="mb-2 grid grid-cols-3 gap-1 text-xs">
-        {troopList.map(([label, type, count, icon]) => {
-          const troopCfg = gameConfig?.troops[type];
-          return (
-            <Tooltip
-              key={type}
-              content={troopCfg ? <TroopTooltip config={troopCfg} /> : null}
-            >
-              <TroopCount label={label} count={count} icon={icon} />
+      <div className="grid grid-cols-3 gap-2 text-xs">
+        {availableTypes.map(([type, cfg]) => (
+          <div key={type} className="flex flex-col items-center gap-1 rounded bg-slate-800/40 px-2 py-1.5 text-center">
+            <Tooltip content={<TroopTooltip config={cfg} cost={effectiveCost(type)} />}>
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="flex items-center gap-3">
+                <Icon src={TROOP_ICONS[type] ?? ""} size={32} />
+                  <span className="font-medium text-white">{troopCount(type)}</span>
+                </div>
+                <span className="text-[10px] text-slate-400">{TROOP_LABELS[type] ?? type}</span>
+              </div>
             </Tooltip>
-          );
-        })}
+            <NumberInput
+              value={orders[type] ?? 0}
+              onChange={(v) => setOrders((prev) => ({ ...prev, [type]: v }))}
+              max={maxFor(type)}
+            />
+          </div>
+        ))}
       </div>
-      <TrainingForm resources={resources} mutation={mutation} />
+      {Object.values(orders).some(c => c > 0) && (
+        <>
+          <div className="mt-2 border-t border-slate-700 pt-2">
+            <div className="mb-1 text-sm text-slate-300">Total cost:</div>
+            <ResourceCost value={totalBatchCost()} />
+          </div>
+        <button
+          type="button"
+          onClick={() => {
+            const entries = Object.entries(orders).filter(([, c]) => c > 0);
+            mutation.mutate({
+              orders: entries.map(([t, c]) => ({ troopType: t as TroopType, count: c })),
+            }, { onSuccess: () => setOrders({}) });
+          }}
+          disabled={mutation.isPending}
+          className="mt-3 w-full cursor-pointer rounded bg-green-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {mutation.isPending ? "Training…" : "Train"}
+        </button>
+        </>
+      )}
     </section>
   );
 }

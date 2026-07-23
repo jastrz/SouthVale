@@ -67,33 +67,54 @@ export function VillageListItem({
             {r.iron}
           </span>
           <span className="flex items-center gap-0.5">
-            <Icon src={RESOURCE_ICONS.crop} size={10} />
-            {r.crop}
+            <Icon src={RESOURCE_ICONS.beer} size={10} />
+            {r.beer}
           </span>
         </div>
-        {t.swordsmen > 0 || t.archers > 0 || t.settlers > 0 ? (
+        {(
+          (["swordsmen", "archers", "settlers", "dogs", "horsemen", "llamaRiders"] as const)
+            .some((k) => t[k] > 0)
+        ) ? (
           <div
             className={[
-              "flex gap-1.5 text-[11px]",
+              "flex flex-wrap gap-x-1.5 gap-y-0.5 text-[11px]",
               isActive ? "text-blue-100" : "text-slate-400",
             ].join(" ")}
           >
-            {t.swordsmen > 0 && (
+            {(t.swordsmen) > 0 && (
               <span className="flex items-center gap-0.5">
                 <Icon src={TROOP_ICONS.Swordsman} size={10} />
                 {t.swordsmen}
               </span>
             )}
-            {t.archers > 0 && (
+            {(t.archers) > 0 && (
               <span className="flex items-center gap-0.5">
                 <Icon src={TROOP_ICONS.Archer} size={10} />
                 {t.archers}
               </span>
             )}
-            {t.settlers > 0 && (
+            {(t.settlers) > 0 && (
               <span className="flex items-center gap-0.5">
                 <Icon src={TROOP_ICONS.Settler} size={10} />
                 {t.settlers}
+              </span>
+            )}
+            {(t.dogs) > 0 && (
+              <span className="flex items-center gap-0.5">
+                <Icon src={TROOP_ICONS.Dogs} size={10} />
+                {t.dogs}
+              </span>
+            )}
+            {(t.horsemen) > 0 && (
+              <span className="flex items-center gap-0.5">
+                <Icon src={TROOP_ICONS.Horsemen} size={10} />
+                {t.horsemen}
+              </span>
+            )}
+            {(t.llamaRiders) > 0 && (
+              <span className="flex items-center gap-0.5">
+                <Icon src={TROOP_ICONS.LlamaRiders} size={10} />
+                {t.llamaRiders}
               </span>
             )}
           </div>
