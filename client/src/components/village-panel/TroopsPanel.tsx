@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { TROOP_LABELS } from "../../config/game";
-import { TROOP_ICONS } from "../../lib/helpers";
+import { TROOP_ICONS, RESOURCE_ICONS } from "../../lib/helpers";
 import { Icon } from "../Icon";
 
 import type { UseMutationResult } from "@tanstack/react-query";
@@ -44,7 +44,7 @@ function TroopTooltip({ config, cost }: { config: TroopConfigDto; cost: Resource
         <div className="text-white">{config.speed}</div>
 
         <div className="text-slate-300">Upkeep:</div>
-        <div className="text-white">{config.upkeep}/h</div>
+        <div className="text-white"><span className="inline-flex items-center gap-0.5">{config.upkeep}/h<Icon src={RESOURCE_ICONS.beer} size={10} /></span></div>
 
         <div className="text-slate-300">Time:</div>
         <div className="text-white">
