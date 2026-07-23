@@ -20,34 +20,35 @@ public class VillageTests
     }
 
     [Fact]
-    public void CalculateStarvation_StarvesHighestUpkeepFirst()
+    public void CalculateStarvation_StarvesLowestUpkeepFirst()
     {
-        // Horsemen upkeep=2 > Swordsman upkeep=1 > Dogs upkeep=0.5
+        // Dogs upkeep=0.25 < Swordsman upkeep=0.5 < Horsemen upkeep=1.5
         var troops = new Troops(horsemen: 2, swordsmen: 5, dogs: 5);
-        var deficit = 3.0; // need to save 3 beer
+        var deficit = 3.0;
         var elapsed = TimeSpan.FromHours(1);
-        // horsemen save 2 each, need 3 → 2 horsemen (4 saved) overshoots
+        // dogs save 0.25 each, need 3 → ceil(3/0.25)=12, but only 5 dogs → starve 5, deficit=1.75
+        // swordsmen save 0.5 each → ceil(1.75/0.5)=4 → starve 4, deficit ≤ 0
 
         var (remaining, starved) = Village.CalculateStarvation(deficit, troops, elapsed);
 
-        starved.Get(TroopType.Horsemen).Should().Be(2);
-        starved.Get(TroopType.Swordsman).Should().Be(0);
-        starved.Get(TroopType.Dogs).Should().Be(0);
-        remaining.Get(TroopType.Swordsman).Should().Be(5);
-        remaining.Get(TroopType.Dogs).Should().Be(5);
+        starved.Get(TroopType.Dogs).Should().Be(5);
+        starved.Get(TroopType.Swordsman).Should().Be(4);
+        starved.Get(TroopType.Horsemen).Should().Be(0);
+        remaining.Get(TroopType.Horsemen).Should().Be(2);
+        remaining.Get(TroopType.Swordsman).Should().Be(1);
     }
 
     [Fact]
-    public void CalculateStarvation_SpreadsAcrossTypesWhenHighEnoughNotFound()
+    public void CalculateStarvation_SpreadsAcrossTypesWhenLowestNotEnough()
     {
         var troops = new Troops(horsemen: 1, swordsmen: 1);
-        var deficit = 3.0; // 1 horsemen (2) + 1 swordsman (1) = 3
+        var deficit = 3.0;
         var elapsed = TimeSpan.FromHours(1);
 
         var (remaining, starved) = Village.CalculateStarvation(deficit, troops, elapsed);
 
-        starved.Get(TroopType.Horsemen).Should().Be(1);
         starved.Get(TroopType.Swordsman).Should().Be(1);
+        starved.Get(TroopType.Horsemen).Should().Be(1);
         remaining.TotalCount.Should().Be(0);
     }
 
@@ -79,12 +80,12 @@ public class VillageTests
         // All troops in CSV have upkeep > 0, so this tests the filter
         // If a troop had 0 upkeep, it would be skipped
         var troops = new Troops(swordsmen: 5);
-        var deficit = 0.001; // tiny deficit, less than 1 swordsman upkeep
+        var deficit = 0.001;
         var elapsed = TimeSpan.FromHours(1);
 
         var (remaining, starved) = Village.CalculateStarvation(deficit, troops, elapsed);
 
-        // With 1 hour elapsed, swordsman upkeep = 1, deficit 0.001, ceil(0.001/1) = 1
+        // swordsman upkeep=0.5/h, ceil(0.001/0.5) = 1
         starved.Get(TroopType.Swordsman).Should().Be(1);
         remaining.Get(TroopType.Swordsman).Should().Be(4);
     }
@@ -116,11 +117,10 @@ public class VillageTests
 
         village.Tick(effects);
 
-        // Horsemen (upkeep=2) should starve before swordsmen (upkeep=1)
-        // 10 swordsmen * 1 + 1 horsemen * 2 = 12 upkeep, 0 beer produced
-        // deficit = 12, need to save 12
-        // 1 horsemen saves 2, still deficit 10
-        // ceil(10/1) = 10 swordsmen → all 10
+        // Starves cheapest first: swordsmen (0.5) then horsemen (1.5)
+        // 10*0.5 + 1*1.5 = 6.5 upkeep, deficit=6.5
+        // ceil(6.5/0.5)=13 → starve all 10 swordsmen, deficit=1.5
+        // ceil(1.5/1.5)=1 → starve 1 horsemen
         village.Troops.Get(TroopType.Horsemen).Should().Be(0);
         village.Troops.Get(TroopType.Swordsman).Should().Be(0);
     }
@@ -136,13 +136,11 @@ public class VillageTests
 
         village.Tick(effects);
 
-        // 2 horsemen (2*2=4) + 10 swordsmen (10*1=10) = 14 upkeep, 0 beer produced
-        // initial beer=5, after upkeep = 5-14 = -9, deficit=9
-        // horsemen upkeep=2→ ceil(9/2)=5 but only 2 horsemen→ starve 2 (saves 4), deficit=5
-        // swordsmen upkeep=1→ ceil(5/1)=5 → starve 5 (saves 5), deficit=0
-        village.Troops.Get(TroopType.Horsemen).Should().Be(0);
-        // Elapsed time drift can push ceil by 1, but at least 4 should remain
-        village.Troops.Get(TroopType.Swordsman).Should().BeInRange(4, 5);
+        // 10*0.5 + 2*1.5 = 8 upkeep, beer=5, deficit=3
+        // swordsmen (0.5) first: ceil(3/0.5)=6 → starve 6, deficit=0
+        village.Troops.Get(TroopType.Horsemen).Should().Be(2);
+        // Elapsed time drift can push ceil by 1
+        village.Troops.Get(TroopType.Swordsman).Should().BeInRange(3, 4);
     }
 
     [Fact]
@@ -216,7 +214,7 @@ public class VillageTests
 
         var projected = village.GetCurrentResources(effects);
 
-        projected.Beer.Should().BeApproximately(55, 0.001); // beer + produced - upkeep
+        projected.Beer.Should().BeApproximately(57.5, 0.001); // beer + produced - upkeep
         village.LastTickAt.Should().Be(beforeTick); // Did not mutate
         village.Troops.Get(TroopType.Swordsman).Should().Be(5); // Did not starve
     }

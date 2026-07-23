@@ -105,7 +105,7 @@ public class Village : Entity
         var typesOrderedByUpkeep = TroopsConfig.All
             .Select(x => x.Value)
             .Where(x => x.Upkeep > 0)
-            .OrderByDescending(x => x.Upkeep)
+            .OrderBy(x => x.Upkeep)
             .ToList();
 
         foreach(var troopConfig in typesOrderedByUpkeep)
