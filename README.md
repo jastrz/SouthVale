@@ -1,5 +1,7 @@
 # TownManager
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Real-time multiplayer browser-based strategy game (Travian/Tribal Wars style). Players build villages, train armies, attack opponents, and climb the leaderboard — all rendered on a PixiJS-powered world map.
 
 ## Tech Stack
@@ -73,3 +75,7 @@ client/src/
 ├── store/        # Zustand stores (auth, game state)
 └── styles/       # Tailwind config
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE). Copyright © 2026 jastrz.
