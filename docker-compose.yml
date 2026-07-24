@@ -2,8 +2,9 @@ services:
   postgres:
     image: postgres:alpine
     container_name: townmanager-db
-    ports:
-      - "5432:5432"
+# uncomment for local dev, or use docker-compose.override.yml
+#    ports:
+#      - "5432:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-townmanager}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
