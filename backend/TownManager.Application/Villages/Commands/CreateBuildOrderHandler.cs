@@ -45,7 +45,8 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
         VillageActivity.Log?.Invoke(village.PlayerId.ToString(), village.Name, "build",
             new { cmd.BuildingType, Level = nextLevel });
 
-        order.JobId = scheduler.ScheduleBuildOrderResolution(order.Id, adjustedTime);
+        var delay = order.CompletesAt - DateTime.UtcNow;
+        order.JobId = scheduler.ScheduleBuildOrderResolution(order.Id, delay < TimeSpan.Zero ? TimeSpan.Zero : delay);
         
         await repo.SaveChangesAsync(ct);
 

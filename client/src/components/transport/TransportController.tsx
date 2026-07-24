@@ -27,6 +27,7 @@ export function TransportController({ villageId }: { villageId: string }) {
       originX={village.coordinates.x}
       originY={village.coordinates.y}
       troopSpeeds={troopSpeeds}
+      travelSpeedMultiplier={gameConfig?.travelSpeedMultiplier}
     >
       <button
         type="button"

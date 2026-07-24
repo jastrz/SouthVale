@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useAddResources, useFullResources, useTickBarbarian, useTickLlm, useResetDb, useAdminVillages } from "../api/hooks/useAdmin";
+import { useState, useMemo, useEffect } from "react";
+import { useAddResources, useFullResources, useTickBarbarian, useTickLlm, useResetDb, useAdminVillages, useGameConfig, useUpdateGameConfig } from "../api/hooks/useAdmin";
 import { LoginBar } from "../components/LoginBar";
 
 function Btn({ label, loading, ...props }: {
@@ -34,6 +34,18 @@ export function AdminPage() {
   const resetDb = useResetDb();
   const [resetPassword, setResetPassword] = useState("");
   const [showReset, setShowReset] = useState(false);
+
+  const { data: gameConfig } = useGameConfig();
+  const updateConfig = useUpdateGameConfig();
+  const [travelSpeed, setTravelSpeed] = useState("");
+  const [resourceSpeed, setResourceSpeed] = useState("");
+
+  useEffect(() => {
+    if (gameConfig) {
+      setTravelSpeed(String(gameConfig.travelSpeedMultiplier));
+      setResourceSpeed(String(gameConfig.resourcesProductionMultiplier));
+    }
+  }, [gameConfig]);
 
   const filtered = useMemo(
     () => (villages ?? []).filter((v) => v.name.toLowerCase().includes(search.toLowerCase())),
@@ -117,6 +129,24 @@ export function AdminPage() {
           </div>
 
           <Btn type="submit" loading={addResources.isPending} label="Add resources" className="w-full mt-2" />
+        </form>
+
+        <form
+          onSubmit={(e) => { e.preventDefault(); updateConfig.mutate({ travelSpeedMultiplier: Number(travelSpeed), resourcesProductionMultiplier: Number(resourceSpeed) }); }}
+          className="flex flex-col gap-3 rounded border border-slate-700 bg-slate-800 p-4"
+        >
+          <h2 className="text-sm font-semibold text-slate-300 uppercase">
+            Game Config
+          </h2>
+          <label className="flex flex-col gap-1 text-xs text-slate-400">
+            Travel Speed Multiplier
+            <input type="number" step="any" value={travelSpeed} onChange={(e) => setTravelSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-slate-400">
+            Resources Production Multiplier
+            <input type="number" step="any" value={resourceSpeed} onChange={(e) => setResourceSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
+          </label>
+          <Btn type="submit" loading={updateConfig.isPending} label="Update" className="w-full" />
         </form>
 
         <div className="flex flex-col gap-3 rounded border border-slate-700 bg-slate-800 p-4">

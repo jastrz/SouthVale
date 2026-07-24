@@ -15,7 +15,7 @@ export function TravelEta({
   if (!ctx) return null;
   return (
     <div className="text-yellow-400">
-      time: {travelTime(ctx.originX, ctx.originY, toX, toY, speed)}
+      time: {travelTime(ctx.originX, ctx.originY, toX, toY, speed, ctx.travelSpeedMultiplier)}
     </div>
   );
 }

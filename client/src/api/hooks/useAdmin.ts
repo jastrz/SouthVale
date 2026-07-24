@@ -46,6 +46,21 @@ export const useTickLlm = () =>
     onError: (e) => toast.error(String(e)),
   });
 
+export interface GameConfig { travelSpeedMultiplier: number; resourcesProductionMultiplier: number }
+
+export const useGameConfig = () =>
+  useQuery({
+    queryKey: ["admin", "config"],
+    queryFn: () => api.get<GameConfig>("/admin/config").then((r) => r.data),
+  });
+
+export const useUpdateGameConfig = () =>
+  useMutation({
+    mutationFn: (config: Partial<GameConfig>) => api.put("/admin/config", config),
+    onSuccess: () => { toast.success("Config updated"); queryClient.invalidateQueries({ queryKey: ["admin", "config"] }); queryClient.invalidateQueries({ queryKey: ["game-config"] }); },
+    onError: (e) => toast.error(String(e)),
+  });
+
 export const useResetDb = () =>
   useMutation({
     mutationFn: (password: string) => api.post("/admin/reset", { password }),

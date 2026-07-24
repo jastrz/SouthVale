@@ -202,7 +202,34 @@ public class AdminEndpoints : IEndpoint
         .WithSummary("Reset entire game database")
         .WithDescription("Deletes all game data and Identity users, then restarts the application for re-seeding. Requires admin password confirmation.")
         .RequireAuthorization();
+
+        app.MapGet("/admin/config", () =>
+            Results.Ok(new GameConfigResponse(GameSettings.TravelSpeedMultiplier, GameSettings.ResourcesProductionMultiplier))
+        )
+        .WithName("AdminGetConfig")
+        .WithTags("Admin")
+        .RequireAuthorization();
+
+        app.MapPut("/admin/config", (UpdateGameConfigRequest request) =>
+        {
+            if (request.TravelSpeedMultiplier.HasValue)
+            {
+                GameSettings.TravelSpeedMultiplier = request.TravelSpeedMultiplier.Value;
+                GameSettings.ConfigVersion++;
+            }
+            if (request.ResourcesProductionMultiplier.HasValue)
+            {
+                GameSettings.ResourcesProductionMultiplier = request.ResourcesProductionMultiplier.Value;
+                GameSettings.ConfigVersion++;
+            }
+            return Results.Ok(new GameConfigResponse(GameSettings.TravelSpeedMultiplier, GameSettings.ResourcesProductionMultiplier));
+        })
+        .WithName("AdminUpdateConfig")
+        .WithTags("Admin")
+        .RequireAuthorization();
     }
 
     public record AddResourcesRequest(double Wood, double Clay, double Iron, double Beer);
+    public record GameConfigResponse(float TravelSpeedMultiplier, float ResourcesProductionMultiplier);
+    public record UpdateGameConfigRequest(float? TravelSpeedMultiplier, float? ResourcesProductionMultiplier);
 }

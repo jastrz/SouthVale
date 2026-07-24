@@ -14,7 +14,7 @@ Real-time multiplayer browser strategy game. Players build villages, train beer-
 ## Quick Start
 
 ```bash
-# Full stack 
+# Full stack
 docker compose up -d
 
 # Or dev mode

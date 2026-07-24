@@ -214,7 +214,9 @@ public class VillageTests
 
         var projected = village.GetCurrentResources(effects);
 
-        projected.Beer.Should().BeApproximately(57.5, 0.001); // beer + produced - upkeep
+        // beer + produced (scaled by global multiplier) - upkeep
+        var expected = 50 + 10 * GameSettings.ResourcesProductionMultiplier - 2.5;
+        projected.Beer.Should().BeApproximately(expected, 0.001);
         village.LastTickAt.Should().Be(beforeTick); // Did not mutate
         village.Troops.Get(TroopType.Swordsman).Should().Be(5); // Did not starve
     }

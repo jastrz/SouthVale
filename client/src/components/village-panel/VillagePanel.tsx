@@ -135,6 +135,7 @@ function VillagePanelInner({
         originX={village.coordinates.x}
         originY={village.coordinates.y}
         troopSpeeds={troopSpeeds}
+        travelSpeedMultiplier={config?.travelSpeedMultiplier}
       >
 {targetVillage && targetVillage.kind === "enemy" && (
           <AttackPanel
@@ -145,6 +146,9 @@ function VillagePanelInner({
             targetVillageId={targetVillage.id}
             maxSwordsmen={village.troops.swordsmen}
             maxArchers={village.troops.archers}
+            maxDogs={village.troops.dogs}
+            maxHorsemen={village.troops.horsemen}
+            maxLlamaRiders={village.troops.llamaRiders}
             mutation={attackMutation}
             onClearTarget={() => setTargetVillage(null)}
           />

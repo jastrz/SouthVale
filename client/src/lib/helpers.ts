@@ -70,8 +70,9 @@ export function travelTime(
   toX: number,
   toY: number,
   speed: number,
+  multiplier: number,
 ): string {
   const dist = Math.abs(fromX - toX) + Math.abs(fromY - toY);
-  const sec = Math.ceil((dist / speed) * 3600);
+  const sec = Math.ceil((dist / speed / multiplier) * 3600);
   return formatTime(sec * 1000);
 }

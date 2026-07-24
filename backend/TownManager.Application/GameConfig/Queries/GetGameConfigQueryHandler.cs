@@ -7,13 +7,23 @@ namespace TownManager.Application.GameConfig.Queries;
 
 public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Result<GameConfigDto>>
 {
-    private static readonly GameConfigDto Config = BuildConfig();
+    private static GameConfigDto? _cached;
+    private static int _lastVersion;
 
-    public Task<Result<GameConfigDto>> Handle(GetGameConfigQuery query, CancellationToken ct) =>
-        Task.FromResult(Result<GameConfigDto>.Success(Config));
+    public Task<Result<GameConfigDto>> Handle(GetGameConfigQuery query, CancellationToken ct)
+    {
+        if (_cached is null || _lastVersion != GameSettings.ConfigVersion)
+        {
+            _cached = BuildConfig();
+            _lastVersion = GameSettings.ConfigVersion;
+        }
+        return Task.FromResult(Result<GameConfigDto>.Success(_cached));
+    }
 
     private static GameConfigDto BuildConfig()
     {
+        var m = GameSettings.ResourcesProductionMultiplier;
+
         var buildings = BuildingConfig.Levels.ToDictionary(
             b => b.Key.ToString(),
             b => b.Value.Select(l => new BuildingLevelConfigDto(
@@ -23,10 +33,10 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
                 l.Effects.WarehouseCapacity,
                 l.Effects.GranaryCapacity,
                 l.Effects.ProductionPerHour.IsEmpty() ? null : new ResourcesDto(
-                    (int)l.Effects.ProductionPerHour.Wood,
-                    (int)l.Effects.ProductionPerHour.Clay,
-                    (int)l.Effects.ProductionPerHour.Iron,
-                    (int)l.Effects.ProductionPerHour.Beer
+                    (int)(l.Effects.ProductionPerHour.Wood * m),
+                    (int)(l.Effects.ProductionPerHour.Clay * m),
+                    (int)(l.Effects.ProductionPerHour.Iron * m),
+                    (int)(l.Effects.ProductionPerHour.Beer * m)
                 ),
                 l.Effects.DefenseMultiplier,
                 l.Effects.CrannyCapacity,
@@ -54,6 +64,6 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
             )
         );
 
-        return new GameConfigDto(buildings, troops, Domain.Config.GameSettings.MaxVillagesPerPlayer);
+        return new GameConfigDto(buildings, troops, GameSettings.MaxVillagesPerPlayer, GameSettings.TravelSpeedMultiplier);
     }
 }

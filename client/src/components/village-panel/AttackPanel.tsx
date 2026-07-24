@@ -48,6 +48,9 @@ export function AttackPanel({
   targetVillageId,
   maxSwordsmen,
   maxArchers,
+  maxDogs,
+  maxHorsemen,
+  maxLlamaRiders,
   mutation,
   onClearTarget,
 }: {
@@ -58,29 +61,35 @@ export function AttackPanel({
   targetVillageId: string;
   maxSwordsmen: number;
   maxArchers: number;
+  maxDogs: number;
+  maxHorsemen: number;
+  maxLlamaRiders: number;
   mutation: UseMutationResult<unknown, unknown, AttackRequest, unknown>;
   onClearTarget: () => void;
 }) {
   const [swordsmen, setSwordsmen] = useState(0);
   const [archers, setArchers] = useState(0);
+  const [dogs, setDogs] = useState(0);
+  const [horsemen, setHorsemen] = useState(0);
+  const [llamaRiders, setLlamaRiders] = useState(0);
   const { getSpeed } = useTravelTime();
 
   const selected = [
     { type: "Swordsman" as const, count: swordsmen },
     { type: "Archer" as const, count: archers },
+    { type: "Dogs" as const, count: dogs },
+    { type: "Horsemen" as const, count: horsemen },
+    { type: "LlamaRiders" as const, count: llamaRiders },
   ].filter((t) => t.count > 0);
 
   const speed =
     selected.length > 0
       ? Math.min(...selected.map((t) => getSpeed(t.type)))
-      : Math.min(getSpeed("Swordsman"), getSpeed("Archer"));
+      : Math.min(getSpeed("Swordsman"), getSpeed("Archer"), getSpeed("Dogs"), getSpeed("Horsemen"), getSpeed("LlamaRiders"), getSpeed("Settler"));
 
   const handleAttack = () => {
-    if (swordsmen === 0 && archers === 0) return;
-    const troops: TroopEntry[] = [];
-    if (swordsmen > 0)
-      troops.push({ troopType: "Swordsman", count: swordsmen });
-    if (archers > 0) troops.push({ troopType: "Archer", count: archers });
+    if (selected.length === 0) return;
+    const troops: TroopEntry[] = selected.map((t) => ({ troopType: t.type, count: t.count }));
     mutation.mutate({ troops, targetVillageId });
   };
 
@@ -107,20 +116,13 @@ export function AttackPanel({
         <TravelEta toX={targetX} toY={targetY} speed={speed} />
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex gap-1">
-          <TroopInput
-            label="Swordsmen"
-            value={swordsmen}
-            onChange={setSwordsmen}
-            max={maxSwordsmen}
-          />
-          <TroopInput
-            label="Archers"
-            value={archers}
-            onChange={setArchers}
-            max={maxArchers}
-          />
+      <div className="flex gap-1 flex-wrap">
+        <div className="grid grid-cols-3 gap-1">
+            {maxSwordsmen > 0 && <TroopInput label="Swordsmen" value={swordsmen} onChange={setSwordsmen} max={maxSwordsmen} />}
+            {maxArchers > 0 && <TroopInput label="Archers" value={archers} onChange={setArchers} max={maxArchers} />}
+            {maxDogs > 0 && <TroopInput label="Dogs" value={dogs} onChange={setDogs} max={maxDogs} />}
+            {maxHorsemen > 0 && <TroopInput label="Horsemen" value={horsemen} onChange={setHorsemen} max={maxHorsemen} />}
+            {maxLlamaRiders > 0 && <TroopInput label="LlamaRiders" value={llamaRiders} onChange={setLlamaRiders} max={maxLlamaRiders} />}
         </div>
 
         <button

@@ -7,7 +7,7 @@ export function useTravelTime() {
   if (!ctx) throw new Error("useTravelTime needs TravelTimeProvider");
   return {
     getEta: (toX: number, toY: number, speed: number) =>
-      travelTime(ctx.originX, ctx.originY, toX, toY, speed),
+      travelTime(ctx.originX, ctx.originY, toX, toY, speed, ctx.travelSpeedMultiplier),
     getSpeed: ctx.getSpeed,
   };
 }

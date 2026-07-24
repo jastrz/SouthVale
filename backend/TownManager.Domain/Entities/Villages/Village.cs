@@ -58,7 +58,7 @@ public class Village : Entity
     public void Tick(BuildingEffects effects)
     {
         var elapsed = DateTime.UtcNow - LastTickAt;
-        var produced = effects.ProductionPerHour.Multiply(elapsed.TotalHours);
+        var produced = effects.ProductionPerHour.Multiply(elapsed.TotalHours * GameSettings.ResourcesProductionMultiplier);
 
         AddProduction(produced);
         var deficit = ApplyUpkeep(elapsed);
@@ -72,7 +72,7 @@ public class Village : Entity
     public Resources GetCurrentResources(BuildingEffects effects)
     {
         var elapsed = DateTime.UtcNow - LastTickAt;
-        var produced = effects.ProductionPerHour.Multiply(elapsed.TotalHours);
+        var produced = effects.ProductionPerHour.Multiply(elapsed.TotalHours * GameSettings.ResourcesProductionMultiplier);
         var upkeep = Troops.GetUpkeepPerHour() * elapsed.TotalHours;
         return Cap(Resources.Add(produced).Subtract(new Resources(0, 0, 0, upkeep)), effects);
     }
