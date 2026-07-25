@@ -24,7 +24,8 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
         var villageCount = await repo.CountByPlayerAsync(village.PlayerId, ct);
 
         var existingSettlers = village.Troops.Get(TroopType.Settler)
-            + village.TrainOrders.Where(o => o.Type == TroopType.Settler).Sum(o => o.Amount - o.Completed);
+            + village.TrainOrders.Where(o => o.Type == TroopType.Settler).Sum(o => o.Amount - o.Completed)
+            + village.TroopMovements.Sum(o => o.Troops.Counts.GetValueOrDefault(TroopType.Settler));
 
         var totalCost = Resources.Zero;
 

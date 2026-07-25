@@ -6,6 +6,7 @@ import {
 import {
   useVillage,
   useMyVillages,
+  useMovements,
   useBuild,
   useTrain,
   useAttack,
@@ -63,6 +64,10 @@ function VillagePanelInner({
     : undefined;
   const buildMutation = useBuild(villageId);
   const trainMutation = useTrain(villageId);
+  const { data: movements } = useMovements();
+  const settlersInMovement = movements
+    ?.filter(m => m.originVillageId === villageId && m.status === "InFlight")
+    .reduce((sum, m) => sum + m.troops.settlers, 0) ?? 0;
   const attackMutation = useAttack(villageId);
   const settleMutation = useSettle(villageId);
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
@@ -128,6 +133,7 @@ function VillagePanelInner({
             settlersInTraining={village.trainOrders
               .filter(o => o.troopType === "Settler")
               .reduce((sum, o) => sum + o.amount - o.completed, 0)}
+            settlersInMovement={settlersInMovement}
           />
         </CollapsibleSection>
       )}

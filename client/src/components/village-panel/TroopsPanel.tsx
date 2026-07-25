@@ -73,6 +73,7 @@ export function TroopsPanel({
   buildings,
   villageCount,
   settlersInTraining,
+  settlersInMovement,
 }: {
   resources: ResourcesDto;
   troops: TroopsDto;
@@ -80,6 +81,7 @@ export function TroopsPanel({
   buildings: readonly BuildingDto[];
   villageCount: number;
   settlersInTraining: number;
+  settlersInMovement?: number;
 }) {
   const { data: gameConfig } = useGameConfig();
   const [orders, setOrders] = useState<Record<string, number>>({});
@@ -95,7 +97,7 @@ export function TroopsPanel({
     const base = gameConfig?.troops[type]?.trainingCost;
     if (!base) return { wood: 0, clay: 0, iron: 0, beer: 0 };
     if (type === "Settler") {
-      const m = settlerCostMultiplier(villageCount, troops.settlers + settlersInTraining);
+      const m = settlerCostMultiplier(villageCount, troops.settlers + settlersInTraining + (settlersInMovement ?? 0) + (orders[type] ?? 0));
       return { wood: base.wood * m, clay: base.clay * m, iron: base.iron * m, beer: base.beer * m };
     }
     return base;
@@ -109,7 +111,7 @@ export function TroopsPanel({
       const baseCost = gameConfig?.troops[type]?.trainingCost;
       if (!baseCost) continue;
       if (type === "Settler") {
-        const k = villageCount + troops.settlers + settlersInTraining + settlerCount - 1;
+        const k = villageCount + troops.settlers + settlersInTraining + (settlersInMovement ?? 0) + settlerCount - 1;
         const m = Math.max(1, Math.pow(2, k) * (Math.pow(2, count) - 1));
         total.wood += baseCost.wood * m;
         total.clay += baseCost.clay * m;
@@ -142,7 +144,7 @@ export function TroopsPanel({
     if (type === "Settler") {
       let count = 0;
       let wood = remaining.wood, clay = remaining.clay, iron = remaining.iron, beer = remaining.beer;
-      const existing = troops.settlers + settlersInTraining;
+      const existing = troops.settlers + settlersInTraining + (settlersInMovement ?? 0);
       while (true) {
         const m = settlerCostMultiplier(villageCount, existing + count);
         const nextCost = { wood: baseCost.wood * m, clay: baseCost.clay * m, iron: baseCost.iron * m, beer: baseCost.beer * m };
