@@ -34,6 +34,7 @@ services:
       LlmPlayer__ApiUrl: ${LlmPlayer__ApiUrl:-}
       LlmPlayer__ApiKey: ${LlmPlayer__ApiKey:-}
       LlmPlayer__Model: ${LlmPlayer__Model:-}
+      LlmPlayer__ReasoningEffort: ${LlmPlayer__ReasoningEffort:-medium}
       Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/10 * * * *}
       LlmPlayer__TickIntervalCron: ${LlmPlayer__TickIntervalCron:-*/15 * * * *}
       Features__UseBarbarians: ${Features__UseBarbarians:-true}

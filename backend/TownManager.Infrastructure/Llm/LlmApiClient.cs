@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using TownManager.Application.Interfaces;
 using TownManager.Application.Llm;
 
@@ -25,7 +24,7 @@ public class LlmApiClient(HttpClient http, LlmPlayerConfig config) : ILlmApiClie
                 max_tokens = config.ThinkingTokens,
                 thinking = new { type = "enabled" },
                 stream = false,
-                reasoningEffort = "medium"
+                reasoningEffort = config.ReasoningEffort,
             }
             : new
             {
@@ -35,7 +34,7 @@ public class LlmApiClient(HttpClient http, LlmPlayerConfig config) : ILlmApiClie
                 max_tokens = config.NonThinkingTokens,
                 thinking = new { type = "disabled" },
                 stream = false,
-                reasoningEffort = "medium"
+                reasoningEffort = config.ReasoningEffort,
             };
 
         var request = new HttpRequestMessage(HttpMethod.Post, $"{config.ApiUrl.TrimEnd('/')}/chat/completions")

@@ -13,6 +13,7 @@ public class LlmPlayerConfig
     public bool EnableThinking { get; set; } = true;
     public int ThinkingTokens { get; set; } = 1024 * 16;
     public int NonThinkingTokens { get; set; } = 1024 * 4;
+    public string ReasoningEffort { get; set; } = "medium";
     public bool LogActionsConsole { get; set; } = true;
     public bool LogActionsFile { get; set; } = true;
 }
