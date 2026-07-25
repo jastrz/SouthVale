@@ -137,7 +137,7 @@ public class LlmPlayerService(
         var failed = 0;
         foreach (var action in actions)
         {
-            var r = await ExecuteAction(bot, villages, action, ct);
+            var r = await ExecuteAction(bot, action, ct);
             if (r) succeeded++; else failed++;
         }
         logger.LogInformation("LLM pass {Username}: {Received} actions, {Succeeded} ok, {Failed} failed",
@@ -201,7 +201,7 @@ You are a player in browser strategy game. Your personality: {bot.BotPersonality
 Village {i + 1}: "{v.Name}" (ID: {v.Id})
   Location: ({v.Coordinates.X}, {v.Coordinates.Y})
   Resources: {(int)current.Wood}W {(int)current.Clay}C {(int)current.Iron}I {(int)current.Beer}B
-  Troops: {v.Troops.Get(TroopType.Swordsman)}S {v.Troops.Get(TroopType.Archer)}A {v.Troops.Get(TroopType.Settler)}St
+  Troops: Swordsman={v.Troops.Get(TroopType.Swordsman)} Archer={v.Troops.Get(TroopType.Archer)} Dogs={v.Troops.Get(TroopType.Dogs)} Horsemen={v.Troops.Get(TroopType.Horsemen)} LlamaRiders={v.Troops.Get(TroopType.LlamaRiders)} Settler={v.Troops.Get(TroopType.Settler)}
   Buildings: {buildings}
   Build queue: {(buildOrders.Length > 0 ? buildOrders : "empty")}
   Train queue: {(trainOrders.Length > 0 ? trainOrders : "empty")}
@@ -229,8 +229,9 @@ Respond with a JSON array of actions. Each action is an object:
 { "action": "settle", "village_id": "guid", "target": { "x": 10, "y": 10 } }
 
 Building types: WoodCutter, ClayPit, IronMine, Brewery, Warehouse, Barracks, Stable, Wall, Cranny, TradePost
-Troop types: Swordsman, Archer, Settler
-Combat roles: Swordsman = high attack (good for offense), Archer = high defense. Same cost. Mix them according to your role.
+Troop types: Swordsman, Archer, Dogs, Horsemen, LlamaRiders, Settler
+Combat roles: Swordsman = high attack (offense), Archer = high defense, Dogs = attack/movement speed, Horsemen = high attack/fast cavalry, LlamaRiders = balanced/resources carrier. Settler = founding new villages, does not fight.
+Settler cost doubles per existing settler/village (geometric). Base cost in game config. (e.g. 2 villages + 1 settler = 2^(2+1-1) = 4 * baseCost)
 
 RESOURCE RULES:
 - Each action costs resources (see building/troop costs in game config).
@@ -243,8 +244,10 @@ IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.
 - Max {{config.MaxActionsPerTick}} actions per tick.
 - Always use existing settlers with settle command.
-- Water tiles and tiles with trees/bushes cannot be settled. Pick grass tiles only.
+- Water tiles and tiles with trees/bushes cannot be settled. Pick grass tiles only. Pick different places for your villages according to your playstyle.
+- Attack wisely - if target village has big population, you should adjust sent troops accordingly.
 - Respond with ONLY the JSON array, no other text. Never add any new fields outside of provided game config.
+
 """;
 
         return prompt;
@@ -314,7 +317,7 @@ IMPORTANT:
         }
     }
 
-    private async Task<bool> ExecuteAction(Player bot, IReadOnlyList<Village> villages, LlmAction action, CancellationToken ct)
+    private async Task<bool> ExecuteAction(Player bot, LlmAction action, CancellationToken ct)
     {
         var details = new Dictionary<string, object?> { ["action"] = action.Action, ["village_id"] = action.VillageId };
         Result? result = null;
