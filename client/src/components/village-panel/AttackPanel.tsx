@@ -128,7 +128,7 @@ export function AttackPanel({
         <button
           type="button"
           onClick={handleAttack}
-          disabled={(swordsmen === 0 && archers === 0) || mutation.isPending}
+          disabled={selected.length === 0 || mutation.isPending}
           className="w-full cursor-pointer rounded bg-red-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-red-700"
         >
           {mutation.isPending ? "Sending…" : "Send Attack"}
