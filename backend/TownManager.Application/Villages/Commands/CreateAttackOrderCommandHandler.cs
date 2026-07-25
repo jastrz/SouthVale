@@ -19,10 +19,9 @@ public class CreateAttackOrderCommandHandler(
 {
     public async Task<Result> Handle(CreateAttackOrderCommand request, CancellationToken ct)
     {
-        var troops = new Troops(
-            request.Troops.Sum(t => t.TroopType == TroopType.Swordsman ? t.Count : 0),
-            request.Troops.Sum(t => t.TroopType == TroopType.Archer ? t.Count : 0)
-        );
+        var troops = new Troops();
+        foreach (var t in request.Troops.Where(t => t.Count > 0))
+            troops = troops.Add(t.TroopType, t.Count);
 
         var village = await repo.GetWithMovementOrdersAsync(request.VillageId, ct);
         if (village is null)

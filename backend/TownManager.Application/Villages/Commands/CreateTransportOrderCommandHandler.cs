@@ -37,11 +37,9 @@ public class CreateTransportOrderCommandHandler(
         if (targetVillage.PlayerId != village.PlayerId)
             return Result.Failure(["Can only transport to your own villages."], statusCode: 403);
 
-        var troops = new Troops(
-            request.Troops.Sum(t => t.TroopType == TroopType.Swordsman ? t.Count : 0),
-            request.Troops.Sum(t => t.TroopType == TroopType.Archer ? t.Count : 0),
-            request.Troops.Sum(t => t.TroopType == TroopType.Settler ? t.Count : 0)
-        );
+        var troops = new Troops();
+        foreach (var t in request.Troops.Where(t => t.Count > 0))
+            troops = troops.Add(t.TroopType, t.Count);
         
         var effects = BuildingConfig.AggregateEffects(village.Buildings);
         village.Tick(effects);
