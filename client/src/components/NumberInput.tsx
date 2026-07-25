@@ -2,13 +2,18 @@ export function NumberInput({
   value,
   onChange,
   max,
+  label,
 }: {
   value: number;
   onChange: (v: number) => void;
   max: number;
+  label?: string;
 }) {
   return (
     <div>
+      {label && (
+        <label className="block text-[10px] text-slate-400">{label}</label>
+      )}
       <input
         type="number"
         min={0}

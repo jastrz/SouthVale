@@ -140,10 +140,8 @@ export function TransportPanel({
         <div className="grid grid-cols-3 gap-1">
           {TROOP_FIELDS.map(({ type, key }) => (
             <div key={type}>
-              <label className="block text-[10px] text-slate-400">
-                {TROOP_LABELS[type] ?? type}
-              </label>
               <NumberInput
+                label={TROOP_LABELS[type] ?? type}
                 value={counts[type] ?? 0}
                 onChange={(n) => setCount(type, n)}
                 max={troops[key]}
@@ -172,36 +170,16 @@ export function TransportPanel({
 
         <div className="flex gap-1">
           <div className="flex-1">
-            <label className="block text-[10px] text-slate-400">Wood</label>
-            <NumberInput
-              value={wood}
-              onChange={setWood}
-              max={maxFor(resources.wood, "wood")}
-            />
+            <NumberInput label="Wood" value={wood} onChange={setWood} max={maxFor(resources.wood, "wood")} />
           </div>
           <div className="flex-1">
-            <label className="block text-[10px] text-slate-400">Clay</label>
-            <NumberInput
-              value={clay}
-              onChange={setClay}
-              max={maxFor(resources.clay, "clay")}
-            />
+            <NumberInput label="Clay" value={clay} onChange={setClay} max={maxFor(resources.clay, "clay")} />
           </div>
           <div className="flex-1">
-            <label className="block text-[10px] text-slate-400">Iron</label>
-            <NumberInput
-              value={iron}
-              onChange={setIron}
-              max={maxFor(resources.iron, "iron")}
-            />
+            <NumberInput label="Iron" value={iron} onChange={setIron} max={maxFor(resources.iron, "iron")} />
           </div>
           <div className="flex-1">
-            <label className="block text-[10px] text-slate-400">Beer</label>
-            <NumberInput
-              value={beer}
-              onChange={setBeer}
-              max={maxFor(resources.beer, "beer")}
-            />
+            <NumberInput label="Beer" value={beer} onChange={setBeer} max={maxFor(resources.beer, "beer")} />
           </div>
         </div>
       </div>

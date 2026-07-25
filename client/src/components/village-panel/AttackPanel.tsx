@@ -3,42 +3,7 @@ import type { UseMutationResult } from "@tanstack/react-query";
 import type { AttackRequest, TroopEntry } from "../../api/types";
 import { TravelEta } from "../travel-time/TravelEta";
 import { useTravelTime } from "../travel-time/useTravelTime";
-
-function TroopInput({
-  label,
-  value,
-  onChange,
-  max,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  max: number;
-}) {
-  return (
-    <div className="flex-1">
-      <label className="block text-[10px] text-slate-400">{label}</label>
-      <input
-        type="number"
-        min={0}
-        max={max}
-        value={value || ""}
-        onChange={(e) =>
-          onChange(Math.max(0, Number.parseInt(e.target.value) || 0))
-        }
-        className="w-full rounded border border-slate-600 bg-slate-900 px-1.5 py-1 text-xs text-white outline-none focus:border-red-500"
-        placeholder="0"
-      />
-      <button
-        type="button"
-        onClick={() => onChange(max)}
-        className="mt-0.5 w-full cursor-pointer rounded bg-slate-700/60 px-1 py-px text-[9px] text-slate-400 transition-colors hover:bg-slate-600/60 hover:text-slate-200"
-      >
-        Max: {max}
-      </button>
-    </div>
-  );
-}
+import { NumberInput } from "../NumberInput";
 
 export function AttackPanel({
   targetName,
@@ -118,11 +83,11 @@ export function AttackPanel({
 
       <div className="flex gap-1 flex-wrap">
         <div className="grid grid-cols-3 gap-1">
-            {maxSwordsmen > 0 && <TroopInput label="Swordsmen" value={swordsmen} onChange={setSwordsmen} max={maxSwordsmen} />}
-            {maxArchers > 0 && <TroopInput label="Archers" value={archers} onChange={setArchers} max={maxArchers} />}
-            {maxDogs > 0 && <TroopInput label="Dogs" value={dogs} onChange={setDogs} max={maxDogs} />}
-            {maxHorsemen > 0 && <TroopInput label="Horsemen" value={horsemen} onChange={setHorsemen} max={maxHorsemen} />}
-            {maxLlamaRiders > 0 && <TroopInput label="LlamaRiders" value={llamaRiders} onChange={setLlamaRiders} max={maxLlamaRiders} />}
+            {maxSwordsmen > 0 && <div className="flex-1"><NumberInput label="Swordsmen" value={swordsmen} onChange={setSwordsmen} max={maxSwordsmen} /></div>}
+            {maxArchers > 0 && <div className="flex-1"><NumberInput label="Archers" value={archers} onChange={setArchers} max={maxArchers} /></div>}
+            {maxDogs > 0 && <div className="flex-1"><NumberInput label="Dogs" value={dogs} onChange={setDogs} max={maxDogs} /></div>}
+            {maxHorsemen > 0 && <div className="flex-1"><NumberInput label="Horsemen" value={horsemen} onChange={setHorsemen} max={maxHorsemen} /></div>}
+            {maxLlamaRiders > 0 && <div className="flex-1"><NumberInput label="LlamaRiders" value={llamaRiders} onChange={setLlamaRiders} max={maxLlamaRiders} /></div>}
         </div>
 
         <button
