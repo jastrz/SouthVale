@@ -55,7 +55,15 @@ export function AttackPanel({
   const handleAttack = () => {
     if (selected.length === 0) return;
     const troops: TroopEntry[] = selected.map((t) => ({ troopType: t.type, count: t.count }));
-    mutation.mutate({ troops, targetVillageId });
+    mutation.mutate({ troops, targetVillageId }, {
+      onSuccess: () => {
+        setSwordsmen(0);
+        setArchers(0);
+        setDogs(0);
+        setHorsemen(0);
+        setLlamaRiders(0);
+      },
+    });
   };
 
   return (
