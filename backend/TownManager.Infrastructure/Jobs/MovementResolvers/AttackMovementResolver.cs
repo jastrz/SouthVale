@@ -39,15 +39,14 @@ public class AttackMovementResolver(
             logger.LogWarning("Target village {TargetVillageId} not found for attack movement {MovementId} — returning troops",
                 movement.TargetVillageId, movement.Id);
 
-            var home = await villageRepo.GetWithMovementOrdersAsync(movement.VillageId, ct);
-            if (home is not null)
+            if (village is not null)
             {
                 var travelTime = movement.ArrivesAt - movement.DepartureAt;
                 var returnMovement = TroopMovement.Create(
-                    movement.Troops,
+                    new Troops { Counts = new(movement.Troops.Counts) },
                     Resources.Zero, movement.VillageId,
                     travelTime, DateTime.UtcNow, MovementType.Return);
-                home.TroopMovements.Add(returnMovement);
+                village.TroopMovements.Add(returnMovement);
 
                 await reportRepo.AddAsync(
                     ReportFactory.AttackCancelledReport(village.PlayerId, village.Name, movement.TargetVillageId.ToString()!), ct);
