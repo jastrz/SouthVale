@@ -11,6 +11,7 @@ public class LlmPlayerConfig
     public string TickIntervalCron { get; set; } = "*/15 * * * *";
     public int MaxActionsPerTick { get; set; } = 20;
     public bool EnableThinking { get; set; } = true;
+    public double Temperature { get; set; } = 0.7;
     public int ThinkingTokens { get; set; } = 1024 * 16;
     public int NonThinkingTokens { get; set; } = 1024 * 4;
     public string ReasoningEffort { get; set; } = "medium";

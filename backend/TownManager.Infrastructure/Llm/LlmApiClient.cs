@@ -20,7 +20,7 @@ public class LlmApiClient(HttpClient http, LlmPlayerConfig config) : ILlmApiClie
             {
                 model = config.Model,
                 messages = new[] { new { role = "system", content = prompt } },
-                temperature = 0.7,
+                temperature = config.Temperature,
                 max_tokens = config.ThinkingTokens,
                 thinking = new { type = "enabled" },
                 stream = false,
@@ -30,7 +30,7 @@ public class LlmApiClient(HttpClient http, LlmPlayerConfig config) : ILlmApiClie
             {
                 model = config.Model,
                 messages = new[] { new { role = "system", content = prompt } },
-                temperature = 0.7,
+                temperature = config.Temperature,
                 max_tokens = config.NonThinkingTokens,
                 thinking = new { type = "disabled" },
                 stream = false,
@@ -51,7 +51,7 @@ public class LlmApiClient(HttpClient http, LlmPlayerConfig config) : ILlmApiClie
 
         var parsed = JsonSerializer.Deserialize<OpenAiResponse>(rawBody, JsonOpts);
         var msg = parsed?.Choices?.FirstOrDefault()?.Message;
-        var content = msg?.Content ?? msg?.ReasoningContent;
+        var content = !string.IsNullOrEmpty(msg?.Content) ? msg.Content : msg?.ReasoningContent;
         return string.IsNullOrEmpty(content)
             ? LlmApiResponse.Fail(0, rawBody)
             : LlmApiResponse.Ok(content, rawBody);

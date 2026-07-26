@@ -73,7 +73,7 @@ public static class DependencyInjection
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<IJobScheduler, HangfireJobScheduler>();
 
-        services.AddHttpClient<ILlmApiClient, LlmApiClient>(c => c.Timeout = TimeSpan.FromMinutes(5));
+        services.AddHttpClient<ILlmApiClient, LlmApiClient>(c => c.Timeout = TimeSpan.FromMinutes(10));
 
         services.AddScoped<IMovementResolver, AttackMovementResolver>();
         services.AddScoped<IMovementResolver, ReturnMovementResolver>();

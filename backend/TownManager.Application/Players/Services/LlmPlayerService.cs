@@ -172,7 +172,7 @@ public class LlmPlayerService(
 
         var personalityDesc = bot.BotPersonality switch
         {
-            BotPersonality.Aggressive => "You prioritize military strength. Train troops and attack weaker neighbors only. Expand through conquest, settling and some economy. ",
+            BotPersonality.Aggressive => "You prioritize military strength. Train troops and attack weaker neighbors only. Expand through conquest, settling for expansion and develop some economy.",
             BotPersonality.Defensive => "You prioritize defense. Maintain a strong garrison, and only attack when you have overwhelming advantage. Protect your villages and settle new.",
             BotPersonality.Economic => "You prioritize resource production and expansion. Upgrade resource buildings, train settlers, and found new villages. Avoid unnecessary wars, but keep some defense.",
             _ => "Play strategically.",
@@ -244,7 +244,7 @@ IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.
 - Max {{config.MaxActionsPerTick}} actions per tick.
 - Always use existing settlers with settle command.
-- Water tiles and tiles with trees/bushes cannot be settled. Pick grass tiles only. Pick different places for your villages according to your playstyle.
+- Pick different places for settling your villages according to your playstyle and settle at least 2 tiles away.
 - Attack wisely - if target village has big population, you should adjust sent troops accordingly.
 - Respond with ONLY the JSON array, no other text. Never add any new fields outside of provided game config.
 
@@ -284,13 +284,26 @@ IMPORTANT:
 
     private async Task<LlmAction[]?> CallLlmApi(string username, string prompt, CancellationToken ct)
     {
-        var apiResult = await llmApi.CallAsync(prompt, ct);
+        const int maxRetries = 3;
+        LlmApiResponse? apiResult = null;
 
-        if (!apiResult.Success || string.IsNullOrEmpty(apiResult.Content))
+        for (var attempt = 0; attempt < maxRetries; attempt++)
+        {
+            apiResult = await llmApi.CallAsync(prompt, ct);
+
+            if (apiResult.Success && !string.IsNullOrEmpty(apiResult.Content))
+                break;
+
+            logger.LogWarning("LLM API error ({Status}), attempt {Attempt}/{MaxRetries}", apiResult.StatusCode, attempt, maxRetries);
+            if (attempt < maxRetries - 1)
+                await Task.Delay(TimeSpan.FromSeconds(2), ct);
+        }
+
+        if (apiResult is null || !apiResult.Success || string.IsNullOrEmpty(apiResult.Content))
         {
             LlmActivity.Log?.Invoke(username, "api-error", config.Model,
-                new { status = apiResult.StatusCode, response = apiResult.RawBody });
-            logger.LogWarning("LLM API error ({Status})", apiResult.StatusCode);
+                new { status = apiResult?.StatusCode, response = apiResult?.RawBody });
+            logger.LogWarning("LLM API error ({Status})", apiResult?.StatusCode);
             return null;
         }
 
