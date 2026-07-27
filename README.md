@@ -3,8 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fkubastuff.eu%2Fsouthvale)](https://kubastuff.eu/southvale)
 [![API Docs](https://img.shields.io/badge/API_Docs-Scalar-8A2BE2)](https://kubastuff.eu/southvale/api/scalar)
+[![Architecture](https://img.shields.io/badge/Architecture-lightgrey)](ARCHITECTURE.md)
 
-Real-time multiplayer browser strategy game. Players build villages, train beer-fueled armies, attack opponents, and climb the leaderboard.
+Real-time multiplayer browser strategy game. Players build and extend their villages, train beer-fueled armies and attack opponents.
 
 **Play:** [kubastuff.eu/southvale](https://kubastuff.eu/southvale) 
 
@@ -41,7 +42,8 @@ cd client && npm install && npm run dev
 
 **Infrastructure:** Docker Compose (PostgreSQL, pgAdmin, backend)
 
+## Links
 
-## License
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [LICENSE](LICENSE)
 
-MIT — see [LICENSE](LICENSE). Copyright © 2026 jastrz.
