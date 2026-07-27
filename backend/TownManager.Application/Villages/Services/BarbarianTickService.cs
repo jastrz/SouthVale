@@ -27,8 +27,16 @@ public class BarbarianTickService(
 
         foreach (var b in barbarians)
         {
-            await AutoBuild(b, ct);
-            await AutoTrain(b, ct);
+            if (rng.Next(2) == 0)
+            {
+                await AutoBuild(b, ct);
+                await AutoTrain(b, ct);
+            }
+            else
+            {
+                await AutoTrain(b, ct);
+                await AutoBuild(b, ct);
+            }
             await TryAttack(b, rng, ct);
         }
 
@@ -65,6 +73,9 @@ public class BarbarianTickService(
 
         Check(TroopType.Swordsman, b.Troops.Get(TroopType.Swordsman), BarbarianConfig.MaxTroops.Get(TroopType.Swordsman));
         Check(TroopType.Archer, b.Troops.Get(TroopType.Archer), BarbarianConfig.MaxTroops.Get(TroopType.Archer));
+        Check(TroopType.Dogs, b.Troops.Get(TroopType.Dogs), BarbarianConfig.MaxTroops.Get(TroopType.Dogs));
+        Check(TroopType.Horsemen, b.Troops.Get(TroopType.Horsemen), BarbarianConfig.MaxTroops.Get(TroopType.Horsemen));
+        Check(TroopType.LlamaRiders, b.Troops.Get(TroopType.LlamaRiders), BarbarianConfig.MaxTroops.Get(TroopType.LlamaRiders));
 
         if (orders.Count > 0)
             await mediator.Send(new CreateTrainOrderCommand(b.Id, orders), ct);
@@ -88,8 +99,11 @@ public class BarbarianTickService(
         var target = targets[rng.Next(targets.Count)];
 
         var troops = new List<TroopEntry>();
-        if (b.Troops.Get(TroopType.Swordsman) > 0) troops.Add(new TroopEntry(TroopType.Swordsman, (int)Math.Ceiling(b.Troops.Get(TroopType.Swordsman) / 2.0)));
-        if (b.Troops.Get(TroopType.Archer) > 0) troops.Add(new TroopEntry(TroopType.Archer, (int)Math.Ceiling(b.Troops.Get(TroopType.Archer) / 2.0)));
+        foreach (var type in new[] { TroopType.Swordsman, TroopType.Archer, TroopType.Dogs, TroopType.Horsemen, TroopType.LlamaRiders })
+        {
+            var count = b.Troops.Get(type);
+            if (count > 0) troops.Add(new TroopEntry(type, (int)Math.Ceiling(count / 2.0)));
+        }
 
         await mediator.Send(new CreateAttackOrderCommand(b.Id, troops, target.Id), ct);
         b.LastAttackAt = DateTime.UtcNow;
@@ -110,7 +124,7 @@ public class BarbarianTickService(
                 Name = $"Barbarian ({coords.X}|{coords.Y})",
                 VillageType = VillageType.Barbarian,
                 PlayerId = BarbarianConfig.BarbarianPlayerId,
-                Troops = new Troops(BarbarianConfig.StartingTroops.Get(TroopType.Swordsman), BarbarianConfig.StartingTroops.Get(TroopType.Archer)),
+                Troops = BarbarianConfig.StartingTroops.Clone(),
                 Resources = new Resources(rc.Wood, rc.Clay, rc.Iron, rc.Beer),
                 Coordinates = coords,
                 Buildings = BarbarianConfig.StartingBuildings

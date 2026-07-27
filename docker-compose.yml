@@ -41,6 +41,8 @@ services:
       LlmPlayer__NonThinkingTokens: ${LlmPlayer__NonThinkingTokens:-4096}
       Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/10 * * * *}
       LlmPlayer__TickIntervalCron: ${LlmPlayer__TickIntervalCron:-*/15 * * * *}
+      GameSettings__TravelSpeedMultiplier: ${GameSettings__TravelSpeedMultiplier:-10}
+      GameSettings__ResourcesProductionMultiplier: ${GameSettings__ResourcesProductionMultiplier:-16}
       Features__UseBarbarians: ${Features__UseBarbarians:-true}
       Features__UseLlmPlayers: ${Features__UseLlmPlayers:-false}
       Admin__Password: ${Admin__Password:-}

@@ -49,6 +49,8 @@ public class Troops
         return new Troops { Counts = d };
     }
 
+    public Troops Clone() => new Troops { Counts = new(Counts) };
+    
     public bool HasEnough(Troops required) =>
         required.Counts.All(kv => Get(kv.Key) >= kv.Value);
 

@@ -31,6 +31,9 @@ public class Resources
     public Resources Multiply(double m) =>
         new(Wood * m, Clay * m,
             Iron * m, Beer * m);
+
+    public Resources Clone() => new Resources(Wood, Clay, Iron, Beer);
+    
     public bool CanAfford(Resources cost) =>
         Wood >= cost.Wood && Clay >= cost.Clay && Iron >= cost.Iron && Beer >= cost.Beer;
 

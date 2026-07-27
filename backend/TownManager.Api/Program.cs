@@ -7,6 +7,7 @@ using TownManager.Application;
 using TownManager.Application.Players;
 using TownManager.Application.Villages;
 using TownManager.Application.Llm;
+using TownManager.Domain.Config;
 using TownManager.Infrastructure;
 
 Directory.CreateDirectory("logs");
@@ -58,6 +59,9 @@ try
         .AddApiServices(builder.Configuration)
         .AddApplication()
         .AddInfrastructure(builder.Configuration);
+
+    GameSettings.TravelSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TravelSpeedMultiplier", 10f);
+    GameSettings.ResourcesProductionMultiplier = builder.Configuration.GetValue<float>("GameSettings:ResourcesProductionMultiplier", 16f);
 
     builder.Services.Configure<ServiceProviderOptions>(o => o.ValidateOnBuild = false);
 

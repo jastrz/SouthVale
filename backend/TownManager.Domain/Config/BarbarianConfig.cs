@@ -8,12 +8,12 @@ public static class BarbarianConfig
     // player ID for the barbarian
     public static readonly Guid BarbarianPlayerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-    public const int MaxBuildingLevel = 20;
-    public const int AttackRange = 15;
+    public const int MaxBuildingLevel = 10;
+    public const int AttackRange = 25;
     public const int TargetPopulation = 15;
     
-    public static readonly Troops StartingTroops = new(15, 15, 0);
-    public static readonly Troops MaxTroops = new(200, 200, 0);
+    public static readonly Troops StartingTroops = new(15, 15, 0, 20, 0, 5);
+    public static readonly Troops MaxTroops = new(200, 200, 0, 300, 50, 20);
     public static readonly Resources StartingResources = new(500, 500, 500, 500);
     public static readonly TimeSpan AttackCooldown = TimeSpan.FromHours(2);
 
@@ -24,5 +24,8 @@ public static class BarbarianConfig
         [BuildingType.Warehouse] = 2,
         [BuildingType.WoodCutter] = 2,
         [BuildingType.Brewery] = 2,
+        [BuildingType.Barracks] = 1,
+        [BuildingType.Stable] = 1,
+        [BuildingType.TownHall] = 1
     };
 }

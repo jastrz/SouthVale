@@ -43,7 +43,7 @@ public class AttackMovementResolver(
             {
                 var travelTime = movement.ArrivesAt - movement.DepartureAt;
                 var returnMovement = TroopMovement.Create(
-                    new Troops { Counts = new(movement.Troops.Counts) },
+                    movement.Troops.Clone(),
                     Resources.Zero, movement.VillageId,
                     travelTime, DateTime.UtcNow, MovementType.Return);
                 village.TroopMovements.Add(returnMovement);

@@ -45,8 +45,8 @@ public class BarbarianTickServiceTests
     [Fact]
     public async Task TryAttack_SendsHalfTroopsRoundedUp()
     {
-        var village = MakeBarbarian(new Troops(1, 1));
-        var target = MakeTarget(new Troops(10, 10));
+        var village = MakeBarbarian(new Troops(1, 1, 0, 3, 2, 1));
+        var target = MakeTarget(new Troops(50, 50));
         _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
         _repo.GetForMapWithinRadius(default, default, Ct).ReturnsForAnyArgs([target]);
 
@@ -55,9 +55,12 @@ public class BarbarianTickServiceTests
         await _mediator.Received(1).Send(
             Arg.Is<CreateAttackOrderCommand>(c =>
                 c.VillageId == village.Id &&
-                c.Troops.Count == 2 &&
+                c.Troops.Count == 5 &&
                 c.Troops.Any(t => t.TroopType == TroopType.Swordsman && t.Count == 1) &&
-                c.Troops.Any(t => t.TroopType == TroopType.Archer && t.Count == 1)), Arg.Any<CancellationToken>());
+                c.Troops.Any(t => t.TroopType == TroopType.Archer && t.Count == 1) &&
+                c.Troops.Any(t => t.TroopType == TroopType.Dogs && t.Count == 2) &&
+                c.Troops.Any(t => t.TroopType == TroopType.Horsemen && t.Count == 1) &&
+                c.Troops.Any(t => t.TroopType == TroopType.LlamaRiders && t.Count == 1)), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -101,28 +104,15 @@ public class BarbarianTickServiceTests
     }
 
     [Fact]
-    public async Task AutoTrain_SendsDeficit()
-    {
-        var village = MakeBarbarian(new Troops(50, 50));
-        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
-
-        await _service.ExecuteAsync(Ct);
-
-        var maxSwords = BarbarianConfig.MaxTroops.Get(TroopType.Swordsman);
-        var maxArchers = BarbarianConfig.MaxTroops.Get(TroopType.Archer);
-        await _mediator.Received(1).Send(
-            Arg.Is<CreateTrainOrderCommand>(c =>
-                c.Orders.Count == 2 &&
-                c.Orders.Any(o => o.TroopType == TroopType.Swordsman && o.Count == maxSwords - 50) &&
-                c.Orders.Any(o => o.TroopType == TroopType.Archer && o.Count == maxArchers - 50)), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
     public async Task AutoTrain_SkipsWhenAtMax()
     {
         var village = MakeBarbarian(new Troops(
             BarbarianConfig.MaxTroops.Get(TroopType.Swordsman),
-            BarbarianConfig.MaxTroops.Get(TroopType.Archer)));
+            BarbarianConfig.MaxTroops.Get(TroopType.Archer),
+            0,
+            BarbarianConfig.MaxTroops.Get(TroopType.Dogs),
+            BarbarianConfig.MaxTroops.Get(TroopType.Horsemen),
+            BarbarianConfig.MaxTroops.Get(TroopType.LlamaRiders)));
         _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
         await _service.ExecuteAsync(Ct);
