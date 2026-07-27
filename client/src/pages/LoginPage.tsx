@@ -4,6 +4,7 @@ import type { AxiosError } from "axios";
 import { useLogin } from "../api/hooks/useAuth";
 import { useAuthStore } from "../store/authStore";
 import { loginSchema, type LoginForm, type FormErrors } from "../schemas/auth";
+import { GuestRegisterButton } from "../components/GuestRegisterButton";
 import { inputBase, inputDefault, inputError } from "../styles/styles";
 import { jwtRole } from "../lib/helpers";
 
@@ -65,8 +66,7 @@ export function LoginPage() {
   };
 
   const serverError =
-    (login.error as AxiosError<{ message?: string }> | null)?.response?.data
-      ?.message ??
+    (login.error as AxiosError<{ detail?: string }> | null)?.response?.data?.detail ??
     login.error?.message ??
     "Login failed";
 
@@ -130,6 +130,8 @@ export function LoginPage() {
           Register
         </Link>
       </div>
+
+      <GuestRegisterButton />
     </form>
   );
 }

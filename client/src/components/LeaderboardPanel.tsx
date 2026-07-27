@@ -8,7 +8,7 @@ export function LeaderboardPanel() {
   const { data } = useLeaderboard(page);
   const username = useAuthStore((s) => s.username);
 
-  const totalPages = Math.ceil((data?.totalCount ?? 0) / 20);
+  const totalPages = Math.ceil((data?.totalCount ?? 0) / 10);
 
   return (
     <div className="flex flex-col gap-3">

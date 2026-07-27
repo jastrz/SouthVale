@@ -38,6 +38,16 @@ export interface AuthResponse {
   username?: string;
 }
 
+export interface GuestAuthResponse extends AuthResponse {
+  password: string;
+}
+
+export interface ClaimGuestRequest {
+  email: string;
+  newPassword: string;
+  username: string;
+}
+
 export interface BuildRequest {
   buildingType: BuildingType;
 }

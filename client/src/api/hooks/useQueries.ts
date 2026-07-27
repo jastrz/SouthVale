@@ -216,7 +216,7 @@ export const useLeaderboard = (page = 1) =>
     queryFn: () =>
       api
         .get<LeaderboardResult>("/gameplay/leaderboard", {
-          params: { page, pageSize: 20 },
+          params: { page, pageSize: 10 },
         })
         .then((r) => r.data),
     placeholderData: (prev) => prev,

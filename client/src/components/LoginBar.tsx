@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuthStore } from "../store/authStore";
 import { useGameStateStore } from "../store/gameStateStore";
@@ -5,6 +6,7 @@ import { api } from "../lib/axios";
 import { jwtRole } from "../lib/helpers";
 import { useDelete } from "../api/hooks/useAuth";
 import { BurgerMenu } from "./BurgerMenu";
+import { ClaimAccountModal } from "./ClaimAccountModal";
 
 export function LoginBar() {
   const navigate = useNavigate();
@@ -14,8 +16,10 @@ export function LoginBar() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const clearGameState = useGameStateStore((s) => s.clear);
   const deleteMutation = useDelete();
+  const [showClaim, setShowClaim] = useState(false);
 
   const isAdmin = token ? jwtRole(token) === "Admin" : false;
+  const isGuest = token && !email;
 
   const handleLogout = async () => {
     await api.post("/auth/logout").catch(() => {});
@@ -45,8 +49,9 @@ export function LoginBar() {
   const menuItems = isAdmin
     ? [{ label: "Logout", onClick: handleLogout }]
     : [
+        ...(isGuest ? [{ label: "Claim Account", onClick: () => setShowClaim(true) }] : []),
         { label: "Logout", onClick: handleLogout },
-        { label: "Delete account", onClick: handleDelete, danger: true },
+        ...(isGuest ? [] : [{ label: "Delete account", onClick: handleDelete, danger: true }]),
       ];
 
   return (
@@ -62,6 +67,7 @@ export function LoginBar() {
             {username ?? email}
           </span>
           <BurgerMenu items={menuItems} />
+          {showClaim && <ClaimAccountModal onClose={() => setShowClaim(false)} />}
         </>
       ) : (
         <>
