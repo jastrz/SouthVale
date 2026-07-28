@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using MediatR;
 using TownManager.Application.Auth.RegisterGuest;
 
@@ -6,11 +5,6 @@ namespace TownManager.Api.Endpoints.Auth;
 
 public class RegisterGuestEndpoint : IEndpoint
 {
-    private static readonly ConcurrentDictionary<string, int> _guestIpCounts = new();
-    private const int MaxGuestsPerIp = 3;
-    private static readonly TimeSpan ResetTimeSpan = TimeSpan.FromHours(1);
-    private static DateTime _lastCleanup = DateTime.UtcNow;
-
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost("/auth/register-guest", async (
@@ -18,18 +12,6 @@ public class RegisterGuestEndpoint : IEndpoint
             HttpContext httpContext,
             CancellationToken ct) =>
         {
-            if (DateTime.UtcNow - _lastCleanup > ResetTimeSpan)
-            {
-                _guestIpCounts.Clear();
-                _lastCleanup = DateTime.UtcNow;
-            }
-
-            var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            var count = _guestIpCounts.AddOrUpdate(ip, 1, (_, c) => c + 1);
-
-            if (count > MaxGuestsPerIp)
-                return Results.Problem(statusCode: 400, title: "Bad request", detail: "Too many guest accounts from this IP. You can reclaim your previous account.");
-
             var result = await sender.Send(new RegisterGuestCommand(), ct);
 
             if (!result.Succeeded)
