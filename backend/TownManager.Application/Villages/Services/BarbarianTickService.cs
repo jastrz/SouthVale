@@ -64,18 +64,36 @@ public class BarbarianTickService(
 
     private async Task AutoTrain(Village b, CancellationToken ct)
     {
-        var orders = new List<TroopEntry>();
-        void Check(TroopType t, int current, int max)
-        {
-            var deficit = max - current;
-            if (deficit > 0) orders.Add(new TroopEntry(t, deficit));
-        }
+        var effects = BuildingConfig.AggregateEffects(b.Buildings);
+        b.Tick(effects);
 
-        Check(TroopType.Swordsman, b.Troops.Get(TroopType.Swordsman), BarbarianConfig.MaxTroops.Get(TroopType.Swordsman));
-        Check(TroopType.Archer, b.Troops.Get(TroopType.Archer), BarbarianConfig.MaxTroops.Get(TroopType.Archer));
-        Check(TroopType.Dogs, b.Troops.Get(TroopType.Dogs), BarbarianConfig.MaxTroops.Get(TroopType.Dogs));
-        Check(TroopType.Horsemen, b.Troops.Get(TroopType.Horsemen), BarbarianConfig.MaxTroops.Get(TroopType.Horsemen));
-        Check(TroopType.LlamaRiders, b.Troops.Get(TroopType.LlamaRiders), BarbarianConfig.MaxTroops.Get(TroopType.LlamaRiders));
+        var available = b.Resources.Clone();
+        var orders = new List<TroopEntry>();
+
+        foreach (var type in new[] { TroopType.Swordsman, TroopType.Archer, TroopType.Dogs, TroopType.Horsemen, TroopType.LlamaRiders })
+        {
+            var current = b.Troops.Get(type);
+            var deficit = BarbarianConfig.MaxTroops.Get(type) - current;
+            if (deficit <= 0) continue;
+
+            var config = TroopsConfig.Get(type);
+            var hasBuilding = b.Buildings.Any(b => b.Type == config.TrainedAt && b.Level >= 1);
+            if (!hasBuilding) continue;
+
+            var cost = config.TrainingCost;
+            var maxAffordable = int.MaxValue;
+            if (cost.Wood > 0) maxAffordable = Math.Min(maxAffordable, (int)(available.Wood / cost.Wood));
+            if (cost.Clay > 0) maxAffordable = Math.Min(maxAffordable, (int)(available.Clay / cost.Clay));
+            if (cost.Iron > 0) maxAffordable = Math.Min(maxAffordable, (int)(available.Iron / cost.Iron));
+            if (cost.Beer > 0) maxAffordable = Math.Min(maxAffordable, (int)(available.Beer / cost.Beer));
+            if (maxAffordable == int.MaxValue) maxAffordable = deficit;
+
+            var toTrain = Math.Min(deficit, maxAffordable);
+            if (toTrain <= 0) continue;
+
+            available = available.Subtract(cost.Multiply(toTrain));
+            orders.Add(new TroopEntry(type, toTrain));
+        }
 
         if (orders.Count > 0)
             await mediator.Send(new CreateTrainOrderCommand(b.Id, orders), ct);

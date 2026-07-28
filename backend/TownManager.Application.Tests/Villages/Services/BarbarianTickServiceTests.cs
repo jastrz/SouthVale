@@ -104,6 +104,34 @@ public class BarbarianTickServiceTests
     }
 
     [Fact]
+    public async Task AutoTrain_SkipsWhenZeroResources()
+    {
+        var village = MakeBarbarian(new Troops(0, 0));
+        village.Resources = new Resources(0, 0, 0, 0);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
+
+        await _service.ExecuteAsync(Ct);
+
+        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateTrainOrderCommand>(), Ct);
+    }
+
+    [Fact]
+    public async Task AutoTrain_TrainsFewerThanFullDeficitWhenResourcesLimited()
+    {
+        var village = MakeBarbarian(new Troops(0, 0));
+        village.Resources = new Resources(100, 100, 100, 100);
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
+
+        await _service.ExecuteAsync(Ct);
+
+        await _mediator.Received(1).Send(
+            Arg.Is<CreateTrainOrderCommand>(c =>
+                c.VillageId == village.Id &&
+                c.Orders.Sum(o => o.Count) < BarbarianConfig.MaxTroops.TotalCount),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task AutoTrain_SkipsWhenAtMax()
     {
         var village = MakeBarbarian(new Troops(
