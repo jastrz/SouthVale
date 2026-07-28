@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { Outlet } from "@tanstack/react-router";
 import { LeaderboardPanel } from "../components/LeaderboardPanel";
 
 export function FrontpageLayout() {
+  const [open, setOpen] = useState(false);
+
   return (
     <div
       className="flex h-screen w-screen flex-col overflow-y-auto bg-slate-950 bg-cover bg-top"
       style={{ backgroundImage: "url(/bg.png)", height: "100dvh" }}
     >
-      <div className="flex flex-col items-center gap-2 px-4 py-2">
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-2">
         <img
           src="/logo.png"
           alt="Logo"
@@ -26,12 +29,54 @@ export function FrontpageLayout() {
               <h2 className="mb-4 text-center text-xl font-bold tracking-widest text-white uppercase">
                 Leaderboard
               </h2>
-              <LeaderboardPanel />
+              <LeaderboardPanel pageSize={10} />
 
             </div>
           </div>
         </div>
       </div>
+
+      <footer className={`flex flex-col items-center gap-1 px-4 py-2 text-center text-xs text-slate-500 bg-slate-950/80 ${open ? "w-full" : "self-start rounded-tr"}`}>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="self-start cursor-pointer text-slate-500 transition-colors hover:text-slate-300"
+        >
+          {open ? "▾ Hide legal & privacy notice" : "▸ Legal & privacy notice"}
+        </button>
+        {open && (
+          <>
+          <p>
+            This is a fictional game. Any resemblance to real places, names, or events is purely coincidental.
+          </p>
+          <p>
+            <strong className="text-slate-400">Privacy notice</strong>
+            <br />
+            The service operator (contact below) stores your email address and a hashed password solely to
+            create and maintain your game account (GDPR Art. 6(1)(b)). No analytics, tracking, or advertising.
+            The game features automated AI opponents: your username and village names may be processed by an
+            external AI service provider solely to generate their gameplay. Data is kept until you delete your
+            account. You may access, correct, export, or delete
+            your data at any time from the in-game menu or by contacting{" "}
+            <a href="mailto:southvaleweb@gmail.com" className="text-slate-400 underline hover:text-slate-300">
+              southvaleweb@gmail.com
+            </a>
+            . You also have the right to lodge a complaint with the President of the Personal Data
+            Protection Office (UODO), Poland.
+          </p>
+          <p>
+            <strong className="text-slate-400">User content</strong>
+            <br />
+            Players are responsible for the content they create (village names, usernames, messages).
+            The operator does not pre-moderate user content but removes unlawful or offensive content
+            once reported. Report such content to{" "}
+            <a href="mailto:southvaleweb@gmail.com" className="text-slate-400 underline hover:text-slate-300">
+              southvaleweb@gmail.com
+            </a>
+            .
+          </p>
+          </>
+        )}
+      </footer>
     </div>
   );
 }

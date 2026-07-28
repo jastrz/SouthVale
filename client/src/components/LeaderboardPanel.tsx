@@ -3,12 +3,12 @@ import { useLeaderboard } from "../api/hooks/useQueries";
 import { Pagination } from "./Pagination";
 import { useAuthStore } from "../store/authStore";
 
-export function LeaderboardPanel() {
+export function LeaderboardPanel({ pageSize = 10 }: { pageSize?: number }) {
   const [page, setPage] = useState(1);
-  const { data } = useLeaderboard(page);
+  const { data } = useLeaderboard(page, pageSize);
   const username = useAuthStore((s) => s.username);
 
-  const totalPages = Math.ceil((data?.totalCount ?? 0) / 10);
+  const totalPages = Math.ceil((data?.totalCount ?? 0) / pageSize);
 
   return (
     <div className="flex flex-col gap-3">

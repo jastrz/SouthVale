@@ -210,13 +210,13 @@ export const useMarkReportRead = () =>
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reports"] }),
   });
 
-export const useLeaderboard = (page = 1) =>
+export const useLeaderboard = (page = 1, pageSize = 10) =>
   useQuery({
-    queryKey: ["leaderboard", page],
+    queryKey: ["leaderboard", page, pageSize],
     queryFn: () =>
       api
         .get<LeaderboardResult>("/gameplay/leaderboard", {
-          params: { page, pageSize: 10 },
+          params: { page, pageSize },
         })
         .then((r) => r.data),
     placeholderData: (prev) => prev,

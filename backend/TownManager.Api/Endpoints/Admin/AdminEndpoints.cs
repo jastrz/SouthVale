@@ -251,7 +251,10 @@ public class AdminEndpoints : IEndpoint
         .RequireAuthorization();
 
         app.MapGet("/admin/config", () =>
-            Results.Ok(new GameConfigResponse(GameSettings.TravelSpeedMultiplier, GameSettings.ResourcesProductionMultiplier))
+            Results.Ok(new GameConfigResponse(
+                GameSettings.TravelSpeedMultiplier,
+                GameSettings.ResourcesProductionMultiplier,
+                BarbarianConfig.TargetPopulation))
         )
         .WithName("AdminGetConfig")
         .WithTags("Admin")
@@ -269,7 +272,12 @@ public class AdminEndpoints : IEndpoint
                 GameSettings.ResourcesProductionMultiplier = request.ResourcesProductionMultiplier.Value;
                 GameSettings.ConfigVersion++;
             }
-            return Results.Ok(new GameConfigResponse(GameSettings.TravelSpeedMultiplier, GameSettings.ResourcesProductionMultiplier));
+            if (request.MaxBarbarianVillages.HasValue)
+                BarbarianConfig.TargetPopulation = request.MaxBarbarianVillages.Value;
+            return Results.Ok(new GameConfigResponse(
+                GameSettings.TravelSpeedMultiplier,
+                GameSettings.ResourcesProductionMultiplier,
+                BarbarianConfig.TargetPopulation));
         })
         .WithName("AdminUpdateConfig")
         .WithTags("Admin")
@@ -277,6 +285,6 @@ public class AdminEndpoints : IEndpoint
     }
 
     public record AddResourcesRequest(double Wood, double Clay, double Iron, double Beer);
-    public record GameConfigResponse(float TravelSpeedMultiplier, float ResourcesProductionMultiplier);
-    public record UpdateGameConfigRequest(float? TravelSpeedMultiplier, float? ResourcesProductionMultiplier);
+    public record GameConfigResponse(float TravelSpeedMultiplier, float ResourcesProductionMultiplier, int MaxBarbarianVillages);
+    public record UpdateGameConfigRequest(float? TravelSpeedMultiplier, float? ResourcesProductionMultiplier, int? MaxBarbarianVillages);
 }

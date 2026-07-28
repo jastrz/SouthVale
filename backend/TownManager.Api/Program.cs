@@ -62,6 +62,7 @@ try
 
     GameSettings.TravelSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TravelSpeedMultiplier", 10f);
     GameSettings.ResourcesProductionMultiplier = builder.Configuration.GetValue<float>("GameSettings:ResourcesProductionMultiplier", 16f);
+    BarbarianConfig.TargetPopulation = builder.Configuration.GetValue<int>("Barbarian:TargetPopulation", 15);
 
     builder.Services.Configure<ServiceProviderOptions>(o => o.ValidateOnBuild = false);
 

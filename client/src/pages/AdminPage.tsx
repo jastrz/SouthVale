@@ -39,11 +39,13 @@ export function AdminPage() {
   const updateConfig = useUpdateGameConfig();
   const [travelSpeed, setTravelSpeed] = useState("");
   const [resourceSpeed, setResourceSpeed] = useState("");
+  const [maxBarbVillages, setMaxBarbVillages] = useState("");
 
   useEffect(() => {
     if (gameConfig) {
       setTravelSpeed(String(gameConfig.travelSpeedMultiplier));
       setResourceSpeed(String(gameConfig.resourcesProductionMultiplier));
+      setMaxBarbVillages(String(gameConfig.maxBarbarianVillages));
     }
   }, [gameConfig]);
 
@@ -132,7 +134,7 @@ export function AdminPage() {
         </form>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); updateConfig.mutate({ travelSpeedMultiplier: Number(travelSpeed), resourcesProductionMultiplier: Number(resourceSpeed) }); }}
+          onSubmit={(e) => { e.preventDefault(); updateConfig.mutate({ travelSpeedMultiplier: Number(travelSpeed), resourcesProductionMultiplier: Number(resourceSpeed), maxBarbarianVillages: Number(maxBarbVillages) }); }}
           className="flex flex-col gap-3 rounded border border-slate-700 bg-slate-800 p-4"
         >
           <h2 className="text-sm font-semibold text-slate-300 uppercase">
@@ -145,6 +147,10 @@ export function AdminPage() {
           <label className="flex flex-col gap-1 text-xs text-slate-400">
             Resources Production Multiplier
             <input type="number" step="any" value={resourceSpeed} onChange={(e) => setResourceSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-slate-400">
+            Max Barbarian Villages
+            <input type="number" step="1" value={maxBarbVillages} onChange={(e) => setMaxBarbVillages(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
           </label>
           <Btn type="submit" loading={updateConfig.isPending} label="Update" className="w-full" />
         </form>

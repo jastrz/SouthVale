@@ -39,6 +39,7 @@ services:
       LlmPlayer__ReasoningEffort: ${LlmPlayer__ReasoningEffort:-medium}
       LlmPlayer__ThinkingTokens: ${LlmPlayer__ThinkingTokens:-16384}
       LlmPlayer__NonThinkingTokens: ${LlmPlayer__NonThinkingTokens:-4096}
+      Barbarian__TargetPopulation: ${Barbarian__TargetPopulation:-15}
       Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/10 * * * *}
       LlmPlayer__TickIntervalCron: ${LlmPlayer__TickIntervalCron:-*/15 * * * *}
       GameSettings__TravelSpeedMultiplier: ${GameSettings__TravelSpeedMultiplier:-10}

@@ -10,7 +10,7 @@ public static class BarbarianConfig
 
     public const int MaxBuildingLevel = 10;
     public const int AttackRange = 25;
-    public const int TargetPopulation = 15;
+    public static int TargetPopulation { get; set; } = 15;
     
     public static readonly Troops StartingTroops = new(15, 15, 0, 20, 0, 5);
     public static readonly Troops MaxTroops = new(200, 200, 0, 300, 50, 20);

@@ -118,7 +118,7 @@ export function GamePage() {
               {currentView === "notifications" ? (
                 <NotificationsPanel />
               ) : currentView === "leaderboard" ? (
-                <LeaderboardPanel />
+                <LeaderboardPanel pageSize={20} />
               ) : (
                 <GameInfoPanel />
               )}
