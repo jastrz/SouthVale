@@ -1,10 +1,37 @@
-import { Container, Graphics, Sprite } from "pixi.js";
+import { Container, Graphics, Sprite, Text } from "pixi.js";
 import type { MapVillage } from "../../api/types";
 import { COLORS, TILE_SIZE, VILLAGE_SCALE } from "../config";
 import { villageTexture } from "../atlas";
+import { useAuthStore } from "../../store/authStore";
 
 function createHalo(color: number, alpha: number): Graphics {
   return new Graphics().circle(0, 0, 22).fill({ color, alpha });
+}
+
+function labelText(village: MapVillage): string {
+  if (village.kind === "own") {
+    const troops = village.troops;
+    const pop = troops.swordsmen + troops.archers + troops.settlers + troops.dogs + troops.horsemen + troops.llamaRiders;
+    return `${useAuthStore.getState().username}\n(${village.name} | ${pop})`;
+  }
+  return `${village.playerName}\n(${village.name} | ${village.population})`;
+}
+
+function createLabel(village: MapVillage): Text {
+  const text = new Text({
+    text: labelText(village),
+    style: {
+      fontSize: 10,
+      fill: 0xffffff,
+      stroke: { color: 0x000000, width: 2 },
+      align: "center",
+      fontFamily: "georgia",
+    },
+    anchor: { x: 0.5, y: 0 },
+    eventMode: "none",
+  });
+  text.y = -60;
+  return text;
 }
 
 export function createVillageMarker(
@@ -24,6 +51,7 @@ export function createVillageMarker(
 
   const container = new Container();
   container.addChild(sprite);
+  container.addChild(createLabel(village));
   container.x = village.coordinates.x * TILE_SIZE + TILE_SIZE / 2;
   container.y = village.coordinates.y * TILE_SIZE + TILE_SIZE / 2;
 
