@@ -61,6 +61,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-}
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-}
     container_name: townmanager-client
     ports:
       - "3000:80"
