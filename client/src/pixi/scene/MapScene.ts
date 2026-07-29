@@ -38,7 +38,7 @@ export class MapScene {
   constructor(
     app: Application,
     grid: TileData[][],
-    onTileClick?: (x: number, y: number) => void,
+    onTileClick?: (x: number, y: number, tile: TileData) => void,
   ) {
     this.app = app;
     this.grid = grid;
@@ -75,6 +75,7 @@ export class MapScene {
       const local = e.getLocalPosition(this.root);
       const x = Math.floor(local.x / TILE_SIZE);
       const y = Math.floor(local.y / TILE_SIZE);
+      const tile = this.grid[y]?.[x];
       this.selectedTile = { x, y };
       this.selectionFill.clear();
       this.selectionFill.rect(
@@ -87,7 +88,7 @@ export class MapScene {
         color: COLORS.selectionFill,
         alpha: GRID.selectionFillAlpha,
       });
-      onTileClick?.(x, y);
+      onTileClick?.(x, y, tile);
     });
 
     this.root.on("pointermove", (e: FederatedPointerEvent) => {
@@ -140,7 +141,7 @@ export class MapScene {
     villages: readonly MapVillage[],
     activeOwnId: string | null,
     targetId: string | null,
-    onSelect?: (village: MapVillage) => void,
+    onSelect?: (village: MapVillage, screenX: number, screenY: number) => void,
     onHover?: (village: MapVillage | null) => void,
   ): void {
     this.onVillageHover = onHover ?? null;

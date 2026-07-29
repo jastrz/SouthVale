@@ -38,7 +38,7 @@ export function TopBar() {
         </div>
       </div>
 
-      <nav className="pointer-events-auto flex gap-1 rounded-lg border border-slate-800 bg-slate-950/70 px-2 py-0.5">
+      <nav className="pointer-events-auto flex gap-1 rounded-lg border border-slate-800 bg-slate-950/70 px-2 py-0.5 flex-wrap justify-center sm:flex-nowrap">
         <Tab
           active={currentView === "map"}
           onClick={() => setCurrentView("map")}
@@ -82,7 +82,7 @@ function Tab({
 }) {
   return (
     <button
-      className={`relative rounded px-2.5 py-1 text-xs font-medium tracking-wide uppercase transition-colors ${
+      className={`relative rounded px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase transition-colors sm:px-2.5 sm:py-1 sm:text-xs ${
         active
           ? "bg-slate-700 text-white"
           : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
@@ -91,7 +91,7 @@ function Tab({
     >
       {children}
       {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+        <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-600 px-0.5 text-[8px] font-bold text-white sm:-top-1.5 sm:-right-1.5 sm:h-4 sm:min-w-4 sm:px-1 sm:text-[10px]">
           {badge > 99 ? "99+" : badge}
         </span>
       )}
@@ -208,7 +208,7 @@ function VillageContent({ villageId }: { villageId: string }) {
           />
         ) : (
           <h2
-            className="cursor-pointer text-sm font-bold text-white hover:text-slate-300"
+            className="cursor-pointer text-xs font-bold text-white hover:text-slate-300 sm:text-sm"
             onClick={startEditing}
             title="Click to rename"
           >
@@ -219,7 +219,7 @@ function VillageContent({ villageId }: { villageId: string }) {
           </h2>
         )}
       </div>
-      <div className="[grid-area:resources] flex gap-1 sm:gap-4">
+      <div className="[grid-area:resources] flex justify-center gap-1 sm:gap-4">
         {resources.map((r) => (
           <div key={r.icon} className="flex items-center gap-1 text-slate-300">
             <Icon src={r.icon} size={24} />

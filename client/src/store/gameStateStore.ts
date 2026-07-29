@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import type { MapVillage, VillageListItemDto } from "../api/types";
+import type { TileData } from "../pixi/tileData";
 import type { ViewMode } from "../types/view";
+
+/**
 
 /**
  * Holds the live state of all villages the client currently knows about.
@@ -14,7 +17,8 @@ export interface GameState {
   currentView: ViewMode;
 
   targetVillage: MapVillage | null;
-  selectedTile: { x: number; y: number } | null;
+  targetVillagePos: { x: number; y: number } | null;
+  selectedTile: { x: number; y: number; tile: TileData } | null;
 
   // bulk hydration
   setVillages: (villages: VillageListItemDto[]) => void;
@@ -26,6 +30,7 @@ export interface GameState {
   setActiveVillage: (id: string | null) => void;
   setHoveredVillage: (village: MapVillage | null) => void;
   setTargetVillage: (village: MapVillage | null) => void;
+  setTargetVillagePos: (pos: { x: number; y: number } | null) => void;
   setSelectedTile: (tile: { x: number; y: number } | null) => void;
   setCurrentView: (view: ViewMode) => void;
 }
@@ -63,6 +68,7 @@ export const useGameStateStore = create<GameState>((set) => ({
   setActiveVillage: (id) => set((state) => ({ activeVillageId: id, activeVillageNonce: state.activeVillageNonce + 1 })),
   setHoveredVillage: (village) => set({ hoveredVillage: village }),
   setTargetVillage: (village) => set({ targetVillage: village }),
+  setTargetVillagePos: (pos) => set({ targetVillagePos: pos }),
   setSelectedTile: (tile) => set({ selectedTile: tile }),
   setCurrentView: (view) => set({ currentView: view }),
 
@@ -72,6 +78,7 @@ export const useGameStateStore = create<GameState>((set) => ({
       activeVillageId: null,
       hoveredVillage: null,
       targetVillage: null,
+      targetVillagePos: null,
       selectedTile: null,
     }),
 }));

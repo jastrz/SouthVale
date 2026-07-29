@@ -5,7 +5,9 @@ import { NotificationsPanel } from "../components/NotificationsPanel";
 import { LeaderboardPanel } from "../components/LeaderboardPanel";
 import { OverviewPanel } from "../components/overview-panel/OverviewPanel";
 import { VillagePanel } from "../components/village-panel";
-import { VillageTooltip } from "../components/VillageTooltip";
+// import { VillageTooltip } from "../components/VillageTooltip";
+import { VillagePopup } from "../components/VillagePopup";
+import { TilePopup } from "../components/SettlePopup";
 import { GameInfoPanel } from "../components/GameInfoPanel";
 import { TopBar } from "../components/TopBar";
 import { PANEL_CLAMP } from "../pixi/config";
@@ -127,7 +129,9 @@ export function GamePage() {
         </div>
       )}
 
-      <VillageTooltip />
+      {/* <VillageTooltip /> */}
+      <VillagePopup />
+      <TilePopup />
     </div>
   );
 }

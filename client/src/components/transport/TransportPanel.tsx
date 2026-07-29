@@ -12,6 +12,10 @@ import { TravelEta } from "../travel-time/TravelEta";
 import { useTravelTime } from "../travel-time/useTravelTime";
 import { useMyVillages, useGameConfig } from "../../api/hooks/useQueries";
 import { NumberInput } from "../NumberInput";
+import { Icon } from "../Icon";
+import { RESOURCE_ICONS, TROOP_ICONS } from "../../lib/helpers";
+
+const ICON_SIZE = 18;
 
 const TROOP_FIELDS: { type: TroopType; key: keyof TroopsDto }[] = [
   { type: "Swordsman", key: "swordsmen" },
@@ -141,7 +145,7 @@ export function TransportPanel({
           {TROOP_FIELDS.map(({ type, key }) => (
             <div key={type}>
               <NumberInput
-                label={TROOP_LABELS[type] ?? type}
+                label={<><Icon src={TROOP_ICONS[type]} size={ICON_SIZE} /> {TROOP_LABELS[type] ?? type}</>}
                 value={counts[type] ?? 0}
                 onChange={(n) => setCount(type, n)}
                 max={troops[key]}
@@ -170,16 +174,16 @@ export function TransportPanel({
 
         <div className="flex gap-1">
           <div className="flex-1">
-            <NumberInput label="Wood" value={wood} onChange={setWood} max={maxFor(resources.wood, "wood")} />
+            <NumberInput label={<><Icon src={RESOURCE_ICONS.wood} size={ICON_SIZE} /> Wood</>} value={wood} onChange={setWood} max={maxFor(resources.wood, "wood")} />
           </div>
           <div className="flex-1">
-            <NumberInput label="Clay" value={clay} onChange={setClay} max={maxFor(resources.clay, "clay")} />
+            <NumberInput label={<><Icon src={RESOURCE_ICONS.clay} size={ICON_SIZE} /> Clay</>} value={clay} onChange={setClay} max={maxFor(resources.clay, "clay")} />
           </div>
           <div className="flex-1">
-            <NumberInput label="Iron" value={iron} onChange={setIron} max={maxFor(resources.iron, "iron")} />
+            <NumberInput label={<><Icon src={RESOURCE_ICONS.iron} size={ICON_SIZE} /> Iron</>} value={iron} onChange={setIron} max={maxFor(resources.iron, "iron")} />
           </div>
           <div className="flex-1">
-            <NumberInput label="Beer" value={beer} onChange={setBeer} max={maxFor(resources.beer, "beer")} />
+            <NumberInput label={<><Icon src={RESOURCE_ICONS.beer} size={ICON_SIZE} /> Beer</>} value={beer} onChange={setBeer} max={maxFor(resources.beer, "beer")} />
           </div>
         </div>
       </div>

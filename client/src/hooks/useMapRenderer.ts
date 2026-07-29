@@ -29,6 +29,7 @@ export function useMapRenderer(
   const setActiveVillage = useGameStateStore((s) => s.setActiveVillage);
   const setHoveredVillage = useGameStateStore((s) => s.setHoveredVillage);
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
+  const setTargetVillagePos = useGameStateStore((s) => s.setTargetVillagePos);
   const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
   const selectedTile = useGameStateStore((s) => s.selectedTile);
   const targetVillage = useGameStateStore((s) => s.targetVillage);
@@ -92,9 +93,10 @@ export function useMapRenderer(
         }
         appRef.current = app;
 
-        const scene = new MapScene(app, grid, (x, y) => {
-          setSelectedTile({ x, y });
+        const scene = new MapScene(app, grid, (x, y, tile) => {
+          setSelectedTile(tile ? { x, y, tile } : null);
           setTargetVillage(null);
+          setTargetVillagePos(null);
         });
         sceneRef.current = scene;
         disposePan = attachPan(app.canvas, scene.root, {
@@ -102,8 +104,12 @@ export function useMapRenderer(
           onPan: (x, y) => scene.setViewportPosition(x, y),
         });
         disposeZoom = attachZoom(app.canvas, scene.root, {
-          onZoom: () => scene.clampViewport(),
+          onZoom: () => {
+            scene.clampViewport();
+            scene.villages.setZoom(scene.root.scale.x);
+          },
         });
+        scene.villages.setZoom(scene.root.scale.x);
         setPixiReady(true);
       } catch (err) {
         console.error("Failed to initialize map renderer:", err);
@@ -122,22 +128,25 @@ export function useMapRenderer(
 
   useEffect(() => {
     if (!pixiReady) return;
-    sceneRef.current?.setVillages(
+    const scene = sceneRef.current;
+    if (!scene) return;
+    scene.setVillages(
       allVillages,
       activeVillageId,
       targetVillage?.id ?? null,
-      // Own villages become the active selection
-      // enemy villages set the attack target.
-      (village) => {
+      (village, sx, sy) => {
         setSelectedTile(null);
         if (village.kind === "own") {
           setActiveVillage(village.id);
+          setTargetVillage(null);
         } else {
           setTargetVillage(village);
+          setTargetVillagePos({ x: sx, y: sy });
         }
       },
       (village) => setHoveredVillage(village),
     );
+    scene.villages.setZoom(scene.root.scale.x);
   }, [
     allVillages,
     activeVillageId,

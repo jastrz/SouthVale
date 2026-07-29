@@ -33,6 +33,8 @@ export function TradePanel({
   const giveMax = resources[giveType.toLowerCase() as keyof ResourcesDto] as number;
   const canTrade = giveAmount > 0 && giveAmount <= giveMax && receiveAmount >= 1 && giveType !== getType;
 
+  const ICON_SIZE = 18;
+
   const handleTrade = () => {
     if (!canTrade) return;
       mutation.mutate(
@@ -61,7 +63,7 @@ export function TradePanel({
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
         <div>
-          <label className="mb-0.5 block text-[9px] text-slate-400 uppercase tracking-wider">Give</label>
+          <label className="mb-0.5 flex items-center gap-1 text-[9px] text-slate-400 uppercase tracking-wider"><Icon src={RESOURCE_ICONS[giveType.toLowerCase()]} size={ICON_SIZE} /> Give</label>
           <select
             value={giveType}
             onChange={(e) => {
@@ -81,7 +83,7 @@ export function TradePanel({
         <div className="flex items-center pb-3 text-lg text-amber-400">→</div>
 
         <div>
-          <label className="mb-0.5 block text-[9px] text-slate-400 uppercase tracking-wider">Get</label>
+          <label className="mb-0.5 flex items-center gap-1 text-[9px] text-slate-400 uppercase tracking-wider"><Icon src={RESOURCE_ICONS[getType.toLowerCase()]} size={ICON_SIZE} /> Get</label>
           <select
             value={getType}
             onChange={(e) => {
@@ -98,7 +100,7 @@ export function TradePanel({
           <div className="flex h-58px items-center justify-center rounded border border-slate-700 bg-slate-800/40 text-sm text-green-400">
             {giveAmount > 0 ? (
               <span className="flex items-center gap-1">
-                <Icon src={RESOURCE_ICONS[getType.toLowerCase()]} size={14} />
+                <Icon src={RESOURCE_ICONS[getType.toLowerCase()]} size={ICON_SIZE} />
                 {receiveAmount}
               </span>
             ) : (

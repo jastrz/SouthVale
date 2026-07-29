@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export function NumberInput({
   value,
   onChange,
@@ -7,12 +9,12 @@ export function NumberInput({
   value: number;
   onChange: (v: number) => void;
   max: number;
-  label?: string;
+  label?: ReactNode;
 }) {
   return (
     <div>
       {label && (
-        <label className="block text-[10px] text-slate-400">{label}</label>
+        <label className="flex items-center gap-1 text-[10px] text-slate-400">{label}</label>
       )}
       <input
         type="number"

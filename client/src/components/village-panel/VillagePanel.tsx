@@ -9,24 +9,17 @@ import {
   useMovements,
   useBuild,
   useTrain,
-  useAttack,
-  useSettle,
   useGameConfig,
 } from "../../api/hooks/useQueries";
-import type { MapVillage } from "../../api/types";
 import { PanelContainer } from "../PanelContainer";
 import { CollapsibleSection } from "../CollapsibleSection";
 import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
-import { AttackPanel } from "./AttackPanel";
-import { SettlePanel } from "./SettlePanel";
 import { TravelTimeProvider } from "../travel-time/TravelTime";
 
 export function VillagePanel() {
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
   const storeVillage = useGameStateStore(selectActiveVillage);
-  const targetVillage = useGameStateStore((s) => s.targetVillage);
-  const selectedTile = useGameStateStore((s) => s.selectedTile);
 
   if (!activeVillageId || !storeVillage) {
     return (
@@ -41,20 +34,14 @@ export function VillagePanel() {
   return (
     <VillagePanelInner
       villageId={activeVillageId}
-      targetVillage={targetVillage}
-      selectedTile={selectedTile}
     />
   );
 }
 
 function VillagePanelInner({
   villageId,
-  targetVillage,
-  selectedTile,
 }: {
   villageId: string;
-  targetVillage: MapVillage | null;
-  selectedTile: { x: number; y: number } | null;
 }) {
   const { data: village, isLoading, isError, error } = useVillage(villageId);
   const { data: config } = useGameConfig();
@@ -68,10 +55,6 @@ function VillagePanelInner({
   const settlersInMovement = movements
     ?.filter(m => m.originVillageId === villageId && m.status === "InFlight")
     .reduce((sum, m) => sum + m.troops.settlers, 0) ?? 0;
-  const attackMutation = useAttack(villageId);
-  const settleMutation = useSettle(villageId);
-  const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
-  const setSelectedTile = useGameStateStore((s) => s.setSelectedTile);
   const [openBuildings, setOpenBuildings] = useState(true);
   const [openTroops, setOpenTroops] = useState(true);
 
@@ -143,35 +126,6 @@ function VillagePanelInner({
         troopSpeeds={troopSpeeds}
         travelSpeedMultiplier={config?.travelSpeedMultiplier}
       >
-{targetVillage && targetVillage.kind === "enemy" && (
-          <AttackPanel
-            targetName={targetVillage.name}
-            targetX={targetVillage.coordinates.x}
-            targetY={targetVillage.coordinates.y}
-            targetPopulation={targetVillage.population}
-            targetVillageId={targetVillage.id}
-            maxSwordsmen={village.troops.swordsmen}
-            maxArchers={village.troops.archers}
-            maxDogs={village.troops.dogs}
-            maxHorsemen={village.troops.horsemen}
-            maxLlamaRiders={village.troops.llamaRiders}
-            mutation={attackMutation}
-            onClearTarget={() => setTargetVillage(null)}
-          />
-        )}
-
-        {selectedTile && (
-          <SettlePanel
-            targetX={selectedTile.x}
-            targetY={selectedTile.y}
-            settlers={village.troops.settlers}
-            villageCount={myVillages?.length ?? 1}
-            maxVillages={config?.maxVillagesPerPlayer ?? 8}
-            mutation={settleMutation}
-            onClearTarget={() => setSelectedTile(null)}
-          />
-        )}
-
       </TravelTimeProvider>
     </PanelContainer>
   );
