@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   useVillage,
   useTransport,
@@ -13,7 +13,6 @@ export function TransportController({ villageId }: { villageId: string }) {
   const { data: gameConfig } = useGameConfig();
   const mutation = useTransport(villageId);
   const [open, setOpen] = useState(false);
-  const dialogRef = useRef<HTMLDialogElement>(null);
 
   if (!village) return null;
 

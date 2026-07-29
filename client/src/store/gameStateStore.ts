@@ -31,7 +31,7 @@ export interface GameState {
   setHoveredVillage: (village: MapVillage | null) => void;
   setTargetVillage: (village: MapVillage | null) => void;
   setTargetVillagePos: (pos: { x: number; y: number } | null) => void;
-  setSelectedTile: (tile: { x: number; y: number } | null) => void;
+  setSelectedTile: (tile: { x: number; y: number; tile: TileData } | null) => void;
   setCurrentView: (view: ViewMode) => void;
 }
 
@@ -42,6 +42,7 @@ export const useGameStateStore = create<GameState>((set) => ({
   hoveredVillage: null,
   currentView: "map",
   targetVillage: null,
+  targetVillagePos: null,
   selectedTile: null,
 
   setVillages: (villages) =>

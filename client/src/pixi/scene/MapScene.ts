@@ -38,7 +38,7 @@ export class MapScene {
   constructor(
     app: Application,
     grid: TileData[][],
-    onTileClick?: (x: number, y: number, tile: TileData) => void,
+    onTileClick?: (x: number, y: number, tile: TileData | undefined) => void,
   ) {
     this.app = app;
     this.grid = grid;

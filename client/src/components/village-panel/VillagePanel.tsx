@@ -9,13 +9,11 @@ import {
   useMovements,
   useBuild,
   useTrain,
-  useGameConfig,
 } from "../../api/hooks/useQueries";
 import { PanelContainer } from "../PanelContainer";
 import { CollapsibleSection } from "../CollapsibleSection";
 import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
-import { TravelTimeProvider } from "../travel-time/TravelTime";
 
 export function VillagePanel() {
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
@@ -44,11 +42,7 @@ function VillagePanelInner({
   villageId: string;
 }) {
   const { data: village, isLoading, isError, error } = useVillage(villageId);
-  const { data: config } = useGameConfig();
   const { data: myVillages } = useMyVillages();
-  const troopSpeeds = config?.troops
-    ? Object.fromEntries(Object.entries(config.troops).map(([k, v]) => [k, v.speed]))
-    : undefined;
   const buildMutation = useBuild(villageId);
   const trainMutation = useTrain(villageId);
   const { data: movements } = useMovements();
@@ -120,13 +114,6 @@ function VillagePanelInner({
           />
         </CollapsibleSection>
       )}
-      <TravelTimeProvider
-        originX={village.coordinates.x}
-        originY={village.coordinates.y}
-        troopSpeeds={troopSpeeds}
-        travelSpeedMultiplier={config?.travelSpeedMultiplier}
-      >
-      </TravelTimeProvider>
     </PanelContainer>
   );
 }
