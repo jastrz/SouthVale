@@ -29,6 +29,7 @@ function createLabel(village: MapVillage): Text {
     },
     anchor: { x: 0.5, y: 0 },
     eventMode: "none",
+    resolution: 2
   });
   text.y = -60;
   return text;

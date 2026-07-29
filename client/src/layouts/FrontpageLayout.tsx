@@ -57,8 +57,8 @@ export function FrontpageLayout() {
             external AI service provider solely to generate their gameplay. Data is kept until you delete your
             account. You may access, correct, export, or delete
             your data at any time from the in-game menu or by contacting{" "}
-            <a href="mailto:southvaleweb@gmail.com" className="text-slate-400 underline hover:text-slate-300">
-              southvaleweb@gmail.com
+            <a href={`mailto:${import.meta.env.VITE_CONTACT_EMAIL ?? "your-email@example.com"}`} className="text-slate-400 underline hover:text-slate-300">
+              {import.meta.env.VITE_CONTACT_EMAIL ?? "your-email@example.com"}
             </a>
             . You also have the right to lodge a complaint with the President of the Personal Data
             Protection Office (UODO), Poland.
@@ -69,8 +69,8 @@ export function FrontpageLayout() {
             Players are responsible for the content they create (village names, usernames, messages).
             The operator does not pre-moderate user content but removes unlawful or offensive content
             once reported. Report such content to{" "}
-            <a href="mailto:southvaleweb@gmail.com" className="text-slate-400 underline hover:text-slate-300">
-              southvaleweb@gmail.com
+            <a href={`mailto:${import.meta.env.VITE_CONTACT_EMAIL ?? "your-email@example.com"}`} className="text-slate-400 underline hover:text-slate-300">
+              {import.meta.env.VITE_CONTACT_EMAIL ?? "your-email@example.com"}
             </a>
             .
           </p>
