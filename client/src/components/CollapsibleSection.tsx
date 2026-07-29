@@ -15,12 +15,18 @@ export function CollapsibleSection({
     <section>
       <button
         onClick={onToggle}
-        className={`mb-2 flex w-full items-center gap-1 font-bold tracking-widest uppercase transition-colors ${className}`}
+        className={`mb-2 flex items-center gap-1 font-bold tracking-widest uppercase transition-colors ${className}`}
       >
         <span className="text-[10px]">{open ? "▾" : "▸"}</span>
         {label}
       </button>
-      {open && children}
+      <div
+        className={`overflow-hidden transition-all duration-150 ease-in-out ${
+          open ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        {children}
+      </div>
     </section>
   );
 }

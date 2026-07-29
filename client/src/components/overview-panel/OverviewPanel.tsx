@@ -70,7 +70,7 @@ export function OverviewPanel() {
             label="Villages"
             open={openVillages}
             onToggle={() => setOpenVillages(!openVillages)}
-            className="px-4 pt-1.5 text-slate-400 hover:text-slate-300"
+            className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
           >
             {isLoading && (
               <p className="text-sm text-slate-400">Loading…</p>
@@ -113,7 +113,7 @@ export function OverviewPanel() {
               label="Orders"
               open={openOrders}
               onToggle={() => setOpenOrders(!openOrders)}
-              className="px-4 pt-1.5 text-slate-400 hover:text-slate-300"
+              className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
             >
               <QueuePanel
                 buildOrders={village.buildOrders}
@@ -128,7 +128,7 @@ export function OverviewPanel() {
               label="Movements"
               open={openMovements}
               onToggle={() => setOpenMovements(!openMovements)}
-              className="px-4 pt-1.5 text-slate-400 hover:text-slate-300"
+              className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
             >
               <MovementsPanel
                 villageId={activeVillageId}

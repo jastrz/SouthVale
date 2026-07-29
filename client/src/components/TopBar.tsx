@@ -23,15 +23,19 @@ export function TopBar() {
 
   return (
     <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex flex-col items-center gap-1">
-      <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2 rounded-b-lg border border-t-0 border-slate-800 bg-slate-950/70 px-4 py-1 text-xs shadow-lg sm:gap-4 sm:justify-start">
-        <LoginBar />
-
+      <div
+        className="pointer-events-auto grid w-full items-center gap-2 rounded-b-lg border border-t-0 border-slate-800 bg-slate-950/70 px-4 py-1 text-xs shadow-lg sm:w-auto sm:flex sm:flex-wrap sm:gap-4"
+        style={{
+          gridTemplateAreas: '"name login" "resources resources"',
+          gridTemplateColumns: "1fr auto",
+        }}
+      >
         {activeVillageId && storeVillage && (
-          <>
-            <div className="h-4 w-px bg-slate-700" />
-            <VillageContent villageId={activeVillageId} />
-          </>
+          <VillageContent villageId={activeVillageId} />
         )}
+        <div className="[grid-area:login] sm:ml-auto">
+          <LoginBar />
+        </div>
       </div>
 
       <nav className="pointer-events-auto flex gap-1 rounded-lg border border-slate-800 bg-slate-950/70 px-2 py-0.5">
@@ -188,8 +192,8 @@ function VillageContent({ villageId }: { villageId: string }) {
   };
 
   return (
-    <>
-      <div className="shrink-0">
+    <div className="contents">
+      <div className="[grid-area:name] shrink-0">
         {editing ? (
           <input
             ref={inputRef}
@@ -215,7 +219,7 @@ function VillageContent({ villageId }: { villageId: string }) {
           </h2>
         )}
       </div>
-      <div className="flex gap-1 sm:gap-4">
+      <div className="[grid-area:resources] flex gap-1 sm:gap-4">
         {resources.map((r) => (
           <div key={r.icon} className="flex items-center gap-1 text-slate-300">
             <Icon src={r.icon} size={24} />
@@ -238,6 +242,6 @@ function VillageContent({ villageId }: { villageId: string }) {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }

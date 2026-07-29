@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGameConfig } from "../api/hooks/useQueries";
 import { BUILDING_ORDER, BUILDING_LABELS, TROOP_LABELS } from "../config/game";
-import { BUILDING_ICONS, TROOP_ICONS, RESOURCE_ICONS, parseTimeSpanMs, formatTime } from "../lib/helpers";
+import { TROOP_ICONS, RESOURCE_ICONS, parseTimeSpanMs, formatTime } from "../lib/helpers";
 import { Icon } from "./Icon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { BuildingLevelConfigDto } from "../api/types";
@@ -10,13 +10,13 @@ export function GameInfoPanel() {
   const { data: config, isLoading } = useGameConfig();
   const [openBuildings, setOpenBuildings] = useState(false);
   const [openTroops, setOpenTroops] = useState(false);
+  const [openBuildingTypes, setOpenBuildingTypes] = useState<Record<string, boolean>>({});
+
+  const toggleBuildingType = (type: string) =>
+    setOpenBuildingTypes((p) => ({ ...p, [type]: !p[type] }));
 
   return (
     <div className="flex flex-col gap-6 pb-8">
-      {/*<h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase text-center">
-        Game Info
-      </h2>*/}
-
       {isLoading && (
         <p className="text-center text-xs text-slate-500">Loading...</p>
       )}
@@ -27,12 +27,26 @@ export function GameInfoPanel() {
             label="Buildings"
             open={openBuildings}
             onToggle={() => setOpenBuildings(!openBuildings)}
+            className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
           >
             <div className="flex flex-col gap-3">
               {BUILDING_ORDER.map((type) => {
                 const levels = config.buildings[type];
                 if (!levels) return null;
-                return <BuildingTable key={type} type={type} levels={levels} />;
+                return (
+                  <div key={type}>
+                    <CollapsibleSection
+                      label={BUILDING_LABELS[type] ?? type}
+                      open={openBuildingTypes[type] ?? false}
+                      onToggle={() => toggleBuildingType(type)}
+                      className="ml-4 rounded-lg bg-slate-700/80 px-3 py-1 text-slate-300 hover:text-white"
+                    >
+                      <div className="px-3 pb-2">
+                        <BuildingTable type={type} levels={levels} />
+                      </div>
+                    </CollapsibleSection>
+                  </div>
+                );
               })}
             </div>
           </CollapsibleSection>
@@ -41,6 +55,7 @@ export function GameInfoPanel() {
             label="Troops"
             open={openTroops}
             onToggle={() => setOpenTroops(!openTroops)}
+            className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
           >
             <div className="rounded-xl overflow-hidden overflow-x-auto">
               <table className="w-full text-left text-xs">
@@ -102,14 +117,6 @@ function BuildingTable({
     <div className="rounded-xl overflow-hidden">
       <table className="w-full text-left text-xs">
         <thead>
-          <tr className="text-slate-400 uppercase tracking-wider bg-slate-800/80">
-            <th className="px-2 py-1.5" colSpan={4}>
-              <span className="flex items-center gap-1.5 text-white">
-                {BUILDING_ICONS[type] && <Icon src={BUILDING_ICONS[type]} size={16} />}
-                {BUILDING_LABELS[type] ?? type}
-              </span>
-            </th>
-          </tr>
           <tr className="text-slate-500 bg-slate-800/80">
             <th className="px-2 py-1">Lv</th>
             <th className="px-2 py-1">Upgrade Cost</th>

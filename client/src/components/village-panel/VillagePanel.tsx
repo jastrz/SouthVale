@@ -108,7 +108,7 @@ function VillagePanelInner({
         label="Buildings"
         open={openBuildings}
         onToggle={() => setOpenBuildings(!openBuildings)}
-        className="px-4 pt-4 text-slate-400 hover:text-slate-300"
+        className="w-full px-4 pt-4 text-slate-400 hover:text-slate-300"
       >
         <BuildingsPanel
           buildings={village.buildings}
@@ -122,7 +122,7 @@ function VillagePanelInner({
           label="Troops"
           open={openTroops}
           onToggle={() => setOpenTroops(!openTroops)}
-          className="px-4 pt-1.5 text-slate-400 hover:text-slate-300"
+          className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
         >
           <TroopsPanel
             resources={village.resources}
