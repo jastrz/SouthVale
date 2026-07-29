@@ -67,8 +67,9 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
         foreach (var entry in request.Orders)
         {
             var entryConfig = TroopsConfig.Get(entry.TroopType);
-            var speedMult = entryConfig.TrainedAt == BuildingType.Stable
-                ? effects.StableTrainingSpeed : effects.BarracksTrainingSpeed;
+            var speedMult = (entryConfig.TrainedAt == BuildingType.Stable
+                ? effects.StableTrainingSpeed : effects.BarracksTrainingSpeed)
+                * GameSettings.TrainSpeedMultiplier;
             var trainingTime = TroopsConfig.CalculateTrainingTime(
                 entry.TroopType,
                 entry.Count,

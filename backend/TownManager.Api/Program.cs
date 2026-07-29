@@ -62,7 +62,14 @@ try
 
     GameSettings.TravelSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TravelSpeedMultiplier", 10f);
     GameSettings.ResourcesProductionMultiplier = builder.Configuration.GetValue<float>("GameSettings:ResourcesProductionMultiplier", 16f);
+    GameSettings.BuildSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:BuildSpeedMultiplier", 1f);
+    GameSettings.TrainSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TrainSpeedMultiplier", 1f);
     BarbarianConfig.TargetPopulation = builder.Configuration.GetValue<int>("Barbarian:TargetPopulation", 15);
+
+    Log.Information("GameSettings: TravelSpeed={TravelSpeed} ResourcesProduction={ResProd} BuildSpeed={BuildSpeed} TrainSpeed={TrainSpeed}",
+        GameSettings.TravelSpeedMultiplier, GameSettings.ResourcesProductionMultiplier,
+        GameSettings.BuildSpeedMultiplier, GameSettings.TrainSpeedMultiplier);
+    Log.Information("BarbarianConfig: TargetPopulation={Pop}", BarbarianConfig.TargetPopulation);
 
     builder.Services.Configure<ServiceProviderOptions>(o => o.ValidateOnBuild = false);
 
@@ -77,9 +84,10 @@ try
     if (bool.TryParse(app.Configuration["Features:UseLlmPlayers"], out var useLlm) && useLlm)
     {
         var llmCfg = app.Services.GetRequiredService<LlmPlayerConfig>();
-        Log.Information("LLM config: model={Model}, api={Api}",
+        Log.Information("LLM config: model={Model}, api={Api}, key={KeySet}, tick={Tick}",
             llmCfg.Model, llmCfg.ApiUrl,
-            string.IsNullOrEmpty(llmCfg.ApiKey) ? "not set" : "set");
+            string.IsNullOrEmpty(llmCfg.ApiKey) ? "not set" : "set",
+            llmCfg.TickIntervalCron);
 
         if (!string.IsNullOrEmpty(llmCfg.ApiKey)) 
         {

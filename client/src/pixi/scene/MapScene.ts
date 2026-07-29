@@ -4,7 +4,8 @@ import type { Coordinates, MapVillage } from "../../api/types";
 import { tween } from "../animation/";
 import type { TweenHandle } from "../animation/";
 import { CAMERA, TILE_SIZE, COLORS, GRID, ZOOM, panelWidth } from "../config";
-import { TileLayer, PropsLayer, VillageLayer } from "./layers";
+import type { MovementDto } from "../../api/types";
+import { TileLayer, PropsLayer, MovementLayer, VillageLayer } from "./layers";
 import { type TileData, gridSize } from "../tileData";
 import { groundTile, ATLAS_GROUND } from "../atlas";
 
@@ -22,6 +23,7 @@ export class MapScene {
   readonly root = new Container();
   readonly tiles: TileLayer;
   readonly props: PropsLayer;
+  readonly movements: MovementLayer;
   readonly villages: VillageLayer;
   readonly grid: TileData[][];
   private readonly app: Application;
@@ -43,6 +45,7 @@ export class MapScene {
     this.root.label = "MapRoot";
     this.tiles = new TileLayer(grid);
     this.props = new PropsLayer(grid);
+    this.movements = new MovementLayer(app);
     this.villages = new VillageLayer();
 
     this.root.eventMode = "static";
@@ -56,6 +59,7 @@ export class MapScene {
     this.root.addChild(this.selectionFill);
     this.root.addChild(this.hoverHighlight);
     this.root.addChild(this.villages);
+    this.root.addChild(this.movements);
 
     let ptrDown = { x: 0, y: 0 };
     this.root.on("pointerdown", (e: FederatedPointerEvent) => {
@@ -155,6 +159,14 @@ export class MapScene {
           }
         : undefined,
     );
+  }
+
+  setMovements(
+    movements: readonly MovementDto[],
+    villageCoords: Record<string, Coordinates>,
+    ownIds: Set<string>,
+  ): void {
+    this.movements.setMovements(movements, villageCoords, ownIds);
   }
 
   clearSelectedTile(): void {

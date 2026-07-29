@@ -39,12 +39,16 @@ export function AdminPage() {
   const updateConfig = useUpdateGameConfig();
   const [travelSpeed, setTravelSpeed] = useState("");
   const [resourceSpeed, setResourceSpeed] = useState("");
+  const [buildSpeed, setBuildSpeed] = useState("");
+  const [trainSpeed, setTrainSpeed] = useState("");
   const [maxBarbVillages, setMaxBarbVillages] = useState("");
 
   useEffect(() => {
     if (gameConfig) {
       setTravelSpeed(String(gameConfig.travelSpeedMultiplier));
       setResourceSpeed(String(gameConfig.resourcesProductionMultiplier));
+      setBuildSpeed(String(gameConfig.buildSpeedMultiplier));
+      setTrainSpeed(String(gameConfig.trainSpeedMultiplier));
       setMaxBarbVillages(String(gameConfig.maxBarbarianVillages));
     }
   }, [gameConfig]);
@@ -134,7 +138,7 @@ export function AdminPage() {
         </form>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); updateConfig.mutate({ travelSpeedMultiplier: Number(travelSpeed), resourcesProductionMultiplier: Number(resourceSpeed), maxBarbarianVillages: Number(maxBarbVillages) }); }}
+          onSubmit={(e) => { e.preventDefault(); updateConfig.mutate({ travelSpeedMultiplier: Number(travelSpeed), resourcesProductionMultiplier: Number(resourceSpeed), buildSpeedMultiplier: Number(buildSpeed), trainSpeedMultiplier: Number(trainSpeed), maxBarbarianVillages: Number(maxBarbVillages) }); }}
           className="flex flex-col gap-3 rounded border border-slate-700 bg-slate-800 p-4"
         >
           <h2 className="text-sm font-semibold text-slate-300 uppercase">
@@ -147,6 +151,14 @@ export function AdminPage() {
           <label className="flex flex-col gap-1 text-xs text-slate-400">
             Resources Production Multiplier
             <input type="number" step="any" value={resourceSpeed} onChange={(e) => setResourceSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-slate-400">
+            Build Speed Multiplier
+            <input type="number" step="any" value={buildSpeed} onChange={(e) => setBuildSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-slate-400">
+            Train Speed Multiplier
+            <input type="number" step="any" value={trainSpeed} onChange={(e) => setTrainSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
           </label>
           <label className="flex flex-col gap-1 text-xs text-slate-400">
             Max Barbarian Villages

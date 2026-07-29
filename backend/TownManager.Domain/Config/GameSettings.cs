@@ -9,5 +9,7 @@ public static class GameSettings
     public static Resources StartingResources => new(800, 800, 800, 800);
     public static float TravelSpeedMultiplier { get; set; } = 10f;
     public static float ResourcesProductionMultiplier { get; set; } = 16f;
+    public static float BuildSpeedMultiplier { get; set; } = 1f;
+    public static float TrainSpeedMultiplier { get; set; } = 1f;
     public static int ConfigVersion { get; set; }
 }

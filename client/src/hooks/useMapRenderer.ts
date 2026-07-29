@@ -5,8 +5,8 @@ import { MapScene } from "../pixi/scene/MapScene";
 import { loadMap } from "../pixi/mapLoader";
 import { attachPan, attachZoom } from "../pixi/input";
 import { useGameStateStore } from "../store/gameStateStore";
-import { useMap } from "../api/hooks/useQueries";
-import type { MapVillage } from "../api/types";
+import { useMap, useMovements } from "../api/hooks/useQueries";
+import type { MapVillage, Coordinates } from "../api/types";
 
 // Generous fetch radius for dev
 const FETCH_RADIUS = 150;
@@ -47,6 +47,8 @@ export function useMapRenderer(
 
   const { data: mapVillages } = useMap(mapRequest);
 
+  const { data: movements } = useMovements();
+
   // Merge the player's own villages (rich VillageDto) with the map
   // endpoint's lightweight PlayerVillageDto list.
   const allVillages = useMemo<MapVillage[]>(() => {
@@ -59,6 +61,18 @@ export function useMapRenderer(
       .map((v) => ({ ...v, kind: "enemy" }));
     return [...ownList, ...enemyList];
   }, [mapVillages, villages]);
+
+  // Build coordinate lookup from all known villages
+  const villageCoords = useMemo(() => {
+    const map: Record<string, Coordinates> = {};
+    for (const v of allVillages) {
+      map[v.id] = v.coordinates;
+    }
+    return map;
+  }, [allVillages]);
+
+  // Set of own village IDs for direction check
+  const ownIds = useMemo(() => new Set(Object.keys(villages)), [villages]);
 
   useEffect(() => {
     if (!divRef.current) return;
@@ -157,6 +171,11 @@ export function useMapRenderer(
       sceneRef.current?.clearSelectedTile();
     }
   }, [selectedTile, pixiReady]);
+
+  useEffect(() => {
+    if (!pixiReady) return;
+    sceneRef.current?.setMovements(movements ?? [], villageCoords, ownIds);
+  }, [movements, villageCoords, ownIds, pixiReady]);
 
   // Pan to the active village whenever it changes.
   useEffect(() => {

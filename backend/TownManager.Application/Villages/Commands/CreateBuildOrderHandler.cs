@@ -33,7 +33,7 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
             ? village.BuildOrders.Max(o => o.CompletesAt)
             : DateTime.UtcNow;
 
-        var adjustedTime = TimeSpan.FromTicks((long)(config.UpgradeTime.Ticks / effects.BuildSpeedMultiplier));
+        var adjustedTime = TimeSpan.FromTicks((long)(config.UpgradeTime.Ticks / effects.BuildSpeedMultiplier / GameSettings.BuildSpeedMultiplier));
 
         var order = BuildOrder.Create(cmd.BuildingType, nextLevel, adjustedTime);
         order.StartsAt = queueStartTime;

@@ -30,6 +30,12 @@ export const COLORS = {
   targetFill: 0xff4444,
   targetHaloAlpha: 0.3,
   hoverOutline: 0xffffff,
+  movement: {
+    attackOutgoing: 0xff4400,
+    attackIncoming: 0xff8800,
+    transportOutgoing: 0x00ff00,
+    transportIncoming: 0x00ff00,
+  },
 } as const;
 
 export const GRID = {
@@ -37,6 +43,16 @@ export const GRID = {
   hoverOutlineAlpha: 0.15,
   selectionFillAlpha: 0.2,
   clickDragThreshold: 5,
+} as const;
+
+export const MOVEMENT = {
+  iconScale: .5,
+  dash: 6,
+  gap: 4,
+  lineAlpha: 0.4,
+  lineWidth: 2,
+  arrowSize: 8,
+  arrowAlpha: 0.6,
 } as const;
 
 export const PANEL = {

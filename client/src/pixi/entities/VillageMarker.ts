@@ -12,26 +12,26 @@ function labelText(village: MapVillage): string {
   if (village.kind === "own") {
     const troops = village.troops;
     const pop = troops.swordsmen + troops.archers + troops.settlers + troops.dogs + troops.horsemen + troops.llamaRiders;
-    return `${useAuthStore.getState().username}\n(${village.name} | ${pop})`;
+    return `${useAuthStore.getState().username}\n(${village.name} | ${pop} )`;
   }
-  return `${village.playerName}\n(${village.name} | ${village.population})`;
+  return `${village.playerName}\n(${village.name} | ${village.population} )`;
 }
 
 function createLabel(village: MapVillage): Text {
   const text = new Text({
     text: labelText(village),
     style: {
-      fontSize: 10,
+      fontSize: 11,
       fill: 0xffffff,
-      stroke: { color: 0x000000, width: 2 },
+      stroke: { color: 0x111111, width: 1 },
       align: "center",
       fontFamily: "georgia",
     },
     anchor: { x: 0.5, y: 0 },
     eventMode: "none",
-    resolution: 2
+    resolution: 4
   });
-  text.y = -60;
+  text.y = -50;
   return text;
 }
 

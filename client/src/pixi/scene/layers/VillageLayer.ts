@@ -2,9 +2,6 @@ import { Container } from "pixi.js";
 import type { MapVillage } from "../../../api/types";
 import { createVillageMarker } from "../../entities/VillageMarker";
 
-/**
- * Renders every village the client knows about on the world map.
- */
 export class VillageLayer extends Container {
   constructor() {
     super();

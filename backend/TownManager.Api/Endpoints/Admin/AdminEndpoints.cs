@@ -254,6 +254,8 @@ public class AdminEndpoints : IEndpoint
             Results.Ok(new GameConfigResponse(
                 GameSettings.TravelSpeedMultiplier,
                 GameSettings.ResourcesProductionMultiplier,
+                GameSettings.BuildSpeedMultiplier,
+                GameSettings.TrainSpeedMultiplier,
                 BarbarianConfig.TargetPopulation))
         )
         .WithName("AdminGetConfig")
@@ -272,11 +274,23 @@ public class AdminEndpoints : IEndpoint
                 GameSettings.ResourcesProductionMultiplier = request.ResourcesProductionMultiplier.Value;
                 GameSettings.ConfigVersion++;
             }
+            if (request.BuildSpeedMultiplier.HasValue)
+            {
+                GameSettings.BuildSpeedMultiplier = request.BuildSpeedMultiplier.Value;
+                GameSettings.ConfigVersion++;
+            }
+            if (request.TrainSpeedMultiplier.HasValue)
+            {
+                GameSettings.TrainSpeedMultiplier = request.TrainSpeedMultiplier.Value;
+                GameSettings.ConfigVersion++;
+            }
             if (request.MaxBarbarianVillages.HasValue)
                 BarbarianConfig.TargetPopulation = request.MaxBarbarianVillages.Value;
             return Results.Ok(new GameConfigResponse(
                 GameSettings.TravelSpeedMultiplier,
                 GameSettings.ResourcesProductionMultiplier,
+                GameSettings.BuildSpeedMultiplier,
+                GameSettings.TrainSpeedMultiplier,
                 BarbarianConfig.TargetPopulation));
         })
         .WithName("AdminUpdateConfig")
@@ -285,6 +299,6 @@ public class AdminEndpoints : IEndpoint
     }
 
     public record AddResourcesRequest(double Wood, double Clay, double Iron, double Beer);
-    public record GameConfigResponse(float TravelSpeedMultiplier, float ResourcesProductionMultiplier, int MaxBarbarianVillages);
-    public record UpdateGameConfigRequest(float? TravelSpeedMultiplier, float? ResourcesProductionMultiplier, int? MaxBarbarianVillages);
+    public record GameConfigResponse(float TravelSpeedMultiplier, float ResourcesProductionMultiplier, float BuildSpeedMultiplier, float TrainSpeedMultiplier, int MaxBarbarianVillages);
+    public record UpdateGameConfigRequest(float? TravelSpeedMultiplier, float? ResourcesProductionMultiplier, float? BuildSpeedMultiplier, float? TrainSpeedMultiplier, int? MaxBarbarianVillages);
 }

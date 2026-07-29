@@ -4,6 +4,7 @@ import {
   loadGroundAtlas,
   loadTreesAtlas,
   loadVillageTextures,
+  loadMovementIcons,
 } from "./atlas";
 
 /**
@@ -21,6 +22,7 @@ export async function createApplication(
     loadGroundAtlas("/tiles/ground.png"),
     loadTreesAtlas("/tiles/trees_all.png"),
     loadVillageTextures(),
+    loadMovementIcons(),
   ]);
   return app;
 }
