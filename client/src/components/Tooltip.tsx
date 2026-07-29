@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { tooltipBase } from "../styles/styles";
 
@@ -14,6 +14,7 @@ export function Tooltip({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const [flip, setFlip] = useState(false);
+  const isMobile = useMemo(() => window.matchMedia("(pointer: coarse)").matches, []);
 
   useEffect(() => {
     if (!show || !anchorRef.current) return;
@@ -36,12 +37,25 @@ export function Tooltip({
     if (r.left < PAD) el.style.left = `${PAD + r.width / 2}px`;
   }, [show, pos]);
 
+  const toggle = useCallback(() => setShow((v) => !v), []);
+
+  useEffect(() => {
+    if (!isMobile || !show) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (anchorRef.current && !anchorRef.current.contains(e.target as Node)) {
+        setShow(false);
+      }
+    };
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, [isMobile, show]);
+
+  const hoverProps = isMobile
+    ? { onClick: (e: React.MouseEvent) => { if (!(e.target as HTMLElement).closest("button, input, select, a")) toggle(); } }
+    : { onMouseEnter: () => setShow(true), onMouseLeave: () => setShow(false) };
+
   return (
-    <span
-      ref={anchorRef}
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
-    >
+    <span ref={anchorRef} {...hoverProps}>
       {children}
       {show &&
         createPortal(
