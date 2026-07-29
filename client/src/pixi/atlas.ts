@@ -159,6 +159,7 @@ let barbarianVillage: Texture;
 // Movement icons
 let swordIcon: Texture;
 let chestIcon: Texture;
+let keyIcon: Texture;
 
 export async function loadVillageTextures(): Promise<void> {
   const [player, enemy, barbarian] = await Promise.all([
@@ -188,16 +189,20 @@ export function pickTile(pool: readonly (readonly [number, number])[]) {
 }
 
 export async function loadMovementIcons(): Promise<void> {
-  const [sword, chest] = await Promise.all([
+  const [sword, chest, key] = await Promise.all([
     Assets.load("/icons/mapicons/sword.png"),
     Assets.load("/icons/mapicons/chest.png"),
+    Assets.load("/icons/mapicons/key.png"),
   ]);
   swordIcon = new Texture({ source: sword.source });
   chestIcon = new Texture({ source: chest.source });
+  keyIcon = new Texture({ source: key.source });
 }
 
-export function movementIcon(type: "Attack" | "Transport"): Texture {
-  return type === "Attack" ? swordIcon : chestIcon;
+export function movementIcon(type: "Attack" | "Transport" | "Settle"): Texture {
+  if (type === "Attack") return swordIcon;
+  if (type === "Settle") return keyIcon;
+  return chestIcon;
 }
 
 export function villageTexture(

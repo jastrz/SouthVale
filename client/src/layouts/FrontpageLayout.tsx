@@ -36,7 +36,7 @@ export function FrontpageLayout() {
         </div>
       </div>
 
-      <footer className={`flex flex-col items-center gap-1 px-4 py-2 text-center text-xs text-slate-500 bg-slate-950/80 ${open ? "w-full" : "self-start rounded-tr"}`}>
+      <footer className={`flex flex-col items-center gap-1 px-4 py-2 text-center text-xs text-slate-500 bg-slate-950/80 ${open ? "mt-8 w-full" : "self-start rounded-tr"}`}>
         <button
           onClick={() => setOpen((v) => !v)}
           className="self-start cursor-pointer text-slate-500 transition-colors hover:text-slate-300"
@@ -45,7 +45,7 @@ export function FrontpageLayout() {
         </button>
         {open && (
           <>
-          <p>
+          <p className="mt-3">
             This is a fictional game. Any resemblance to real places, names, or events is purely coincidental.
           </p>
           <p>

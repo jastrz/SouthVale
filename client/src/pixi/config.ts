@@ -35,6 +35,7 @@ export const COLORS = {
     attackIncoming: 0xff8800,
     transportOutgoing: 0x00ff00,
     transportIncoming: 0x00ff00,
+    settle: 0x4488ff,
   },
 } as const;
 

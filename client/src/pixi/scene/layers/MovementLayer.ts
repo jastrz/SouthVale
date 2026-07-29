@@ -34,6 +34,7 @@ function drawArrow(g: Graphics, x1: number, y1: number, x2: number, y2: number, 
 
 function lineColor(type: string, isOutgoing: boolean): number {
   if (type === "Attack") return isOutgoing ? COLORS.movement.attackOutgoing : COLORS.movement.attackIncoming;
+  if (type === "Settle") return COLORS.movement.settle;
   return isOutgoing ? COLORS.movement.transportOutgoing : COLORS.movement.transportIncoming;
 }
 
@@ -68,9 +69,9 @@ export class MovementLayer extends Container {
 
     for (const m of movements) {
       if (m.status !== "InFlight") continue;
-      if (m.type === "Settle") continue;
 
       const isReturn = m.type === "Return";
+      const isSettle = m.type === "Settle";
       const home = villageCoords[m.originVillageId];
       const target = m.targetVillageId
         ? villageCoords[m.targetVillageId]
@@ -80,7 +81,7 @@ export class MovementLayer extends Container {
       const fromCoord = isReturn ? target : home;
       const toCoord = isReturn ? home : target;
       const isOutgoing = !isReturn && ownIds.has(m.originVillageId);
-      const iconType: "Attack" | "Transport" = m.type === "Attack" ? "Attack" : "Transport";
+      const iconType: "Attack" | "Transport" | "Settle" = isSettle ? "Settle" : m.type === "Attack" ? "Attack" : "Transport";
 
       const x1 = fromCoord.x * TILE_SIZE + TILE_SIZE / 2;
       const y1 = fromCoord.y * TILE_SIZE + TILE_SIZE / 2;
