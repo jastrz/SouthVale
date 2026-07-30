@@ -15,7 +15,6 @@ public class TroopMovement : Entity
     // for attack/transfer — existing village
     public Guid? TargetVillageId { get; set; }
     
-    // for settle — empty tile
     public Coordinates? TargetCoordinates { get; set; }
     
     public MovementType Type { get; set; }
@@ -42,6 +41,21 @@ public class TroopMovement : Entity
         };
     }
     
+    // for returns from a coordinate target (failed settle, destroyed village)
+    public static TroopMovement Create(Troops troops, Coordinates fromCoordinates, TimeSpan travelTime,
+        DateTime departureAt, MovementType movementType)
+    {
+        return new()
+        {
+            Troops = troops,
+            TargetCoordinates = fromCoordinates,
+            DepartureAt = departureAt,
+            ArrivesAt = departureAt.Add(travelTime),
+            Type = movementType,
+            Status = MovementStatus.InFlight
+        };
+    }
+
     public static TroopMovement Create(Troops troops, Resources resources, Guid targetVillageId, TimeSpan travelTime,
         DateTime departureAt, MovementType movementType)
     {

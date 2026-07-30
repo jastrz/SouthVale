@@ -48,7 +48,7 @@ public class SettleMovementResolver(
 
             var returnMovement = TroopMovement.Create(
                 returningSettlers,
-                movement.VillageId,
+                movement.TargetCoordinates,
                 travelTime,
                 DateTime.UtcNow,
                 MovementType.Return);

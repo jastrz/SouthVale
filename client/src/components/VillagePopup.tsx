@@ -86,7 +86,8 @@ export function VillagePopup() {
   const targetVillage = useGameStateStore((s) => s.targetVillage);
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
   const targetVillagePos = useGameStateStore((s) => s.targetVillagePos);
-  const activeVillage = useGameStateStore((s) => s.activeVillageId ? s.villages[s.activeVillageId] : null);
+  const activeVillageId = useGameStateStore((s) => s.activeVillageId);
+  const { data: activeVillage } = useVillage(activeVillageId ?? "");
   const [showAttack, setShowAttack] = useState(false);
 
   const handleClose = () => {

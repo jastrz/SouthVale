@@ -73,9 +73,8 @@ export class MovementLayer extends Container {
       const isReturn = m.type === "Return";
       const isSettle = m.type === "Settle";
       const home = villageCoords[m.originVillageId];
-      const target = m.targetVillageId
-        ? villageCoords[m.targetVillageId]
-        : m.targetCoordinates;
+      const target = (m.targetVillageId ? villageCoords[m.targetVillageId] : undefined)
+        ?? m.targetCoordinates;
       if (!home || !target) continue;
 
       const fromCoord = isReturn ? target : home;
