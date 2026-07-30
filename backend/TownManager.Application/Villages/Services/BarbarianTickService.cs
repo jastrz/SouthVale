@@ -17,30 +17,55 @@ public interface IBarbarianTickService
 
 public class BarbarianTickService(
     IVillageRepository villageRepo,
+    IPlayerRepository playerRepo,
     IMapService mapService,
     IMediator mediator) : IBarbarianTickService
 {
+    private int? _maxPlayerTroops;
+
     public async Task ExecuteAsync(CancellationToken ct)
     {
+        var cap = await GetPlayerTroopCap(ct);
         var barbarians = await villageRepo.GetBarbarianVillagesAsync(BarbarianConfig.BarbarianPlayerId, ct);
         var rng = Random.Shared;
 
+        // per-village troop cap - each barb village stays below best player's total troops
         foreach (var b in barbarians)
         {
             if (rng.Next(2) == 0)
             {
                 await AutoBuild(b, ct);
-                await AutoTrain(b, ct);
+                await AutoTrain(b, cap, ct);
             }
             else
             {
-                await AutoTrain(b, ct);
+                await AutoTrain(b, cap, ct);
                 await AutoBuild(b, ct);
             }
             await TryAttack(b, rng, ct);
         }
 
         await Replenish(barbarians.Count, rng, ct);
+
+        await villageRepo.SaveChangesAsync(ct);
+    }
+
+    private async Task<int> GetPlayerTroopCap(CancellationToken ct)
+    {
+        if (_maxPlayerTroops.HasValue) return _maxPlayerTroops.Value;
+        var players = await playerRepo.GetAllPlayersWithTroopDataAsync(ct);
+        var maxVillage = players
+            .Where(p => p.Id != BarbarianConfig.BarbarianPlayerId)
+            .SelectMany(p => p.Villages)
+            .Select(v =>
+                v.Troops.TotalCount +
+                v.TroopMovements
+                    .Where(m => m.Status == MovementStatus.InFlight)
+                    .Sum(m => m.Troops.TotalCount))
+            .DefaultIfEmpty(0)
+            .Max();
+        _maxPlayerTroops = (int)(maxVillage * BarbarianConfig.MaxTroopRatio);
+        return _maxPlayerTroops.Value;
     }
 
     private async Task AutoBuild(Village b, CancellationToken ct)
@@ -62,8 +87,14 @@ public class BarbarianTickService(
         }
     }
 
-    private async Task AutoTrain(Village b, CancellationToken ct)
+    private async Task AutoTrain(Village b, int cap, CancellationToken ct)
     {
+        var totalAll = b.Troops.TotalCount +
+            b.TrainOrders.Sum(o => o.Amount - o.Completed) +
+            b.TroopMovements.Where(m => m.Status == MovementStatus.InFlight).Sum(m => m.Troops.TotalCount);
+        var remainingGlobal = cap - totalAll;
+        if (remainingGlobal <= 0) return;
+
         var effects = BuildingConfig.AggregateEffects(b.Buildings);
         b.Tick(effects);
 
@@ -73,7 +104,17 @@ public class BarbarianTickService(
         foreach (var type in new[] { TroopType.Swordsman, TroopType.Archer, TroopType.Dogs, TroopType.Horsemen, TroopType.LlamaRiders })
         {
             var current = b.Troops.Get(type);
-            var deficit = BarbarianConfig.MaxTroops.Get(type) - current;
+
+            var inTraining = b.TrainOrders
+                .Where(o => o.Type == type)
+                .Sum(o => o.Amount - o.Completed);
+
+            var inFlight = b.TroopMovements
+                .Where(m => m.Status == MovementStatus.InFlight)
+                .Sum(m => m.Troops.Get(type));
+                
+            var perTypeCap = BarbarianConfig.MaxTroops.Get(type) - (current + inTraining + inFlight);
+            var deficit = Math.Min(perTypeCap, remainingGlobal);
             if (deficit <= 0) continue;
 
             var config = TroopsConfig.Get(type);
@@ -93,6 +134,7 @@ public class BarbarianTickService(
 
             available = available.Subtract(cost.Multiply(toTrain));
             orders.Add(new TroopEntry(type, toTrain));
+            remainingGlobal -= toTrain;
         }
 
         if (orders.Count > 0)
@@ -152,7 +194,5 @@ public class BarbarianTickService(
 
             Log?.Invoke(BarbarianConfig.BarbarianPlayerId.ToString(), coords.ToString()!, "barbarian-spawn", null);
         }
-
-        await villageRepo.SaveChangesAsync(ct);
     }
 }

@@ -68,7 +68,6 @@ export const useMovements = () =>
     queryKey: ["movements"],
     queryFn: () =>
       api.get<MovementDto[]>("/gameplay/me/movements").then((r) => r.data),
-    // refetchInterval: 30_000,
   });
 
 export const useVillageStatus = () =>

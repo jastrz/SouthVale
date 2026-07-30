@@ -172,7 +172,7 @@ public class LlmPlayerService(
 
         var personalityDesc = bot.BotPersonality switch
         {
-            BotPersonality.Aggressive => "You prioritize military strength. Train troops and attack weaker neighbors only. Expand through conquest, settling for expansion and develop some economy.",
+            BotPersonality.Aggressive => "You prioritize military strength. Train troops and attack weaker neighbors only. Expand through conquest, settling near enemies to pressure them, and develop some economy.",
             BotPersonality.Defensive => "You prioritize defense. Maintain a strong garrison, and only attack when you have overwhelming advantage. Protect your villages and settle new.",
             BotPersonality.Economic => "You prioritize resource production and expansion. Upgrade resource buildings, train settlers, and found new villages. Avoid unnecessary wars, but keep some defense.",
             _ => "Play strategically.",
@@ -239,6 +239,10 @@ RESOURCE RULES:
 - If you can't afford an action, don't include it. Pick a cheaper alternative instead (or ignore performing any action and wait until resources are produced or troops come back)
 - Build orders queue and deduct resources immediately. Plan your budget across all actions.
 - Example: if you have 400 wood, a Barracks (200W) + ClayPit lv2 (160W) = 360W total — affordable. Adding IronMine lv2 (200W) would exceed 400W, so skip it.
+- Build Warehouse to increase storage. Full warehouse = wasted production between ticks.
+
+TICK TIMING:
+- You act once every {config.TickIntervalCron}. Plan spending across multiple ticks — save up for expensive builds.
 
 IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.

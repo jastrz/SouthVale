@@ -41,7 +41,7 @@ export function QueuePanel({
     <section className="px-4 py-3">
       {sortedBuilds.length > 0 && (
         <>
-          <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
+          <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400">
             Building
           </h3>
           {sortedBuilds.map((o) => (
@@ -71,7 +71,7 @@ export function QueuePanel({
       )}
       {sortedTrains.length > 0 && (
         <>
-          <h3 className="mb-2 mt-3 text-xs font-bold tracking-widest text-slate-400 uppercase">
+          <h3 className="mb-2 mt-3 text-xs font-bold tracking-widest text-slate-400">
             Training
           </h3>
           {sortedTrains.map((o) => (

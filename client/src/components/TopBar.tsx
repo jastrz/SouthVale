@@ -200,7 +200,7 @@ function VillageContent({ villageId }: { villageId: string }) {
           />
         ) : (
           <h2
-            className="cursor-pointer text-xs font-bold text-white hover:text-slate-300 sm:text-sm"
+            className="cursor-pointer  text-white hover:text-slate-300 text-xs"
             onClick={startEditing}
             title="Click to rename"
           >

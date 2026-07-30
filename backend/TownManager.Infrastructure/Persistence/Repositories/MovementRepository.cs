@@ -19,6 +19,6 @@ public class MovementRepository(AppDbContext db) : IMovementRepository
             .Include(t => t.Village)
             .Where(t => t.Status == MovementStatus.InFlight && (
                 t.Village.PlayerId == playerId ||
-                t.TargetVillageId.HasValue && playerVillageIds.Contains(t.TargetVillageId.Value)))
+                (t.Type != MovementType.Return && t.TargetVillageId.HasValue && playerVillageIds.Contains(t.TargetVillageId.Value))))
             .ToListAsync(ct);
 }
