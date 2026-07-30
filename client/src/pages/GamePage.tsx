@@ -50,7 +50,7 @@ function PanelTab({
   return (
     <button
       onClick={onToggle}
-      className={`pointer-events-auto absolute top-1/2 z-22 -translate-y-1/2 flex items-center gap-1 rounded-xl border border-slate-500 bg-slate-800 px-1 py-3 text-xs font-bold text-slate-200 transition-colors hover:bg-slate-700 hover:text-white ${
+      className={`pointer-events-auto absolute top-1/2 z-22 -translate-y-1/2 flex items-center gap-1 rounded-xl  bg-black px-1.5 py-3 text-xs font-bold text-slate-200 transition-colors hover:bg-slate-700 hover:text-white ${
         isLeft ? "rounded-l-none" : "rounded-r-none"
       }`}
       style={{ [isLeft ? "left" : "right"]: open ? PANEL_CLAMP : 0 }}

@@ -32,6 +32,8 @@ export function OverviewPanel() {
 
   const statusMap = new Map(statuses?.map((s) => [s.villageId, s]));
 
+  const ICON_SIZE = 24;
+
   const movementCountMap = movements?.reduce(
     (acc, m) => {
       acc[m.originVillageId] = (acc[m.originVillageId] ?? 0) + 1;
@@ -65,11 +67,11 @@ export function OverviewPanel() {
   }, [villages, activeVillageId, setActiveVillage]);
 
   return (
-    <PanelContainer>
+    <PanelContainer side="left">
       <div className="flex h-full w-full flex-col font-sans text-white">
         <div className="flex-1 overflow-y-auto min-h-0">
           <CollapsibleSection
-            label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.village} size={24} /> Villages</span>}
+            label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.village} size={ICON_SIZE} /> Villages</span>}
             open={openVillages}
             onToggle={() => setOpenVillages(!openVillages)}
             className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
@@ -112,7 +114,7 @@ export function OverviewPanel() {
 
           {village && (village.buildOrders.length > 0 || village.trainOrders.length > 0) && (
             <CollapsibleSection
-              label="Orders"
+              label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.orders} size={ICON_SIZE} /> Orders</span>}
               open={openOrders}
               onToggle={() => setOpenOrders(!openOrders)}
               className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
@@ -127,7 +129,7 @@ export function OverviewPanel() {
           )}
           {activeVillageId && (movements?.filter((m) => m.originVillageId === activeVillageId || m.targetVillageId === activeVillageId)?.length ?? 0) > 0 && (
             <CollapsibleSection
-              label="Movements"
+              label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.movements} size={ICON_SIZE} /> Movements</span>}
               open={openMovements}
               onToggle={() => setOpenMovements(!openMovements)}
               className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"

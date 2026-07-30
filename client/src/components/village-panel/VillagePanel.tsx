@@ -23,7 +23,7 @@ export function VillagePanel() {
 
   if (!activeVillageId || !storeVillage) {
     return (
-      <PanelContainer>
+      <PanelContainer side="right">
         <div className="flex h-full items-center justify-center text-sm text-slate-500">
           No village selected
         </div>
@@ -60,7 +60,7 @@ function VillagePanelInner({
 
   if (isLoading) {
     return (
-      <PanelContainer>
+      <PanelContainer side="right">
         <div className="flex h-full items-center justify-center text-sm text-slate-400">
           Loading village data…
         </div>
@@ -70,7 +70,7 @@ function VillagePanelInner({
 
   if (isError || !village) {
     return (
-      <PanelContainer>
+      <PanelContainer side="right">
         <div className="flex h-full items-center justify-center text-sm text-red-400">
           {isError && error instanceof Error
             ? error.message
@@ -82,7 +82,7 @@ function VillagePanelInner({
 
   return (
 
-    <PanelContainer>
+    <PanelContainer side="right">
       <CollapsibleSection
         label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.buildings} size={24} /> Buildings</span>}
         open={openBuildings}

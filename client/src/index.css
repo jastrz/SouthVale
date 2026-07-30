@@ -1,4 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --font-sans: Inter, Arial, sans-serif;
+}
 
 html,
 body,
@@ -9,7 +14,7 @@ body,
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: Inter, Arial, sans-serif;
     background: #1a1a2e;
 }
 

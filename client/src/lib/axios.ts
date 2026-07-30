@@ -40,6 +40,15 @@ api.interceptors.response.use(
         error.message = error.response.data.title;
       } else if (error.response?.data?.detail) {
         error.message = error.response.data.detail;
+      } else if (error.response?.data?.errors) {
+        const errs = error.response.data.errors;
+        if (Array.isArray(errs)) {
+          error.message = errs.map((e: { errorMessage?: string }) => e.errorMessage).join(", ");
+        } else if (typeof errs === "string") {
+          error.message = errs;
+        }
+      } else if (error.response?.data?.title) {
+        error.message = error.response.data.title;
       }
       return Promise.reject(error);
     }

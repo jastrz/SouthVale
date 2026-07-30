@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGameConfig } from "../api/hooks/useQueries";
 import { BUILDING_ORDER, BUILDING_LABELS, TROOP_LABELS } from "../config/game";
-import { BUILDING_ICONS, TROOP_ICONS, RESOURCE_ICONS, parseTimeSpanMs, formatTime } from "../lib/helpers";
+import { BUILDING_ICONS, TROOP_ICONS, RESOURCE_ICONS, UI_ICONS, parseTimeSpanMs, formatTime } from "../lib/helpers";
 import { Icon } from "./Icon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { BuildingLevelConfigDto } from "../api/types";
@@ -24,7 +24,7 @@ export function GameInfoPanel() {
       {config && (
         <>
           <CollapsibleSection
-            label="Buildings"
+            label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.buildings} size={16} /> Buildings</span>}
             open={openBuildings}
             onToggle={() => setOpenBuildings(!openBuildings)}
             className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
@@ -52,7 +52,7 @@ export function GameInfoPanel() {
           </CollapsibleSection>
 
           <CollapsibleSection
-            label="Troops"
+            label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.troops} size={16} /> Troops</span>}
             open={openTroops}
             onToggle={() => setOpenTroops(!openTroops)}
             className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
@@ -60,7 +60,7 @@ export function GameInfoPanel() {
             <div className="rounded-xl overflow-hidden overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="text-slate-400 uppercase tracking-wider bg-slate-800/80">
+                  <tr className="text-slate-400 tracking-wider bg-slate-800/80">
                     <th className="px-2 py-2">Troop</th>
                     <th className="px-2 py-2">Training Cost</th>
                     <th className="px-2 py-2">Time</th>

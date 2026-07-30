@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   useGameStateStore,
   selectActiveVillage,
@@ -13,6 +13,13 @@ import { Icon } from "./Icon";
 import { RESOURCE_ICONS, UI_ICONS } from "../lib/helpers";
 import { LoginBar } from "./LoginBar";
 
+const TABS = [
+  { key: "map", icon: UI_ICONS.map, label: "Map" },
+  { key: "notifications", icon: UI_ICONS.notifications, label: "Notifications" },
+  { key: "leaderboard", icon: UI_ICONS.leaderboard, label: "Leaderboard" },
+  { key: "gameinfo", icon: UI_ICONS.info, label: "Info" },
+] as const;
+
 export function TopBar() {
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
   const storeVillage = useGameStateStore(selectActiveVillage);
@@ -20,6 +27,23 @@ export function TopBar() {
   const setCurrentView = useGameStateStore((s) => s.setCurrentView);
   const { data: reportsData } = useReports();
   const unreadCount = reportsData?.unreadCount ?? 0;
+  const navRef = useRef<HTMLDivElement>(null);
+  const [pill, setPill] = useState({ left: 0, width: 0 });
+
+  const updatePill = useCallback(() => {
+    if (!navRef.current) return;
+    const active = navRef.current.querySelector(`[data-tab="${currentView}"]`) as HTMLElement | null;
+    if (!active) return;
+    const rect = active.getBoundingClientRect();
+    const navRect = navRef.current.getBoundingClientRect();
+    setPill({ left: rect.left - navRect.left, width: rect.width });
+  }, [currentView]);
+
+  useEffect(() => {
+    updatePill();
+    window.addEventListener("resize", updatePill);
+    return () => window.removeEventListener("resize", updatePill);
+  }, [updatePill]);
 
   return (
     <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex flex-col items-center gap-1">
@@ -38,64 +62,32 @@ export function TopBar() {
         </div>
       </div>
 
-      <nav className="pointer-events-auto flex gap-1 rounded-lg border border-slate-800 bg-slate-950/70 px-2 py-0.5 flex-wrap justify-center sm:flex-nowrap">
-        <Tab
-          active={currentView === "map"}
-          onClick={() => setCurrentView("map")}
-        >
-          <span className="flex items-center gap-1"><Icon src={UI_ICONS.map} size={14} /> Map</span>
-        </Tab>
-        <Tab
-          active={currentView === "notifications"}
-          onClick={() => setCurrentView("notifications")}
-          badge={unreadCount}
-        >
-          <span className="flex items-center gap-1"><Icon src={UI_ICONS.notifications} size={14} /> Notifications</span>
-        </Tab>
-        <Tab
-          active={currentView === "leaderboard"}
-          onClick={() => setCurrentView("leaderboard")}
-        >
-          <span className="flex items-center gap-1"><Icon src={UI_ICONS.leaderboard} size={14} /> Leaderboard</span>
-        </Tab>
-        <Tab
-          active={currentView === "gameinfo"}
-          onClick={() => setCurrentView("gameinfo")}
-        >
-          <span className="flex items-center gap-1"><Icon src={UI_ICONS.info} size={14} /> Game Info</span>
-        </Tab>
+      <nav ref={navRef} className="pointer-events-auto relative flex gap-1 rounded-lg border border-slate-800 bg-slate-950/70 px-2 py-0.5 flex-wrap justify-center sm:flex-nowrap">
+        <div
+          className="absolute top-0.5 bottom-0.5 rounded bg-slate-600 transition-all duration-200 ease-out"
+          style={{ left: pill.left, width: pill.width }}
+        />
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            data-tab={tab.key}
+            onClick={() => setCurrentView(tab.key)}
+            className={`relative rounded px-1.5 py-0.5 text-[10px] font-medium tracking-wide transition-colors sm:px-2.5 sm:py-1 sm:text-xs ${
+              currentView === tab.key
+                ? "text-white"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <span className="flex items-center gap-1"><Icon src={tab.icon} size={14} /> {tab.label}</span>
+            {tab.key === "notifications" && unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-600 px-0.5 text-[8px] font-bold text-white sm:-top-1.5 sm:-right-1.5 sm:h-4 sm:min-w-4 sm:px-1 sm:text-[10px]">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </button>
+        ))}
       </nav>
     </div>
-  );
-}
-
-function Tab({
-  active,
-  onClick,
-  badge,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  badge?: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      className={`relative rounded px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase transition-colors sm:px-2.5 sm:py-1 sm:text-xs ${
-        active
-          ? "bg-slate-700 text-white"
-          : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-      }`}
-      onClick={onClick}
-    >
-      {children}
-      {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-600 px-0.5 text-[8px] font-bold text-white sm:-top-1.5 sm:-right-1.5 sm:h-4 sm:min-w-4 sm:px-1 sm:text-[10px]">
-          {badge > 99 ? "99+" : badge}
-        </span>
-      )}
-    </button>
   );
 }
 

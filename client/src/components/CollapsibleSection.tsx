@@ -15,7 +15,7 @@ export function CollapsibleSection({
     <section>
       <button
         onClick={onToggle}
-        className={`mb-2 flex items-center gap-1 font-bold tracking-widest uppercase transition-colors ${className}`}
+        className={`mb-2 flex cursor-pointer items-center gap-1 font-bold tracking-widest transition-colors ${className}`}
       >
         <span className="text-[10px]">{open ? "▾" : "▸"}</span>
         {label}

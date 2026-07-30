@@ -180,8 +180,12 @@ export const useRenameVillage = (villageId: string) =>
     mutationFn: (name: string) =>
       api.patch(`/gameplay/village/${villageId}/rename`, { name }),
     onSuccess: () => {
+      toast.success("Village renamed");
       queryClient.invalidateQueries({ queryKey: ["village", villageId] });
       queryClient.invalidateQueries({ queryKey: ["villages"] });
+    },
+    onError: (e) => {
+      toast.error(e instanceof Error ? e.message : "Rename failed");
     },
   });
 
