@@ -10,7 +10,7 @@ import {
   useReports,
 } from "../api/hooks/useQueries";
 import { Icon } from "./Icon";
-import { RESOURCE_ICONS } from "../lib/helpers";
+import { RESOURCE_ICONS, UI_ICONS } from "../lib/helpers";
 import { LoginBar } from "./LoginBar";
 
 export function TopBar() {
@@ -43,26 +43,26 @@ export function TopBar() {
           active={currentView === "map"}
           onClick={() => setCurrentView("map")}
         >
-          Map
+          <span className="flex items-center gap-1"><Icon src={UI_ICONS.map} size={14} /> Map</span>
         </Tab>
         <Tab
           active={currentView === "notifications"}
           onClick={() => setCurrentView("notifications")}
           badge={unreadCount}
         >
-          Notifications
+          <span className="flex items-center gap-1"><Icon src={UI_ICONS.notifications} size={14} /> Notifications</span>
         </Tab>
         <Tab
           active={currentView === "leaderboard"}
           onClick={() => setCurrentView("leaderboard")}
         >
-          Leaderboard
+          <span className="flex items-center gap-1"><Icon src={UI_ICONS.leaderboard} size={14} /> Leaderboard</span>
         </Tab>
         <Tab
           active={currentView === "gameinfo"}
           onClick={() => setCurrentView("gameinfo")}
         >
-          Game Info
+          <span className="flex items-center gap-1"><Icon src={UI_ICONS.info} size={14} /> Game Info</span>
         </Tab>
       </nav>
     </div>

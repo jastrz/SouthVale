@@ -11,6 +11,8 @@ import {
   useTrain,
 } from "../../api/hooks/useQueries";
 import { PanelContainer } from "../PanelContainer";
+import { Icon } from "../Icon";
+import { UI_ICONS } from "../../lib/helpers";
 import { CollapsibleSection } from "../CollapsibleSection";
 import { BuildingsPanel } from "./BuildingsPanel";
 import { TroopsPanel } from "./TroopsPanel";
@@ -82,7 +84,7 @@ function VillagePanelInner({
 
     <PanelContainer>
       <CollapsibleSection
-        label="Buildings"
+        label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.buildings} size={24} /> Buildings</span>}
         open={openBuildings}
         onToggle={() => setOpenBuildings(!openBuildings)}
         className="w-full px-4 pt-4 text-slate-400 hover:text-slate-300"
@@ -96,7 +98,7 @@ function VillagePanelInner({
       </CollapsibleSection>
       {hasBarracks && (
         <CollapsibleSection
-          label="Troops"
+          label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.troops} size={24} /> Troops</span>}
           open={openTroops}
           onToggle={() => setOpenTroops(!openTroops)}
           className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"

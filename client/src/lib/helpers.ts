@@ -28,6 +28,16 @@ export const BUILDING_ICONS: Record<string, string> = {
   TownHall: "/icons/buildings/town_hall.png",
 };
 
+export const UI_ICONS: Record<string, string> = {
+  map: "/icons/ui/map.png",
+  notifications: "/icons/ui/notifications.png",
+  leaderboard: "/icons/ui/leaderboard.png",
+  info: "/icons/ui/info.png",
+  village: "/icons/ui/village.png",
+  buildings: "/icons/ui/medieval-village-01.png",
+  troops: "/icons/ui/troops.png",
+};
+
 export function parseTimeSpanMs(ts: string): number {
   const days = ts.includes(".") ? Number(ts.split(".")[0]) : 0;
   const timePart = ts.includes(".") ? ts.split(".")[1] : ts;

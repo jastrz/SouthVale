@@ -5,7 +5,7 @@ export function CollapsibleSection({
   className = "text-slate-600 hover:text-slate-900",
   children,
 }: {
-  label: string;
+  label: React.ReactNode;
   open: boolean;
   onToggle: () => void;
   className?: string;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGameConfig } from "../api/hooks/useQueries";
 import { BUILDING_ORDER, BUILDING_LABELS, TROOP_LABELS } from "../config/game";
-import { TROOP_ICONS, RESOURCE_ICONS, parseTimeSpanMs, formatTime } from "../lib/helpers";
+import { BUILDING_ICONS, TROOP_ICONS, RESOURCE_ICONS, parseTimeSpanMs, formatTime } from "../lib/helpers";
 import { Icon } from "./Icon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { BuildingLevelConfigDto } from "../api/types";
@@ -36,7 +36,7 @@ export function GameInfoPanel() {
                 return (
                   <div key={type}>
                     <CollapsibleSection
-                      label={BUILDING_LABELS[type] ?? type}
+                      label={<span className="flex items-center gap-1.5">{BUILDING_ICONS[type] && <Icon src={BUILDING_ICONS[type]} size={16} />}{BUILDING_LABELS[type] ?? type}</span>}
                       open={openBuildingTypes[type] ?? false}
                       onToggle={() => toggleBuildingType(type)}
                       className="ml-4 rounded-lg bg-slate-700/80 px-3 py-1 text-slate-300 hover:text-white"

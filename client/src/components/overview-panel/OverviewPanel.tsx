@@ -8,6 +8,8 @@ import {
   useCancelTrain,
 } from "../../api/hooks/useQueries";
 import { useGameStateStore } from "../../store/gameStateStore";
+import { Icon } from "../Icon";
+import { UI_ICONS } from "../../lib/helpers";
 import { CollapsibleSection } from "../CollapsibleSection";
 import { PanelContainer } from "../PanelContainer";
 import { VillageListItem } from "./VillageListItem";
@@ -67,7 +69,7 @@ export function OverviewPanel() {
       <div className="flex h-full w-full flex-col font-sans text-white">
         <div className="flex-1 overflow-y-auto min-h-0">
           <CollapsibleSection
-            label="Villages"
+            label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.village} size={24} /> Villages</span>}
             open={openVillages}
             onToggle={() => setOpenVillages(!openVillages)}
             className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
