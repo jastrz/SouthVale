@@ -113,7 +113,7 @@ public class Village : Entity
             var count = troops.Get(troopConfig.Type); 
             if(count <= 0) continue;
                 
-            var upkeepPerTroop = troopConfig.Upkeep * elapsed.TotalHours;
+            var upkeepPerTroop = troopConfig.Upkeep * elapsed.TotalHours * GameSettings.UpkeepMultiplier;
 
             if(upkeepPerTroop <= 0) continue;
 

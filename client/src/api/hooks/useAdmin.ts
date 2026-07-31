@@ -46,7 +46,7 @@ export const useTickLlm = () =>
     onError: (e) => toast.error(String(e)),
   });
 
-export interface GameConfig { travelSpeedMultiplier: number; resourcesProductionMultiplier: number; buildSpeedMultiplier: number; trainSpeedMultiplier: number; maxBarbarianVillages: number }
+export interface GameConfig { travelSpeedMultiplier: number; resourcesProductionMultiplier: number; buildSpeedMultiplier: number; trainSpeedMultiplier: number; upkeepMultiplier: number; maxBarbarianVillages: number; llmTickInterval: string; barbarianTickInterval: string }
 
 export const useGameConfig = () =>
   useQuery({

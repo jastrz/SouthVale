@@ -8,7 +8,7 @@ public class LlmPlayerConfig
     public string ApiUrl { get; set; } = "";
     public string ApiKey { get; set; } = "";
     public string Model { get; set; } = "";
-    public string TickIntervalCron { get; set; } = "*/15 * * * *";
+    public string TickIntervalCron { get; set; } = "*/45 * * * *";
     public int MaxActionsPerTick { get; set; } = 20;
     public bool EnableThinking { get; set; } = true;
     public double Temperature { get; set; } = 0.7;

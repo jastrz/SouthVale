@@ -29,11 +29,14 @@ public class BarbarianJobScheduler(IServiceScopeFactory scopeFactory, IRecurring
             });
         }
 
-        jobs.AddOrUpdate<BarbarianTickJob>("barbarian-tick",
-            j => j.ExecuteAsync(ct), options.TickIntervalCron);
+        Register(jobs, options);
 
         return Task.CompletedTask;
     }
+
+    public static void Register(IRecurringJobManager jobs, BarbarianOptions options) =>
+        jobs.AddOrUpdate<BarbarianTickJob>("barbarian-tick",
+            j => j.ExecuteAsync(CancellationToken.None), options.TickIntervalCron);
 
     public Task StopAsync(CancellationToken ct) => Task.CompletedTask;
 }

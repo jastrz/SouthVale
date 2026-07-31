@@ -6,17 +6,18 @@ import { villageTexture, arrowTexture } from "../atlas";
 import { tween } from "../animation/";
 import { useAuthStore } from "../../store/authStore";
 
-const ARROW_AMPLITUDE = 8;
+const ARROW_AMPLITUDE = 5;
 const ARROW_BOB_MS = 700;
-const ARROW_OFFSET_Y = -40;
-export const ARROW_SCALE = 0.1;
+const ARROW_OFFSET_Y = -50;
+const ARROW_SCALE_PULSE = 0.15;
+const ARROW_SCALE = { x: 0.06, y: 0.1 };
 
 /** Arrow marker hovering above the village */
 function createArrow(color: number): Sprite {
   const sprite = new Sprite(arrowTexture());
   sprite.anchor.set(0.5, 1);
-  sprite.scale.set(ARROW_SCALE);
-  sprite.y = ARROW_OFFSET_Y;
+  sprite.scale.set(ARROW_SCALE.x, ARROW_SCALE.y);
+  sprite.y = 0;
   sprite.eventMode = "none";
   sprite.tint = color;
   sprite.alpha = 0.8;
@@ -25,7 +26,8 @@ function createArrow(color: number): Sprite {
     tween({
       duration: ARROW_BOB_MS,
       onUpdate: (t) => {
-        sprite.y = ARROW_OFFSET_Y - (down ? t : 1 - t) * ARROW_AMPLITUDE;
+        sprite.y = -(down ? t : 1 - t) * ARROW_AMPLITUDE;
+        sprite.scale.set( ARROW_SCALE.x * (1 + (down ? t : 1 - t) * ARROW_SCALE_PULSE), ARROW_SCALE.y );
       },
       onComplete: () => phase(!down),
     });
@@ -100,7 +102,7 @@ function createLabel(
 
   const container = new Container();
   container.addChild(playerText, nameText, popText);
-  container.y = -40;
+  container.y = -45;
   container.eventMode = "none";
   return container;
 }
@@ -111,7 +113,7 @@ export function createVillageMarker(
   isTarget: boolean,
   playerScore: number | null,
   myScore: number,
-): { marker: Container; label: Container; arrow: Sprite | null } {
+): { marker: Container; arrows: Container; label: Container } {
   const isOwn = village.kind === "own";
   const sprite = new Sprite(
     villageTexture(
@@ -122,23 +124,22 @@ export function createVillageMarker(
   sprite.anchor.set(0.5);
   sprite.scale.set(VILLAGE_SCALE);
 
-  const container = new Container();
-  container.addChild(sprite);
+  const arrows = new Container();
+  arrows.y = ARROW_OFFSET_Y;
   const label = createLabel(village, playerScore, myScore);
-  container.addChild(label);
+
+  const container = new Container();
+  container.addChild(sprite, label, arrows);
   container.x = village.coordinates.x * TILE_SIZE + TILE_SIZE / 2;
   container.y = village.coordinates.y * TILE_SIZE + TILE_SIZE / 2;
 
-  let arrow: Sprite | null = null;
   if (isActive) {
-    arrow = createArrow(COLORS.arrowOwn);
-    container.addChild(arrow);
+    arrows.addChild(createArrow(COLORS.arrowOwn));
   }
 
   if (isTarget) {
-    arrow = createArrow(COLORS.arrowTarget);
-    container.addChild(arrow);
+    arrows.addChild(createArrow(COLORS.arrowTarget));
   }
 
-  return { marker: container, label, arrow };
+  return { marker: container, arrows, label };
 }

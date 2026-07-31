@@ -23,11 +23,13 @@ function BuildingTooltip({
   config,
   nextConfig,
   buildSpeedMultiplier = 1,
+  globalBuildSpeed = 1,
 }: {
   building: { type: string; level: number };
   config: BuildingLevelConfigDto | undefined;
   nextConfig: BuildingLevelConfigDto | undefined;
   buildSpeedMultiplier?: number;
+  globalBuildSpeed?: number;
 }) {
   const currentPerHour = config?.productionPerHour;
   const nextPerHour = nextConfig?.productionPerHour;
@@ -119,7 +121,7 @@ function BuildingTooltip({
           <ResourceCost value={nextConfig.upgradeCost} />
           <div className="border-t border-slate-700 pt-1" />
           <div className="text-slate-300">
-            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime) / buildSpeedMultiplier)}{buildSpeedMultiplier > 1 && <span className="text-green-400"> ({buildSpeedMultiplier}x build speed)</span>}
+            Time: {formatTime(parseTimeSpanMs(nextConfig.upgradeTime) / (buildSpeedMultiplier * globalBuildSpeed))}{buildSpeedMultiplier > 1 && <span className="text-green-400"> ({buildSpeedMultiplier}x build speed)</span>}
           </div>
           <div className="border-t border-slate-700 pt-1" />
           {nextConfig.warehouseCapacity > 0 && (
@@ -298,6 +300,7 @@ function BuildingCard({
   maxLevel,
   resources,
   buildSpeedMultiplier = 1,
+  globalBuildSpeed = 1,
 }: {
   building: { id: string; type: string; level: number };
   orders: readonly { completesAt: string; targetLevel: number }[];
@@ -306,6 +309,7 @@ function BuildingCard({
   maxLevel: number;
   resources?: ResourcesDto;
   buildSpeedMultiplier?: number;
+  globalBuildSpeed?: number;
 }) {
   const { data: config } = useGameConfig();
   const isNew = building.level === 0;
@@ -338,6 +342,7 @@ function BuildingCard({
             config={currentCfg}
             nextConfig={nextCfg}
             buildSpeedMultiplier={buildSpeedMultiplier}
+            globalBuildSpeed={globalBuildSpeed}
           />
         )
       }
@@ -423,7 +428,8 @@ export function BuildingsPanel({
             disabled={mutation.isPending}
             maxLevel={maxLevels[b.type] ?? 5}
             resources={resources}
-            buildSpeedMultiplier={buildSpeedMultiplier * (gameConfig?.buildSpeedMultiplier ?? 1)}
+            buildSpeedMultiplier={buildSpeedMultiplier}
+            globalBuildSpeed={gameConfig?.buildSpeedMultiplier ?? 1}
             onUpgrade={() =>
               mutation.mutate({ buildingType: b.type as BuildingType })
             }

@@ -40,10 +40,11 @@ services:
       LlmPlayer__ThinkingTokens: ${LlmPlayer__ThinkingTokens:-16384}
       LlmPlayer__NonThinkingTokens: ${LlmPlayer__NonThinkingTokens:-4096}
       Barbarian__TargetPopulation: ${Barbarian__TargetPopulation:-15}
-      Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/10 * * * *}
-      LlmPlayer__TickIntervalCron: ${LlmPlayer__TickIntervalCron:-*/15 * * * *}
-      GameSettings__TravelSpeedMultiplier: ${GameSettings__TravelSpeedMultiplier:-10}
-      GameSettings__ResourcesProductionMultiplier: ${GameSettings__ResourcesProductionMultiplier:-16}
+      Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/30 * * * *}
+      LlmPlayer__TickIntervalCron: ${LlmPlayer__TickIntervalCron:-*/45 * * * *}
+      GameSettings__TravelSpeedMultiplier: ${GameSettings__TravelSpeedMultiplier:-1}
+      GameSettings__ResourcesProductionMultiplier: ${GameSettings__ResourcesProductionMultiplier:-1}
+      GameSettings__UpkeepMultiplier: ${GameSettings__UpkeepMultiplier:-1}
       Features__UseBarbarians: ${Features__UseBarbarians:-true}
       Features__UseLlmPlayers: ${Features__UseLlmPlayers:-false}
       Admin__Password: ${Admin__Password:-}

@@ -28,11 +28,14 @@ public class LlmPlayerJobScheduler(IServiceScopeFactory scopeFactory, IRecurring
             });
         }
 
-        jobs.AddOrUpdate<LlmPlayerJob>("llm-player-tick",
-            j => j.ExecuteAsync(CancellationToken.None), config.TickIntervalCron);
+        Register(jobs, config);
 
         return Task.CompletedTask;
     }
+
+    public static void Register(IRecurringJobManager jobs, LlmPlayerConfig config) =>
+        jobs.AddOrUpdate<LlmPlayerJob>("llm-player-tick",
+            j => j.ExecuteAsync(CancellationToken.None), config.TickIntervalCron);
 
     public Task StopAsync(CancellationToken ct) => Task.CompletedTask;
 }

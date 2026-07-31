@@ -1,11 +1,11 @@
-import { Container, Circle, Sprite } from "pixi.js";
+import { Container, Circle } from "pixi.js";
 import type { MapVillage } from "../../../api/types";
-import { ARROW_SCALE, createVillageMarker } from "../../entities/VillageMarker";
+import { createVillageMarker } from "../../entities/VillageMarker";
 import { ZOOM } from "../../config";
 
 export class VillageLayer extends Container {
+  private arrows: Container[] = [];
   private labels: Container[] = [];
-  private arrows: Sprite[] = [];
 
   constructor() {
     super();
@@ -22,8 +22,8 @@ export class VillageLayer extends Container {
     onHover?: (village: MapVillage | null) => void,
   ): void {
     this.removeChildren().forEach((c) => c.destroy());
-    this.labels = [];
     this.arrows = [];
+    this.labels = [];
 
     const sorted = [...villages].sort(
       (a, b) => a.coordinates.y - b.coordinates.y,
@@ -31,7 +31,7 @@ export class VillageLayer extends Container {
     for (const v of sorted) {
       const isActive = v.kind === "own" && v.id === activeOwnId;
       const isTarget = v.id === targetId;
-      const { marker, label, arrow } = createVillageMarker(
+      const { marker, arrows, label } = createVillageMarker(
         v,
         isActive,
         isTarget,
@@ -50,8 +50,8 @@ export class VillageLayer extends Container {
         marker.on("pointerout", () => onHover(null));
       }
       this.addChild(marker);
+      this.arrows.push(arrows);
       this.labels.push(label);
-      if (arrow) this.arrows.push(arrow);
     }
   }
 
@@ -59,13 +59,14 @@ export class VillageLayer extends Container {
     const s = 1 / scale;
     const fadePoint = ZOOM.max / 3;
     const alpha = scale >= fadePoint ? 1 : Math.max(0.0, (scale - ZOOM.min) / (fadePoint - ZOOM.min));
+
     for (const lbl of this.labels) {
       lbl.scale.set(s);
       lbl.alpha = alpha;
     }
 
-    for (const arr of this.arrows) {
-      arr.scale.set(s * ARROW_SCALE);
+    for (const arrow of this.arrows) {
+      arrow.scale.set(s);
     }
   }
 }

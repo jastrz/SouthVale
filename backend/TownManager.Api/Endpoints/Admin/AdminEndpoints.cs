@@ -1,5 +1,10 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Hangfire;
+using NCrontab;
+using TownManager.Application.Barbarians;
+using TownManager.Application.Llm;
 using TownManager.Application.Players.Services;
 using TownManager.Application.Map.Services;
 using TownManager.Application.Villages.Services;
@@ -7,6 +12,7 @@ using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Infrastructure.Identity;
+using TownManager.Infrastructure.Jobs;
 using TownManager.Infrastructure.Persistence;
 
 namespace TownManager.Api.Endpoints.Admin;
@@ -250,19 +256,26 @@ public class AdminEndpoints : IEndpoint
         .WithDescription("Keeps registered (non-guest) Identity users, deletes all game data and guest accounts, creates a fresh starter village for each persisted user, then restarts the application for re-seeding. Requires admin password confirmation.")
         .RequireAuthorization();
 
-        app.MapGet("/admin/config", () =>
+        app.MapGet("/admin/config", ([FromServices] LlmPlayerConfig llmCfg, [FromServices] BarbarianOptions barbOptions) =>
             Results.Ok(new GameConfigResponse(
                 GameSettings.TravelSpeedMultiplier,
                 GameSettings.ResourcesProductionMultiplier,
                 GameSettings.BuildSpeedMultiplier,
                 GameSettings.TrainSpeedMultiplier,
-                BarbarianConfig.TargetPopulation))
+                GameSettings.UpkeepMultiplier,
+                BarbarianConfig.TargetPopulation,
+                llmCfg.TickIntervalCron,
+                barbOptions.TickIntervalCron))
         )
         .WithName("AdminGetConfig")
         .WithTags("Admin")
         .RequireAuthorization();
 
-        app.MapPut("/admin/config", (UpdateGameConfigRequest request) =>
+        app.MapPut("/admin/config", (
+            UpdateGameConfigRequest request,
+            [FromServices] LlmPlayerConfig llmCfg,
+            [FromServices] BarbarianOptions barbOptions,
+            [FromServices] IRecurringJobManager jobs) =>
         {
             if (request.TravelSpeedMultiplier.HasValue)
             {
@@ -284,14 +297,36 @@ public class AdminEndpoints : IEndpoint
                 GameSettings.TrainSpeedMultiplier = request.TrainSpeedMultiplier.Value;
                 GameSettings.ConfigVersion++;
             }
+            if (request.UpkeepMultiplier.HasValue)
+            {
+                GameSettings.UpkeepMultiplier = request.UpkeepMultiplier.Value;
+                GameSettings.ConfigVersion++;
+            }
             if (request.MaxBarbarianVillages.HasValue)
                 BarbarianConfig.TargetPopulation = request.MaxBarbarianVillages.Value;
+            if (request.LlmTickInterval is { Length: > 0 })
+            {
+                if (!TryParseCron(request.LlmTickInterval, out var error))
+                    return Results.BadRequest(new { error });
+                llmCfg.TickIntervalCron = request.LlmTickInterval;
+                LlmPlayerJobScheduler.Register(jobs, llmCfg);
+            }
+            if (request.BarbarianTickInterval is { Length: > 0 })
+            {
+                if (!TryParseCron(request.BarbarianTickInterval, out var error))
+                    return Results.BadRequest(new { error });
+                barbOptions.TickIntervalCron = request.BarbarianTickInterval;
+                BarbarianJobScheduler.Register(jobs, barbOptions);
+            }
             return Results.Ok(new GameConfigResponse(
                 GameSettings.TravelSpeedMultiplier,
                 GameSettings.ResourcesProductionMultiplier,
                 GameSettings.BuildSpeedMultiplier,
                 GameSettings.TrainSpeedMultiplier,
-                BarbarianConfig.TargetPopulation));
+                GameSettings.UpkeepMultiplier,
+                BarbarianConfig.TargetPopulation,
+                llmCfg.TickIntervalCron,
+                barbOptions.TickIntervalCron));
         })
         .WithName("AdminUpdateConfig")
         .WithTags("Admin")
@@ -299,6 +334,21 @@ public class AdminEndpoints : IEndpoint
     }
 
     public record AddResourcesRequest(double Wood, double Clay, double Iron, double Beer);
-    public record GameConfigResponse(float TravelSpeedMultiplier, float ResourcesProductionMultiplier, float BuildSpeedMultiplier, float TrainSpeedMultiplier, int MaxBarbarianVillages);
-    public record UpdateGameConfigRequest(float? TravelSpeedMultiplier, float? ResourcesProductionMultiplier, float? BuildSpeedMultiplier, float? TrainSpeedMultiplier, int? MaxBarbarianVillages);
+    public record GameConfigResponse(float TravelSpeedMultiplier, float ResourcesProductionMultiplier, float BuildSpeedMultiplier, float TrainSpeedMultiplier, float UpkeepMultiplier, int MaxBarbarianVillages, string LlmTickInterval, string BarbarianTickInterval);
+    public record UpdateGameConfigRequest(float? TravelSpeedMultiplier, float? ResourcesProductionMultiplier, float? BuildSpeedMultiplier, float? TrainSpeedMultiplier, float? UpkeepMultiplier, int? MaxBarbarianVillages, string? LlmTickInterval, string? BarbarianTickInterval);
+
+    private static bool TryParseCron(string input, out string error)
+    {
+        try
+        {
+            CrontabSchedule.Parse(input);
+            error = "";
+            return true;
+        }
+        catch (Exception)
+        {
+            error = $"Invalid cron expression: {input}";
+            return false;
+        }
+    }
 }

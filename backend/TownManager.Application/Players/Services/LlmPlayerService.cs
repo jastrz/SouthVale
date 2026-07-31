@@ -242,7 +242,7 @@ RESOURCE RULES:
 - Build Warehouse to increase storage. Full warehouse = wasted production between ticks.
 
 TICK TIMING:
-- You act once every {config.TickIntervalCron}. Plan spending across multiple ticks — save up for expensive builds.
+- You act on a schedule (cron: {config.TickIntervalCron}). Plan spending across multiple ticks — save up for expensive builds.
 
 IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.

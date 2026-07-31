@@ -60,11 +60,7 @@ try
         .AddApplication()
         .AddInfrastructure(builder.Configuration);
 
-    GameSettings.TravelSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TravelSpeedMultiplier", 10f);
-    GameSettings.ResourcesProductionMultiplier = builder.Configuration.GetValue<float>("GameSettings:ResourcesProductionMultiplier", 16f);
-    GameSettings.BuildSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:BuildSpeedMultiplier", 1f);
-    GameSettings.TrainSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TrainSpeedMultiplier", 1f);
-    BarbarianConfig.TargetPopulation = builder.Configuration.GetValue<int>("Barbarian:TargetPopulation", 15);
+    LoadGameSettings(builder);
 
     Log.Information("GameSettings: TravelSpeed={TravelSpeed} ResourcesProduction={ResProd} BuildSpeed={BuildSpeed} TrainSpeed={TrainSpeed}",
         GameSettings.TravelSpeedMultiplier, GameSettings.ResourcesProductionMultiplier,
@@ -117,4 +113,14 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+static void LoadGameSettings(WebApplicationBuilder builder)
+{
+    GameSettings.TravelSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TravelSpeedMultiplier", 1f);
+    GameSettings.ResourcesProductionMultiplier = builder.Configuration.GetValue<float>("GameSettings:ResourcesProductionMultiplier", 1f);
+    GameSettings.UpkeepMultiplier = builder.Configuration.GetValue<float>("GameSettings:UpkeepMultiplier", 1f);
+    GameSettings.BuildSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:BuildSpeedMultiplier", 1f);
+    GameSettings.TrainSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TrainSpeedMultiplier", 1f);
+    BarbarianConfig.TargetPopulation = builder.Configuration.GetValue<int>("Barbarian:TargetPopulation", 15);
 }

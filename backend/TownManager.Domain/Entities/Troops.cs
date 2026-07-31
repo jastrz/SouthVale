@@ -58,7 +58,7 @@ public class Troops
     {
         double total = 0;
         foreach (var (type, count) in Counts)
-            total += TroopsConfig.Get(type).Upkeep * count;
+            total += TroopsConfig.Get(type).Upkeep * count * GameSettings.UpkeepMultiplier;
         return total;
     }
 }

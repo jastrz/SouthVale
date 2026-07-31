@@ -41,6 +41,9 @@ export function AdminPage() {
   const [resourceSpeed, setResourceSpeed] = useState("");
   const [buildSpeed, setBuildSpeed] = useState("");
   const [trainSpeed, setTrainSpeed] = useState("");
+  const [upkeep, setUpkeep] = useState("");
+  const [llmTick, setLlmTick] = useState("");
+  const [barbTick, setBarbTick] = useState("");
   const [maxBarbVillages, setMaxBarbVillages] = useState("");
   const [inited, setInited] = useState(false);
 
@@ -50,6 +53,9 @@ export function AdminPage() {
     setResourceSpeed(String(gameConfig.resourcesProductionMultiplier));
     setBuildSpeed(String(gameConfig.buildSpeedMultiplier));
     setTrainSpeed(String(gameConfig.trainSpeedMultiplier));
+    setUpkeep(String(gameConfig.upkeepMultiplier));
+    setLlmTick(gameConfig.llmTickInterval);
+    setBarbTick(gameConfig.barbarianTickInterval);
     setMaxBarbVillages(String(gameConfig.maxBarbarianVillages));
   }
 
@@ -138,32 +144,36 @@ export function AdminPage() {
         </form>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); updateConfig.mutate({ travelSpeedMultiplier: Number(travelSpeed), resourcesProductionMultiplier: Number(resourceSpeed), buildSpeedMultiplier: Number(buildSpeed), trainSpeedMultiplier: Number(trainSpeed), maxBarbarianVillages: Number(maxBarbVillages) }); }}
+          onSubmit={(e) => { e.preventDefault(); updateConfig.mutate({ travelSpeedMultiplier: Number(travelSpeed), resourcesProductionMultiplier: Number(resourceSpeed), buildSpeedMultiplier: Number(buildSpeed), trainSpeedMultiplier: Number(trainSpeed), upkeepMultiplier: Number(upkeep), llmTickInterval: llmTick, barbarianTickInterval: barbTick, maxBarbarianVillages: Number(maxBarbVillages) }); }}
           className="flex flex-col gap-3 rounded border border-slate-700 bg-slate-800 p-4"
         >
           <h2 className="text-sm font-semibold text-slate-300 uppercase">
             Game Config
           </h2>
-          <label className="flex flex-col gap-1 text-xs text-slate-400">
-            Travel Speed Multiplier
-            <input type="number" step="any" value={travelSpeed} onChange={(e) => setTravelSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-slate-400">
-            Resources Production Multiplier
-            <input type="number" step="any" value={resourceSpeed} onChange={(e) => setResourceSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-slate-400">
-            Build Speed Multiplier
-            <input type="number" step="any" value={buildSpeed} onChange={(e) => setBuildSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-slate-400">
-            Train Speed Multiplier
-            <input type="number" step="any" value={trainSpeed} onChange={(e) => setTrainSpeed(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-slate-400">
-            Max Barbarian Villages
-            <input type="number" step="1" value={maxBarbVillages} onChange={(e) => setMaxBarbVillages(e.target.value)} className="rounded bg-slate-700 px-2 py-1 text-sm text-white" />
-          </label>
+          <div className="flex flex-col gap-1.5">
+            {(
+              [
+                ["Travel Speed Multiplier", travelSpeed, setTravelSpeed, "any"],
+                ["Resources Production Multiplier", resourceSpeed, setResourceSpeed, "any"],
+                ["Build Speed Multiplier", buildSpeed, setBuildSpeed, "any"],
+                ["Train Speed Multiplier", trainSpeed, setTrainSpeed, "any"],
+                ["Upkeep Multiplier", upkeep, setUpkeep, "any"],
+                ["LLM Tick (cron)", llmTick, setLlmTick, "text"],
+                ["Barbarian Tick (cron)", barbTick, setBarbTick, "text"],
+                ["Max Barbarian Villages", maxBarbVillages, setMaxBarbVillages, "1"],
+              ] as [string, string, (v: string) => void, string][]
+            ).map(([label, value, setter, step]) => (
+              <label key={String(label)} className="flex items-center justify-between gap-2 text-xs text-slate-400">
+                {String(label)}
+                <input
+                  type={String(step)}
+                  value={String(value)}
+                  onChange={(e) => setter(e.target.value)}
+                  className="w-32 rounded bg-slate-700 px-2 py-0.5 text-left text-sm text-white"
+                />
+              </label>
+            ))}
+          </div>
           <Btn type="submit" loading={updateConfig.isPending} label="Update" className="w-full" />
         </form>
 

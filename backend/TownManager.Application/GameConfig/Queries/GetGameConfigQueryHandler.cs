@@ -60,7 +60,7 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
                 t.Value.Stats.CarryCapacity,
                 t.Value.Stats.Speed,
                 t.Value.TrainedAt.ToString(),
-                t.Value.Upkeep
+                t.Value.Upkeep * GameSettings.UpkeepMultiplier
             )
         );
 

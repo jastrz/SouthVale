@@ -108,7 +108,7 @@ export function GameInfoPanel() {
             onToggle={() => setOpenPlayers(!openPlayers)}
             className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
           >
-            <div className="flex flex-col gap-1.5 rounded-lg bg-slate-900/60 px-3 py-2 text-xs text-slate-300">
+            <div className="flex flex-col gap-1.5 rounded-lg bg-slate-800/80 px-3 py-2 text-xs text-slate-300">
               <p>Village labels show the player name, village name and population.</p>
               <p>Player name color compares the player's leaderboard score to yours:</p>
               <div className="flex flex-col gap-0.5">
