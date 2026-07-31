@@ -3,6 +3,19 @@ import { BUILDING_LABELS, TROOP_LABELS } from "../../config/game";
 import { formatTime, timeRemaining } from "../../lib/helpers";
 import { useTick } from "../../hooks/useTick";
 
+function ProgressBar({ startMs, endMs, color = "bg-yellow-500" }: { startMs: number; endMs: number; color?: string }) {
+  const total = endMs - startMs;
+  const pct = total <= 0 ? 100 : Math.round(Math.min(1, Math.max(0, (Date.now() - startMs) / total)) * 100);
+  return (
+    <div className="mt-1 h-1 w-full overflow-hidden rounded bg-slate-700">
+      <div
+        className={`h-full rounded ${color} transition-[width] duration-1000 ease-linear`}
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+}
+
 export function QueuePanel({
   buildOrders,
   trainOrders,
@@ -13,6 +26,7 @@ export function QueuePanel({
     id: string;
     buildingType: string;
     targetLevel: number;
+    startsAt: string;
     completesAt: string;
   }[];
 
@@ -21,6 +35,7 @@ export function QueuePanel({
     troopType: string;
     amount: number;
     completed: number;
+    startedAt: string;
     completesAt: string;
   }[];
 
@@ -44,27 +59,44 @@ export function QueuePanel({
           <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400">
             Building
           </h3>
-          {sortedBuilds.map((o) => (
+          {sortedBuilds.map((o, i) => (
             <div
               key={o.id}
               className="mb-1 flex items-center justify-between rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
             >
-              <div>
+              <div className="flex-1">
                 <span className="font-medium text-white">
                   {BUILDING_LABELS[o.buildingType] ?? o.buildingType}
                 </span>{" "}
-                → Lv.{o.targetLevel}
+                  → Lv.{o.targetLevel}
                 <div className="mt-0.5 text-yellow-400">
                   {formatTime(timeRemaining(o.completesAt))}
                 </div>
+                {i === 0 && (
+                  <ProgressBar
+                    startMs={new Date(o.startsAt).getTime()}
+                    endMs={new Date(o.completesAt).getTime()}
+                  />
+                )}
               </div>
-              <button
-                onClick={() => cancelBuild.mutate(o.id)}
-                disabled={cancelBuild.isPending}
-                className="ml-2 rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
-              >
-                cancel
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[10px] text-slate-500">
+                  completes{" "}
+                  {new Date(o.completesAt).toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+                <button
+                  onClick={() => cancelBuild.mutate(o.id)}
+                  disabled={cancelBuild.isPending}
+                  className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
+                >
+                  cancel
+                </button>
+              </div>
             </div>
           ))}
         </>
@@ -74,12 +106,12 @@ export function QueuePanel({
           <h3 className="mb-2 mt-3 text-xs font-bold tracking-widest text-slate-400">
             Training
           </h3>
-          {sortedTrains.map((o) => (
+          {sortedTrains.map((o, i) => (
             <div
               key={o.id}
               className="mb-1 flex items-center justify-between rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
             >
-              <div>
+              <div className="flex-1">
                 <span className="font-medium text-white">
                   {o.completed}/{o.amount}
                 </span>{" "}
@@ -87,14 +119,31 @@ export function QueuePanel({
                 <div className="mt-0.5 text-yellow-400">
                   {formatTime(timeRemaining(o.completesAt))}
                 </div>
+                {i === 0 && (
+                  <ProgressBar
+                    startMs={new Date(o.startedAt).getTime()}
+                    endMs={new Date(o.completesAt).getTime()}
+                  />
+                )}
               </div>
-              <button
-                onClick={() => cancelTrain.mutate(o.id)}
-                disabled={cancelTrain.isPending}
-                className="ml-2 rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
-              >
-                cancel
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[10px] text-slate-500">
+                  completes{" "}
+                  {new Date(o.completesAt).toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+                <button
+                  onClick={() => cancelTrain.mutate(o.id)}
+                  disabled={cancelTrain.isPending}
+                  className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
+                >
+                  cancel
+                </button>
+              </div>
             </div>
           ))}
         </>

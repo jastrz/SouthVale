@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useGameConfig } from "../api/hooks/useQueries";
-import { BUILDING_ORDER, BUILDING_LABELS, TROOP_LABELS } from "../config/game";
+import { BUILDING_ORDER, BUILDING_LABELS, BUILDING_DESCRIPTIONS, TROOP_LABELS } from "../config/game";
 import { BUILDING_ICONS, TROOP_ICONS, RESOURCE_ICONS, UI_ICONS, parseTimeSpanMs, formatTime } from "../lib/helpers";
 import { Icon } from "./Icon";
 import { CollapsibleSection } from "./CollapsibleSection";
@@ -43,6 +43,9 @@ export function GameInfoPanel() {
                       className="ml-4 rounded-lg bg-slate-700/80 px-3 py-1 text-slate-300 hover:text-white"
                     >
                       <div className="px-3 pb-2">
+                        <p className="mb-2 rounded-lg bg-slate-800/80 px-2 py-1 text-[11px] text-slate-300">
+                          {BUILDING_DESCRIPTIONS[type]}
+                        </p>
                         <BuildingTable type={type} levels={levels} buildSpeedMultiplier={config.buildSpeedMultiplier} />
                       </div>
                     </CollapsibleSection>

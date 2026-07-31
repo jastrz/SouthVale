@@ -117,6 +117,7 @@ public static class ReportFactory
             Type = ReportType.Starvation,
             Title = $"Troops fled in {villageName}",
             Body = $"{TroopBreakdown(starved)} fled from village due to beer shortage.",
+            CreatedAt = DateTime.UtcNow
         };
     }
 

@@ -48,7 +48,7 @@ export const MOVEMENT = {
   iconScale: .5,
   dash: 6,
   gap: 4,
-  lineAlpha: 0.4,
+  lineAlpha: 0.6,
   lineWidth: 2,
   arrowSize: 8,
   arrowAlpha: 0.6,

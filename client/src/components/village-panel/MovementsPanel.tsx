@@ -97,31 +97,40 @@ function MovementRow({
 
   return (
     <div
-      className={`flex items-center justify-between rounded ${bgColor} px-2.5 py-1.5 text-xs`}
+      className={`rounded ${bgColor} px-2.5 py-1.5 text-xs`}
     >
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <span className={`font-medium ${textColor}`}>
-            {movement.type === "Attack" && kind === "incoming" ? "Incoming Attack" : TYPE_LABEL[movement.type] ?? movement.type}
-          </span>
-          <span className="truncate text-slate-400">
-            {kind === "outgoing" ? (
-              <>→ {targetName ?? "??"}</>
-            ) : movement.type === "Return" ? (
-              <>← Home</>
-            ) : (
-              <>← {movement.originVillageName}</>
-            )}
-          </span>
-        </div>
-        <div className="text-[10px] text-slate-500">{troopLabel(movement)}</div>
-        {movement.carriedResources && (
-          <ResourceCost value={movement.carriedResources} />
-        )}
+      <div className="flex items-center gap-1.5">
+        <span className={`font-medium ${textColor}`}>
+          {movement.type === "Attack" && kind === "incoming" ? "Incoming Attack" : TYPE_LABEL[movement.type] ?? movement.type}
+        </span>
+        <span className="text-slate-400">
+          {kind === "outgoing" ? (
+            <>→ {targetName ?? "??"}</>
+          ) : movement.type === "Return" ? (
+            <>← Home</>
+          ) : (
+            <>← {movement.originVillageName}</>
+          )}
+        </span>
       </div>
-      <span className="ml-2 shrink-0 whitespace-nowrap text-yellow-400">
-        {formatTime(timeRemaining(movement.arrivesAt))}
-      </span>
+      <div className="mt-0.5 flex items-center justify-between">
+        <span className="text-[10px] text-slate-500">
+          arrives{" "}
+          {new Date(movement.arrivesAt).toLocaleString(undefined, {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+        <span className="whitespace-nowrap text-yellow-400">
+          {formatTime(timeRemaining(movement.arrivesAt))}
+        </span>
+      </div>
+      <div className="mt-0.5 text-[10px] text-slate-500">{troopLabel(movement)}</div>
+      {movement.carriedResources && (
+        <ResourceCost value={movement.carriedResources} />
+      )}
     </div>
   );
 }
