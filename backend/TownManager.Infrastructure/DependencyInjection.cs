@@ -135,6 +135,8 @@ public static class DependencyInjection
                 sp.GetRequiredService<ILogger<LlmPlayerJobScheduler>>()) { TickAtStart = false });
         }
 
+        services.AddHostedService(sp => new VillageTickJobScheduler(sp.GetRequiredService<IRecurringJobManager>()));
+
         return services;
     }
 }

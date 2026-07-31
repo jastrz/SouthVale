@@ -33,6 +33,7 @@ public interface IVillageRepository
 
     Task<int> CountByPlayerAsync(Guid playerId, CancellationToken ct = default);
     Task<IReadOnlyList<Village>> GetBarbarianVillagesAsync(Guid barbarianPlayerId, CancellationToken ct = default);
+    Task<IReadOnlyList<Village>> GetAllAsync(CancellationToken ct = default);
     Task<List<Coordinates>> GetAllCoordinatesAsync(CancellationToken ct = default);
 
     void Remove(Village village);
