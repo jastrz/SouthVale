@@ -57,7 +57,7 @@ export const useGameConfig = () =>
 export const useUpdateGameConfig = () =>
   useMutation({
     mutationFn: (config: Partial<GameConfig>) => api.put("/admin/config", config),
-    onSuccess: () => { toast.success("Config updated"); queryClient.invalidateQueries({ queryKey: ["admin", "config"] }); queryClient.invalidateQueries({ queryKey: ["game-config"] }); },
+    onSuccess: () => { toast.success("Config updated"); queryClient.invalidateQueries({ queryKey: ["admin", "config"] }); queryClient.invalidateQueries({ queryKey: ["gameConfig"] }); },
     onError: (e) => toast.error(String(e)),
   });
 

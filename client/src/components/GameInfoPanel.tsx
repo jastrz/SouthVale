@@ -42,7 +42,7 @@ export function GameInfoPanel() {
                       className="ml-4 rounded-lg bg-slate-700/80 px-3 py-1 text-slate-300 hover:text-white"
                     >
                       <div className="px-3 pb-2">
-                        <BuildingTable type={type} levels={levels} />
+                        <BuildingTable type={type} levels={levels} buildSpeedMultiplier={config.buildSpeedMultiplier} />
                       </div>
                     </CollapsibleSection>
                   </div>
@@ -86,9 +86,9 @@ export function GameInfoPanel() {
                       <td className="px-2 py-1.5">
                         <CostIcons value={troop.trainingCost} />
                       </td>
-                      <td className="px-2 py-1.5">
-                        {formatTime(parseTimeSpanMs(troop.trainingTime))}
-                      </td>
+                <td className="px-2 py-1.5">
+                  {formatTime(parseTimeSpanMs(troop.trainingTime) / (config.trainSpeedMultiplier || 1))}
+                </td>
                       <td className="px-2 py-1.5">{troop.attack}</td>
                       <td className="px-2 py-1.5">{troop.defense}</td>
                       <td className="px-2 py-1.5">{troop.carryCapacity}</td>
@@ -109,9 +109,11 @@ export function GameInfoPanel() {
 function BuildingTable({
   type,
   levels,
+  buildSpeedMultiplier,
 }: {
   type: string;
   levels: BuildingLevelConfigDto[];
+  buildSpeedMultiplier: number;
 }) {
   return (
     <div className="rounded-xl overflow-hidden">
@@ -135,7 +137,7 @@ function BuildingTable({
                 <CostIcons value={l.upgradeCost} />
               </td>
               <td className="px-2 py-1.5 align-top">
-                {formatTime(parseTimeSpanMs(l.upgradeTime))}
+                {formatTime(parseTimeSpanMs(l.upgradeTime) / (buildSpeedMultiplier || 1))}
               </td>
               <td className="px-2 py-1.5">
                 <div className="flex flex-col gap-0.5">

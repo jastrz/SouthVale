@@ -423,7 +423,7 @@ export function BuildingsPanel({
             disabled={mutation.isPending}
             maxLevel={maxLevels[b.type] ?? 5}
             resources={resources}
-            buildSpeedMultiplier={buildSpeedMultiplier}
+            buildSpeedMultiplier={buildSpeedMultiplier * (gameConfig?.buildSpeedMultiplier ?? 1)}
             onUpgrade={() =>
               mutation.mutate({ buildingType: b.type as BuildingType })
             }

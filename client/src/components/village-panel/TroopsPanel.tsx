@@ -19,7 +19,7 @@ import { formatTime, parseTimeSpanMs } from "../../lib/helpers";
 import { ResourceCost } from "./ResourceCost";
 import { NumberInput } from "../NumberInput";
 
-function TroopTooltip({ config, cost }: { config: TroopConfigDto; cost: ResourcesDto }) {
+function TroopTooltip({ config, cost, trainSpeedMultiplier }: { config: TroopConfigDto; cost: ResourcesDto; trainSpeedMultiplier: number }) {
   return (
     <div className="space-y-1">
       <div className="font-semibold text-white">
@@ -48,7 +48,7 @@ function TroopTooltip({ config, cost }: { config: TroopConfigDto; cost: Resource
 
         <div className="text-slate-300">Time:</div>
         <div className="text-white">
-          {formatTime(parseTimeSpanMs(config.trainingTime))}
+          {formatTime(parseTimeSpanMs(config.trainingTime) / (trainSpeedMultiplier || 1))}
         </div>
       </div>
       <div className="border-t border-slate-700" />
@@ -168,7 +168,7 @@ export function TroopsPanel({
       <div className="grid grid-cols-3 gap-2 text-xs">
         {availableTypes.map(([type, cfg]) => (
           <div key={type} className="flex flex-col items-center gap-1 rounded bg-slate-800/40 px-2 py-1.5 text-center">
-            <Tooltip content={<TroopTooltip config={cfg} cost={effectiveCost(type)} />}>
+            <Tooltip content={<TroopTooltip config={cfg} cost={effectiveCost(type)} trainSpeedMultiplier={gameConfig?.trainSpeedMultiplier ?? 1} />}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="flex items-center gap-3">
                 <Icon src={TROOP_ICONS[type] ?? ""} size={32} />
