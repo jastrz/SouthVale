@@ -5,7 +5,8 @@ import { MapScene } from "../pixi/scene/MapScene";
 import { loadMap } from "../pixi/mapLoader";
 import { attachPan, attachZoom } from "../pixi/input";
 import { useGameStateStore } from "../store/gameStateStore";
-import { useMap, useMovements } from "../api/hooks/useQueries";
+import { useMap, useMovements, useLeaderboard } from "../api/hooks/useQueries";
+import { useAuthStore } from "../store/authStore";
 import type { MapVillage, Coordinates } from "../api/types";
 
 // Generous fetch radius for dev
@@ -49,6 +50,17 @@ export function useMapRenderer(
   const { data: mapVillages } = useMap(mapRequest);
 
   const { data: movements } = useMovements();
+
+  // Full leaderboard: playerId -> score, for label coloring on the map.
+  const { data: leaderboard } = useLeaderboard(1, 1000);
+  const scores = useMemo(
+    () => Object.fromEntries((leaderboard?.items ?? []).map((e) => [e.playerId, e.score])),
+    [leaderboard],
+  );
+  const myScore = useMemo(
+    () => leaderboard?.items.find((e) => e.username === useAuthStore.getState().username)?.score ?? 0,
+    [leaderboard],
+  );
 
   // Merge the player's own villages (rich VillageDto) with the map
   // endpoint's lightweight PlayerVillageDto list.
@@ -124,7 +136,7 @@ export function useMapRenderer(
       appRef.current?.destroy(true);
       appRef.current = null;
     };
-  }, [divRef, appRef, setSelectedTile, setTargetVillage]);
+  }, [divRef, appRef, setSelectedTile, setTargetVillage, setTargetVillagePos]);
 
   useEffect(() => {
     if (!pixiReady) return;
@@ -134,6 +146,8 @@ export function useMapRenderer(
       allVillages,
       activeVillageId,
       targetVillage?.id ?? null,
+      scores,
+      myScore,
       (village, sx, sy) => {
         setSelectedTile(null);
         if (village.kind === "own") {
@@ -151,10 +165,13 @@ export function useMapRenderer(
     allVillages,
     activeVillageId,
     targetVillage,
+    scores,
+    myScore,
     pixiReady,
     setActiveVillage,
     setHoveredVillage,
     setTargetVillage,
+    setTargetVillagePos,
     setSelectedTile,
   ]);
 

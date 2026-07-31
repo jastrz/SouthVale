@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TownManager.Application.Interfaces;
 using TownManager.Application.Villages;
@@ -88,7 +87,6 @@ public class AttackMovementResolver(
                 Math.Max(0, targetVillage.Resources.Iron - crannyCap),
                 Math.Max(0, targetVillage.Resources.Beer - crannyCap))
             : targetVillage.Resources;
-        
         
         // Combat resolution
         var combatResult = CombatResolver.Resolve(movement.Troops, originalDefenders, lootable,

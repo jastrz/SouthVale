@@ -10,6 +10,7 @@ export function GameInfoPanel() {
   const { data: config, isLoading } = useGameConfig();
   const [openBuildings, setOpenBuildings] = useState(false);
   const [openTroops, setOpenTroops] = useState(false);
+  const [openPlayers, setOpenPlayers] = useState(false);
   const [openBuildingTypes, setOpenBuildingTypes] = useState<Record<string, boolean>>({});
 
   const toggleBuildingType = (type: string) =>
@@ -98,6 +99,25 @@ export function GameInfoPanel() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </CollapsibleSection>
+
+          <CollapsibleSection
+            label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.village} size={16} /> Players</span>}
+            open={openPlayers}
+            onToggle={() => setOpenPlayers(!openPlayers)}
+            className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
+          >
+            <div className="flex flex-col gap-1.5 rounded-lg bg-slate-900/60 px-3 py-2 text-xs text-slate-300">
+              <p>Village labels show the player name, village name and population.</p>
+              <p>Player name color compares the player's leaderboard score to yours:</p>
+              <div className="flex flex-col gap-0.5">
+                <span className="rounded bg-[#ff4444]/15 px-1.5 py-0.5"><span style={{ color: "#ff4444" }}>■</span> at least 1.5x your score (stronger)</span>
+                <span className="rounded bg-[#ffffff]/10 px-1.5 py-0.5"><span style={{ color: "#ffffff" }}>■</span> 0.5x - 1.5x your score (equal)</span>
+                <span className="rounded bg-[#86e276]/15 px-1.5 py-0.5"><span style={{ color: "#86e276" }}>■</span> below 0.5x your score (weaker)</span>
+                <span className="rounded bg-[#ffd700]/15 px-1.5 py-0.5"><span style={{ color: "#ffd700" }}>■</span> barbarian villages</span>
+              </div>
+              <p>Selected villages (your active village / enemy target) show a bobbing arrow above the village.</p>
             </div>
           </CollapsibleSection>
         </>

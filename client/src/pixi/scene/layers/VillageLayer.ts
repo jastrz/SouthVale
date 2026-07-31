@@ -1,10 +1,11 @@
-import { Container, Circle, Text } from "pixi.js";
+import { Container, Circle, Sprite } from "pixi.js";
 import type { MapVillage } from "../../../api/types";
-import { createVillageMarker } from "../../entities/VillageMarker";
+import { ARROW_SCALE, createVillageMarker } from "../../entities/VillageMarker";
 import { ZOOM } from "../../config";
 
 export class VillageLayer extends Container {
-  private labels: Text[] = [];
+  private labels: Container[] = [];
+  private arrows: Sprite[] = [];
 
   constructor() {
     super();
@@ -15,18 +16,28 @@ export class VillageLayer extends Container {
     villages: readonly MapVillage[],
     activeOwnId: string | null,
     targetId: string | null,
+    scores: Record<string, number>,
+    myScore: number,
     onSelect?: (village: MapVillage, screenX: number, screenY: number) => void,
     onHover?: (village: MapVillage | null) => void,
   ): void {
     this.removeChildren().forEach((c) => c.destroy());
     this.labels = [];
+    this.arrows = [];
+
     const sorted = [...villages].sort(
       (a, b) => a.coordinates.y - b.coordinates.y,
     );
     for (const v of sorted) {
       const isActive = v.kind === "own" && v.id === activeOwnId;
       const isTarget = v.id === targetId;
-      const { marker, label } = createVillageMarker(v, isActive, isTarget);
+      const { marker, label, arrow } = createVillageMarker(
+        v,
+        isActive,
+        isTarget,
+        v.kind === "own" ? myScore : (scores[v.playerId] ?? null),
+        myScore,
+      );
       marker.eventMode = "static";
       marker.cursor = "pointer";
       marker.hitArea = new Circle(0, 0, 24);
@@ -40,6 +51,7 @@ export class VillageLayer extends Container {
       }
       this.addChild(marker);
       this.labels.push(label);
+      if (arrow) this.arrows.push(arrow);
     }
   }
 
@@ -50,6 +62,10 @@ export class VillageLayer extends Container {
     for (const lbl of this.labels) {
       lbl.scale.set(s);
       lbl.alpha = alpha;
+    }
+
+    for (const arr of this.arrows) {
+      arr.scale.set(s * ARROW_SCALE);
     }
   }
 }

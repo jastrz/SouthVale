@@ -141,6 +141,8 @@ export class MapScene {
     villages: readonly MapVillage[],
     activeOwnId: string | null,
     targetId: string | null,
+    scores: Record<string, number>,
+    myScore: number,
     onSelect?: (village: MapVillage, screenX: number, screenY: number) => void,
     onHover?: (village: MapVillage | null) => void,
   ): void {
@@ -149,6 +151,8 @@ export class MapScene {
       villages,
       activeOwnId,
       targetId,
+      scores,
+      myScore,
       onSelect,
       onHover
         ? (v) => {
