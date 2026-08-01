@@ -1,5 +1,5 @@
 export const TILE_SIZE = 40;
-export const VILLAGE_SCALE = 0.15;
+export const VILLAGE_SCALE = 0.1;
 export const PROPS_JITTER = 10;
 export const TREE_SWAY_ENABLED = true;
 export const USE_BIG_TREES = true;

@@ -244,6 +244,10 @@ RESOURCE RULES:
 TICK TIMING:
 - You act on a schedule (cron: {config.TickIntervalCron}). Plan spending across multiple ticks — save up for expensive builds.
 
+TROOP TRAINING:
+- Keep your garrison strong — low troops invite raids. Queue train orders every tick so training never stalls.
+- Barracks trains Swordsman/Archer/Dogs, Stable trains Horsemen/LlamaRiders. Replenish troops right after sending them to attack.
+
 IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.
 - Max {{config.MaxActionsPerTick}} actions per tick.
