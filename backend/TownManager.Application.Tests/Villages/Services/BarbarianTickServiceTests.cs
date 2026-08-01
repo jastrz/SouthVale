@@ -151,7 +151,7 @@ public class BarbarianTickServiceTests
         var strongPlayer = new Player
         {
             Username = "strong",
-            Villages = [new Village { Troops = new Troops(500, 500) }] // 1000 total → cap=1000
+            Villages = [new Village { Troops = new Troops(500, 500) }] // 1000 total
         };
         _playerRepo.GetAllPlayersWithTroopDataAsync(Arg.Any<CancellationToken>()).Returns([strongPlayer]);
         var mapService = Substitute.For<IMapService>();
