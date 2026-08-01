@@ -1,6 +1,9 @@
 export const TILE_SIZE = 40;
-export const VILLAGE_SCALE = 0.10;
+export const VILLAGE_SCALE = 0.15;
 export const PROPS_JITTER = 10;
+export const TREE_SWAY_ENABLED = true;
+export const USE_BIG_TREES = true;
+export const BIG_TREE_CHANCE = 0.35;
 
 export const ZOOM = {
   min: 0.5,

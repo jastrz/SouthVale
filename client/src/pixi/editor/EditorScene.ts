@@ -1,7 +1,7 @@
 import { Container, Sprite, Rectangle, Point } from "pixi.js";
 import type { Application, FederatedPointerEvent } from "pixi.js";
 import { TILE_SIZE } from "../config";
-import { groundTile, treeTile, ATLAS_GROUND, BUSH_TILES, TREE_TILES, pickTile } from "../atlas";
+import { groundTile, treeTile, ATLAS_GROUND, pickTreeTile, pickBushTile } from "../atlas";
 import { autotile } from "../autotile";
 import { createTerrainTile } from "../entities/TerrainTile";
 import { attachZoom } from "../input";
@@ -238,9 +238,14 @@ export class EditorScene {
   private placeDecoration(x: number, y: number): void {
     const deco = this.grid[y][x]?.decoration;
     if (!deco) { this.decorSprites[y][x] = null; return; }
-    const pool = deco.kind === "tree" ? TREE_TILES : deco.kind === "bush" ? BUSH_TILES : null;
-    if (!pool) { this.decorSprites[y][x] = null; return; }
-    const sprite = createTerrainTile(x, y, treeTile(...pickTile(pool)));
+    const texture =
+      deco.kind === "tree"
+        ? treeTile(...pickTreeTile())
+        : deco.kind === "bush"
+          ? treeTile(...pickBushTile())
+          : null;
+    if (!texture) { this.decorSprites[y][x] = null; return; }
+    const sprite = createTerrainTile(x, y, texture);
     this.root.addChild(sprite);
     this.decorSprites[y][x] = sprite;
   }
@@ -262,12 +267,17 @@ export class EditorScene {
         : groundTile(...autotile(this.grid, x, y));
     const existing = this.decorSprites[y][x];
     const deco = td.decoration;
-    const pool = deco?.kind === "tree" ? TREE_TILES : deco?.kind === "bush" ? BUSH_TILES : null;
-    if (pool) {
+    const texture =
+      deco?.kind === "tree"
+        ? treeTile(...pickTreeTile())
+        : deco?.kind === "bush"
+          ? treeTile(...pickBushTile())
+          : null;
+    if (texture) {
       if (existing) {
-        existing.texture = treeTile(...pickTile(pool));
+        existing.texture = texture;
       } else {
-        const sprite = createTerrainTile(x, y, treeTile(...pickTile(pool)));
+        const sprite = createTerrainTile(x, y, texture);
         this.root.addChild(sprite);
         this.decorSprites[y][x] = sprite;
       }

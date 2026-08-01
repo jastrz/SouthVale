@@ -1,4 +1,4 @@
-import { ATLAS_GROUND } from "./atlas";
+import { ATLAS_GROUND, weightedPick } from "./atlas";
 import type { TileData } from "./tileData";
 
 /**
@@ -51,16 +51,9 @@ export function autotile(
   if (se && !s && !e) return ATLAS_GROUND.GRASS_IC_TL;
 
   // weighted random pick
-  const weights: { tile: readonly [number, number]; weight: number }[] = [
+  return weightedPick([
     { tile: ATLAS_GROUND.GRASS_MC1, weight: 40 },
     { tile: ATLAS_GROUND.GRASS_MC2, weight: 1 },
     { tile: ATLAS_GROUND.GRASS_MC3, weight: 1 },
-  ];
-  const total = weights.reduce((s, w) => s + w.weight, 0);
-  let r = Math.random() * total;
-  for (const { tile, weight } of weights) {
-    r -= weight;
-    if (r <= 0) return tile;
-  }
-  return weights[weights.length - 1].tile;
+  ]).tile;
 }

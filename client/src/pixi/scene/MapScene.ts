@@ -8,6 +8,7 @@ import type { MovementDto } from "../../api/types";
 import { TileLayer, PropsLayer, MovementLayer, VillageLayer } from "./layers";
 import { type TileData, gridSize } from "../tileData";
 import { groundTile, ATLAS_GROUND } from "../atlas";
+import { updateTreeSway } from "../shaders/treeSway";
 
 type Bounds = { xMin: number; xMax: number; yMin: number; yMax: number };
 
@@ -60,6 +61,10 @@ export class MapScene {
     this.root.addChild(this.hoverHighlight);
     this.root.addChild(this.villages);
     this.root.addChild(this.movements);
+
+    this.app.ticker.add(() => {
+      updateTreeSway(this.app.ticker.elapsedMS / 1000);
+    });
 
     let ptrDown = { x: 0, y: 0 };
     this.root.on("pointerdown", (e: FederatedPointerEvent) => {

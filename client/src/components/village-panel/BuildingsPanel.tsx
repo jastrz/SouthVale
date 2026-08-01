@@ -1,5 +1,5 @@
 import type { UseMutationResult } from "@tanstack/react-query";
-import { BUILDING_LABELS, BUILDING_DESCRIPTIONS } from "../../config/game";
+import { BUILDING_LABELS, BUILDING_TIPS } from "../../config/game";
 import type {
   BuildingType,
   BuildRequest,
@@ -42,6 +42,9 @@ function BuildingTooltip({
         )}
         {BUILDING_LABELS[building.type] ?? building.type}
       </div>
+      {BUILDING_TIPS[building.type] && (
+        <div className="text-[9px] text-slate-500">{BUILDING_TIPS[building.type]}</div>
+      )}
       {config && <div className="text-slate-400">Level {building.level}</div>}
       {(config?.warehouseCapacity ?? 0) > 0 && (
         <div className="text-slate-300">Capacity: {config!.warehouseCapacity}</div>
@@ -358,7 +361,7 @@ function BuildingCard({
           <span className="flex items-center gap-4 text-slate-300">
             <span>{isNew ? "Not built" : `Lv. ${building.level}`}</span>
             <span className="text-[12px] italic text-slate-500">
-              {BUILDING_DESCRIPTIONS[building.type] ?? ""}
+              {BUILDING_TIPS[building.type] ?? ""}
             </span>
           </span>
           {nextOrder && (

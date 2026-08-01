@@ -1,4 +1,4 @@
-import { Assets, Texture, Rectangle } from "pixi.js";
+import { Assets, Texture, Rectangle, type TextureSource } from "pixi.js";
 
 // Old tilesheet: 16px tiles, 1px gap, 12×10 grid
 const TILE = 16;
@@ -64,9 +64,11 @@ const TREES_SIZE = 64;
 const TREES_COLS = 19;
 const TREES_ROWS = 4;
 const treesTextures: Texture[][] = [];
+let treesSource: TextureSource;
 
 export async function loadTreesAtlas(url: string): Promise<void> {
   const sheet = await Assets.load(url);
+  treesSource = sheet.source;
   const source = sheet.source;
   for (let row = 0; row < TREES_ROWS; row++) {
     treesTextures[row] = [];
@@ -87,6 +89,22 @@ export async function loadTreesAtlas(url: string): Promise<void> {
 /** Get tree texture at [col, row]. */
 export function treeTile(col: number, row: number): Texture {
   return treesTextures[row]?.[col];
+}
+
+// 2-tile-tall tree textures (two stacked 64px frames as one 64×128 texture)
+const bigTreeCache = new Map<string, Texture>();
+
+export function bigTreeTile(col: number, row: number): Texture {
+  const key = `${col},${row}`;
+  let tex = bigTreeCache.get(key);
+  if (!tex) {
+    tex = new Texture({
+      source: treesSource,
+      frame: new Rectangle(col * TREES_SIZE, row * TREES_SIZE, TREES_SIZE, TREES_SIZE * 2),
+    });
+    bigTreeCache.set(key, tex);
+  }
+  return tex;
 }
 
 // Tile index to game-element mapping — old tilesheet
@@ -141,6 +159,8 @@ export const ATLAS_TREES = {
   BUSH_YELLOW: [1, 3],
   BUSH_LIGHT_GREEN: [2, 3],
   BUSH_DARK_GREEN: [3, 3],
+  BUSH_LIGHT_GREEN_BIG: [7, 3],
+  BUSH_DARK_GREEN_BIG: [8, 3],
 
   TREE_RED: [10, 3],
   TREE_YELLOW: [11, 3],
@@ -173,20 +193,51 @@ export async function loadVillageTextures(): Promise<void> {
   barbarianVillage = new Texture({ source: barbarian.source });
 }
 
-export const BUSH_TILES = [
-  ATLAS_TREES.BUSH_LIGHT_GREEN,
-  ATLAS_TREES.BUSH_DARK_GREEN,
+export const BUSH_WEIGHTS = [
+  { tile: ATLAS_TREES.BUSH_LIGHT_GREEN, weight: 40 },
+  { tile: ATLAS_TREES.BUSH_DARK_GREEN, weight: 40 },
+  { tile: ATLAS_TREES.BUSH_RED, weight: 2 },
+  { tile: ATLAS_TREES.BUSH_YELLOW, weight: 4 },
+  { tile: ATLAS_TREES.BUSH_LIGHT_GREEN_BIG, weight: 25 },
+  { tile: ATLAS_TREES.BUSH_DARK_GREEN_BIG, weight: 25 },
 ] as const;
 
-export const TREE_TILES = [
-  ATLAS_TREES.TREE_DARK_GREEN,
-  ATLAS_TREES.TREE_LIGHT_GREEN,
-  ATLAS_TREES.TREE2_DARK_GREEN,
-  ATLAS_TREES.TREE2_LIGHT_GREEN,
+export function pickBushTile(): readonly [number, number] {
+  return weightedPick(BUSH_WEIGHTS).tile;
+}
+
+export function weightedPick<T extends { weight: number }>(
+  pool: readonly T[],
+): T {
+  const total = pool.reduce((s, e) => s + e.weight, 0);
+  let r = Math.random() * total;
+  for (const e of pool) {
+    r -= e.weight;
+    if (r <= 0) return e;
+  }
+  return pool[pool.length - 1];
+}
+
+export const TREE_WEIGHTS = [
+  { tile: ATLAS_TREES.TREE_DARK_GREEN, weight: 30 },
+  { tile: ATLAS_TREES.TREE_LIGHT_GREEN, weight: 30 },
+  { tile: ATLAS_TREES.TREE2_DARK_GREEN, weight: 30 },
+  { tile: ATLAS_TREES.TREE2_LIGHT_GREEN, weight: 30 },
+  { tile: ATLAS_TREES.TREE_RED, weight: 1 },
+  { tile: ATLAS_TREES.TREE_YELLOW, weight: 6 },
 ] as const;
 
-export function pickTile(pool: readonly (readonly [number, number])[]) {
-  return pool[Math.floor(Math.random() * pool.length)];
+export function pickTreeTile(): readonly [number, number] {
+  return weightedPick(TREE_WEIGHTS).tile;
+}
+
+export const BIG_TREES = [
+  { frame: [16, 0] as const, weight: 1 },
+  { frame: [16, 2] as const, weight: 1 },
+] as const;
+
+export function pickBigTree(): readonly [number, number] {
+  return weightedPick(BIG_TREES).frame;
 }
 
 export async function loadMovementIcons(): Promise<void> {

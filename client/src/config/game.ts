@@ -41,6 +41,21 @@ export const BUILDING_DESCRIPTIONS: Record<string, string> = {
   TownHall: "Speeds up construction",
 };
 
+// Short one-liners for the village panel building tooltip
+export const BUILDING_TIPS: Record<string, string> = {
+  WoodCutter: "Produces wood",
+  ClayPit: "Produces clay",
+  IronMine: "Produces iron",
+  Brewery: "Produces beer",
+  Warehouse: "Stores resources",
+  Barracks: "Trains infantry",
+  Stable: "Trains cavalry",
+  Wall: "Defends village",
+  Cranny: "Hides loot",
+  TradePost: "Better trade rates",
+  TownHall: "Faster building",
+};
+
 export const TROOP_LABELS: Record<string, string> = {
   Swordsman: "Swordsman",
   Archer: "Archer",
