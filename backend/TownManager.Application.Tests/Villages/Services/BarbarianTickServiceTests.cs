@@ -175,10 +175,15 @@ public class BarbarianTickServiceTests
     [Fact]
     public async Task AutoTrain_SkipsWhenVillageExceedsStrongestSingleVillage()
     {
-        // PlayerWithCap max single village = 500. Global cap = 500.
-        // MaxTroops per-type: 200+200+300+50+20 = 770. Barbarian at 505 exceeds
-        // global cap but each type stays below per-type limit → global cap is binding.
-        var village = MakeBarbarian(new Troops(150, 150, 0, 150, 40, 15)); // 505 total, all within per-type limits
+        // Barbarian at per-type MaxTroops (770 total) exceeds the global cap
+        // (PlayerWithCap max village 500 × MaxTroopRatio) → global cap binds.
+        var village = MakeBarbarian(new Troops(
+            BarbarianConfig.MaxTroops.Get(TroopType.Swordsman),
+            BarbarianConfig.MaxTroops.Get(TroopType.Archer),
+            0,
+            BarbarianConfig.MaxTroops.Get(TroopType.Dogs),
+            BarbarianConfig.MaxTroops.Get(TroopType.Horsemen),
+            BarbarianConfig.MaxTroops.Get(TroopType.LlamaRiders)));
         _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
         await _service.ExecuteAsync(Ct);
@@ -189,7 +194,7 @@ public class BarbarianTickServiceTests
     [Fact]
     public async Task AutoTrain_TrainsWhenVillageBelowStrongestSingleVillage()
     {
-        var village = MakeBarbarian(new Troops(50, 50, 0, 50, 10, 5)); // 165, below cap=500
+        var village = MakeBarbarian(new Troops(5, 5, 0, 5, 0, 0)); // 15, far below global cap
         _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
         await _service.ExecuteAsync(Ct);
@@ -200,29 +205,20 @@ public class BarbarianTickServiceTests
     [Fact]
     public async Task AutoTrain_GlobalCapBindsLowerThanMaxTroops()
     {
-        // Strongest player village: 100 troops. Global cap = 100.
+        // PlayerWithCap max single village = 500 → global cap = 250 (MaxTroopRatio 0.5).
         // MaxTroops per-type caps = 770 total. Global cap must bind first.
-        // Barbarian at 55 with tons of resources should train at most 45 more.
-        var weakPlayer = new Player
-        {
-            Username = "weak",
-            Villages = [new Village { Troops = new Troops(50, 50, 0, 0, 0, 0) }] // 100 total → cap=100
-        };
-        _playerRepo.GetAllPlayersWithTroopDataAsync(Arg.Any<CancellationToken>()).Returns([weakPlayer]);
-        var mapService = Substitute.For<IMapService>();
-        mapService.GetFreeTilesAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns([]);
-        var freshService = new BarbarianTickService(_repo, _playerRepo, mapService, _mediator);
-
-        var village = MakeBarbarian(new Troops(15, 15, 0, 20, 0, 5)); // 55 total, leaving 45 headroom
+        // Barbarian at 55 with tons of resources should train at most 195 more.
+        // If MaxTroopRatio changes, update the bound: 500 × ratio − 55.
+        var village = MakeBarbarian(new Troops(15, 15, 0, 20, 0, 5)); // 55 total, leaving 195 headroom
         village.Resources = new Resources(5000, 5000, 5000, 5000); // enough to train well past cap
         _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
 
-        await freshService.ExecuteAsync(Ct);
+        await _service.ExecuteAsync(Ct);
 
         await _mediator.Received(1).Send(
             Arg.Is<CreateTrainOrderCommand>(c =>
                 c.VillageId == village.Id &&
-                c.Orders.Sum(o => o.Count) <= 45), // global cap limits, not resources or per-type
+                c.Orders.Sum(o => o.Count) <= 195), // global cap limits, not resources or per-type
             Arg.Any<CancellationToken>());
     }
 
