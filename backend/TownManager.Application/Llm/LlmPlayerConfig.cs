@@ -9,7 +9,7 @@ public class LlmPlayerConfig
     public string ApiKey { get; set; } = "";
     public string Model { get; set; } = "";
     public string TickIntervalCron { get; set; } = "*/45 * * * *";
-    public int MaxActionsPerTick { get; set; } = 20;
+    public int MaxActionsPerTick { get; set; } = 100;
     public bool EnableThinking { get; set; } = true;
     public double Temperature { get; set; } = 0.7;
     public int ThinkingTokens { get; set; } = 1024 * 16;

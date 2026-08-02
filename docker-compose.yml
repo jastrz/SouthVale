@@ -36,11 +36,11 @@ services:
       LlmPlayer__Model: ${LlmPlayer__Model:-}
       LlmPlayer__EnableThinking: ${LlmPlayer__EnableThinking:-true}
       LlmPlayer__Temperature: ${LlmPlayer__Temperature:-0.7}
-      LlmPlayer__ReasoningEffort: ${LlmPlayer__ReasoningEffort:-medium}
+      LlmPlayer__ReasoningEffort: ${LlmPlayer__ReasoningEffort:-low}
       LlmPlayer__ThinkingTokens: ${LlmPlayer__ThinkingTokens:-16384}
       LlmPlayer__NonThinkingTokens: ${LlmPlayer__NonThinkingTokens:-4096}
-      Barbarian__TargetPopulation: ${Barbarian__TargetPopulation:-15}
-      Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/30 * * * *}
+      Barbarian__TargetPopulation: ${Barbarian__TargetPopulation:-25}
+      Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/45 * * * *}
       LlmPlayer__TickIntervalCron: ${LlmPlayer__TickIntervalCron:-*/45 * * * *}
       GameSettings__TravelSpeedMultiplier: ${GameSettings__TravelSpeedMultiplier:-1}
       GameSettings__ResourcesProductionMultiplier: ${GameSettings__ResourcesProductionMultiplier:-1}
