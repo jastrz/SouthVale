@@ -66,9 +66,10 @@ public class CombatResolverTests
             Resources.Zero
         );
 
-        // Settlers have 0 attack/defense — survive combat untouched
+        // Settlers have 0 attack/defense — no power contribution, but take
+        // casualties like everyone else when the army takes losses
         result.AttackerTroops.Get(TroopType.Swordsman).Should().BeGreaterThan(0);
-        result.AttackerTroops.Get(TroopType.Settler).Should().Be(100);
+        result.AttackerTroops.Get(TroopType.Settler).Should().BeLessThan(100);
     }
 
     [Fact]
