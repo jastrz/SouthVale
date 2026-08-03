@@ -52,15 +52,40 @@ function combatTables(body: string) {
   const [att, def] = body.split("Defenders:");
   if (!att?.includes("Sent:")) return null;
   const loot = body.split("\n").find((l) => l.startsWith("Loot:"));
-  return { attackerRows: parseSide(att), defenderRows: parseSide(def ?? ""), loot };
+  const header = body
+    .split("\n")
+    .filter((l) =>
+      l.startsWith("Source:") || l.startsWith("Target:") ||
+      l.startsWith("Attacker:") || l.startsWith("Defender:"),
+    );
+  return { attackerRows: parseSide(att), defenderRows: parseSide(def ?? ""), loot, header };
 }
 
-function SideTable({ title, rows }: { title: string; rows: CombatRow[] }) {
+function parseHeader(line: string): { village: string; player: string } {
+  const v = line.replace(/^(Source|Target|Attacker|Defender): /, "");
+  const m = v.match(/^(.*) \((.*)\)$/);
+  return m ? { village: m[1], player: m[2] } : { village: v, player: "" };
+}
+
+function SideTable({
+  title,
+  village,
+  player,
+  rows,
+}: {
+  title: string;
+  village: string;
+  player: string;
+  rows: CombatRow[];
+}) {
   if (rows.length === 0) return null;
   return (
     <div className="mt-4">
-      <div className="text-slate-500">{title}</div>
-      <table className="w-full table-fixed">
+      <div className="text-slate-300">
+        {title} - <span className="text-white">{player}</span>
+        <span className="text-slate-400"> ({village})</span>
+      </div>
+      <table className="w-full table-fixed mt-1">
         <thead>
           <tr className="text-[10px] text-slate-500">
             <th className="text-left">Troop</th>
@@ -159,8 +184,16 @@ export function Report({ report }: ReportProps) {
         if (!tables) return <RichBody body={report.body} />;
         return (
           <div>
-            <SideTable title="Attackers" rows={tables.attackerRows} />
-            <SideTable title="Defenders" rows={tables.defenderRows} />
+            <SideTable
+              title="Attackers"
+              {...parseHeader(tables.header.find((l) => l.startsWith("Source:")) ?? tables.header.find((l) => l.startsWith("Attacker:")) ?? "")}
+              rows={tables.attackerRows}
+            />
+            <SideTable
+              title="Defenders"
+              {...parseHeader(tables.header.find((l) => l.startsWith("Target:")) ?? tables.header.find((l) => l.startsWith("Defender:")) ?? "")}
+              rows={tables.defenderRows}
+            />
             {tables.loot && (
               <div className="mt-4 text-slate-400">
                 <InlineIcons text={tables.loot} />
