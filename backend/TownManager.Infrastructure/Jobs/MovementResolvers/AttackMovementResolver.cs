@@ -108,6 +108,7 @@ public class AttackMovementResolver(
         if (!isBarbarianTarget && targetVillage.PlayerId != village.PlayerId)
             await reportRepo.AddAsync(
                 ReportFactory.DefenseReport(targetVillage.PlayerId, targetVillage.Name,
+                    targetVillage.Player.Username,
                     village.Name, village.Player.Username,
                     movement.Troops, combatResult.AttackerTroops, originalDefenders, combatResult.DefenderTroops, combatResult.AttackerLoot), ct);
 

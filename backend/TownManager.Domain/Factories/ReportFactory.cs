@@ -13,11 +13,11 @@ public static class ReportFactory
             var count = t.Get(type);
             if (count > 0) parts.Add($"{count} {type}");
         }
-        return parts.Count > 0 ? string.Join(", ", parts) : "None";
+        return parts.Count > 0 ? string.Join(", y", parts) : "None";
     }
 
     private static string LootLine(Resources loot) =>
-        loot.IsEmpty() ? "" : $"\n\nLoot: {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Beer} Beer.";
+        loot.IsEmpty() ? "" : $"\nLoot: {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Beer} Beer.";
 
     private static string GroupLine(string label, Troops t) =>
         t.IsEmpty() ? $"{label}: none" : $"{label}: {TroopBreakdown(t)}";
@@ -34,7 +34,7 @@ public static class ReportFactory
     }
 
     private static string CombatBody(Troops attackers, Troops attackerSurvivors, Troops defenders, Troops defenderSurvivors, Resources loot) =>
-        $"Attackers:\n{GroupLine("Sent", attackers)}\n{LostLine(attackers, attackerSurvivors)}\n{GroupLine("Survived", attackerSurvivors)}\n\n"
+        $"Attackers:\n{GroupLine("Sent", attackers)}\n{LostLine(attackers, attackerSurvivors)}\n{GroupLine("Survived", attackerSurvivors)}\n"
         + $"Defenders:\n{GroupLine("Sent", defenders)}\n{LostLine(defenders, defenderSurvivors)}\n{GroupLine("Survived", defenderSurvivors)}"
         + LootLine(loot);
 
@@ -53,7 +53,7 @@ public static class ReportFactory
         };
     }
 
-    public static Report DefenseReport(Guid playerId, string villageName,
+    public static Report DefenseReport(Guid playerId, string villageName, string defenderPlayer,
         string attackerVillage, string attackerPlayer,
         Troops attackers, Troops attackerSurvivors, Troops defenders, Troops defenderSurvivors, Resources looted)
     {
@@ -63,7 +63,7 @@ public static class ReportFactory
             PlayerId = playerId,
             Type = ReportType.Defense,
             Title = $"Defense of {villageName}",
-            Body = $"Attacker: {attackerVillage} ({attackerPlayer})\nDefender: {villageName}\n\n"
+            Body = $"Attacker: {attackerVillage} ({attackerPlayer})\nDefender: {villageName} ({defenderPlayer})\n\n"
                    + CombatBody(attackers, attackerSurvivors, defenders, defenderSurvivors, looted),
         };
     }
