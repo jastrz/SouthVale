@@ -55,18 +55,13 @@ public class CombatResolver
     {
         double ratio = Math.Clamp(lossRatio, 0, 1);
         var result = Troops.Zero;
+
         foreach (TroopType t in Enum.GetValues<TroopType>())
         {
             var cnt = troops.Get(t);
             if (cnt <= 0) continue;
-            var cfg = TroopsConfig.Get(t);
-            if (cfg.Stats.Attack == 0 && cfg.Stats.Defense == 0)
-                result = result.Add(t, cnt);
-            else
-            {
-                var remaining = (int)(cnt * (1 - ratio));
-                if (remaining > 0) result = result.Add(t, remaining);
-            }
+            var remaining = (int)(cnt * (1 - ratio));
+            if (remaining > 0) result = result.Add(t, remaining);
         }
         return result;
     }

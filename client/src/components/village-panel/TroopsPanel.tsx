@@ -50,8 +50,8 @@ function TroopTooltip({ config, cost, trainSpeedMultiplier, trainingSpeed }: { c
         <div className="text-slate-300">Time:</div>
         <div className="text-white">
           {formatTime(parseTimeSpanMs(config.trainingTime) / speed)}
-          {speed > 1 && (
-            <span className="text-green-400"> ({speed}x train speed)</span>
+          {trainingSpeed > 1 && (
+            <span className="text-green-400"> ({trainingSpeed}x train speed)</span>
           )}
         </div>
       </div>
@@ -134,14 +134,10 @@ export function TroopsPanel({
 
   const trainingSpeedFor = (trainedAt: string): number => {
     const level = buildings.find((b) => b.type === trainedAt)?.level ?? 0;
-    const levels = gameConfig?.buildings[trainedAt] ?? [];
-    return levels
-      .filter((l) => l.level <= level)
-      .reduce(
-        (acc, l) =>
-          acc * (trainedAt === "Stable" ? l.stableTrainingSpeed : l.barracksTrainingSpeed),
-        1,
-      );
+    const key = trainedAt === "Stable" ? "stableTrainingSpeed" : "barracksTrainingSpeed";
+    return (
+      gameConfig?.buildings[trainedAt]?.find((l) => l.level === level)?.[key] ?? 1
+    );
   };
 
   const maxFor = (type: string): number => {

@@ -8,9 +8,10 @@ import { useAuthStore } from "../../store/authStore";
 
 const ARROW_AMPLITUDE = 5;
 const ARROW_BOB_MS = 700;
-const ARROW_OFFSET_Y = -50;
+const ARROW_OFFSET_Y = -45;
 const ARROW_SCALE_PULSE = 0.15;
 const ARROW_SCALE = { x: 0.06, y: 0.1 };
+const VILLAGE_LABEL_CONTAINER_OFFSET_Y = -40;
 
 /** Arrow marker hovering above the village */
 function createArrow(color: number): Sprite {
@@ -102,7 +103,7 @@ function createLabel(
 
   const container = new Container();
   container.addChild(playerText, nameText, popText);
-  container.y = -45;
+  container.y = VILLAGE_LABEL_CONTAINER_OFFSET_Y;
   container.eventMode = "none";
   return container;
 }

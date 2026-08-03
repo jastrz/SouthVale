@@ -45,6 +45,11 @@ function EnemyAttackDialog({
     : Math.min(...["Swordsman","Archer","Dogs","Horsemen","LlamaRiders"].map(getSpeed));
   const mult = gameConfig.travelSpeedMultiplier;
 
+  const carryCapacity = selected.reduce(
+    (sum, t) => sum + t.count * (gameConfig.troops[t.type]?.carryCapacity ?? 0),
+    0,
+  );
+
   const handleAttack = () => {
     if (selected.length === 0 || !activeVillage) return;
     mutation.mutate(
@@ -62,6 +67,13 @@ function EnemyAttackDialog({
       <div className="rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
         <div className="font-medium text-white">{village.name}</div>
         <div className="text-slate-400">({village.coordinates.x}, {village.coordinates.y}) · Population: {village.population} · <Eta from={activeVillage.coordinates} to={village.coordinates} speed={speed} multiplier={mult} /></div>
+
+      </div>
+      <div className="mb-1 flex items-center justify-between text-[12px]">
+        <span className="font-medium text-slate-400">Troops</span>
+        {carryCapacity > 0 && (
+          <span className="text-slate-200">Carry: {carryCapacity}</span>
+        )}
       </div>
       <div className="grid grid-cols-3 gap-1">
         {troops.swordsmen > 0 && <NumberInput label={<><Icon src={TROOP_ICONS.Swordsman} size={ICON_SIZE} /> Swordsmen</>} value={swordsmen} onChange={setSwordsmen} max={troops.swordsmen} />}

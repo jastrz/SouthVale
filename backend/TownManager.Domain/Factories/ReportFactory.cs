@@ -17,11 +17,25 @@ public static class ReportFactory
     }
 
     private static string LootLine(Resources loot) =>
-        loot.IsEmpty() ? "" : $"\nLoot: {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Beer} Beer.";
+        loot.IsEmpty() ? "" : $"\n\nLoot: {(int)loot.Wood} Wood, {(int)loot.Clay} Clay, {(int)loot.Iron} Iron, {(int)loot.Beer} Beer.";
+
+    private static string GroupLine(string label, Troops t) =>
+        t.IsEmpty() ? $"{label}: none" : $"{label}: {TroopBreakdown(t)}";
+
+    private static string LostLine(Troops started, Troops survived)
+    {
+        var lost = new List<string>();
+        foreach (TroopType t in Enum.GetValues<TroopType>())
+        {
+            var diff = started.Get(t) - survived.Get(t);
+            if (diff > 0) lost.Add($"{diff} {t}");
+        }
+        return lost.Count > 0 ? $"Lost: {string.Join(", ", lost)}" : "Lost: none";
+    }
 
     private static string CombatBody(Troops attackers, Troops attackerSurvivors, Troops defenders, Troops defenderSurvivors, Resources loot) =>
-        $"Attackers: {TroopBreakdown(attackerSurvivors)} of {TroopBreakdown(attackers)} survived.\n"
-        + $"Defenders: {TroopBreakdown(defenderSurvivors)} of {TroopBreakdown(defenders)} survived."
+        $"Attackers:\n{GroupLine("Sent", attackers)}\n{LostLine(attackers, attackerSurvivors)}\n{GroupLine("Survived", attackerSurvivors)}\n\n"
+        + $"Defenders:\n{GroupLine("Sent", defenders)}\n{LostLine(defenders, defenderSurvivors)}\n{GroupLine("Survived", defenderSurvivors)}"
         + LootLine(loot);
 
     public static Report AttackReport(Guid playerId, string sourceVillage, string sourcePlayer,
