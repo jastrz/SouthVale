@@ -78,7 +78,16 @@ function SideTable({
   player: string;
   rows: CombatRow[];
 }) {
-  if (rows.length === 0) return null;
+  if (rows.length === 0)
+    return (
+      <div className="mt-4">
+        <div className="text-slate-300">
+          {title} - <span className="text-white">{player}</span>
+          <span className="text-slate-400"> ({village})</span>
+        </div>
+        <div className="text-slate-500">none</div>
+      </div>
+    );
   return (
     <div className="mt-4">
       <div className="text-slate-300">
