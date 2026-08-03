@@ -366,7 +366,7 @@ function BuildingCard({
                 <span className="text-slate-400"> → {nextOrder.targetLevel}</span>
                 {orders.length > 1 && (
                   <span className="ml-1 text-[10px] text-slate-500">
-                    +{orders.length - 1} more
+                    +{orders.length - 1}
                   </span>
                 )}
               </>

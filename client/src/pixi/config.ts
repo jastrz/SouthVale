@@ -58,7 +58,7 @@ export const MOVEMENT = {
 } as const;
 
 export const PANEL = {
-  minRem: 18,
+  minRem: 20,
   maxRem: 22,
   preferredVw: 18,
 } as const;

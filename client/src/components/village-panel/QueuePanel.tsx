@@ -97,7 +97,6 @@ export function QueuePanel({
               </div>
               <div className="flex flex-col items-end gap-1">
                 <span className="text-[10px] text-slate-500">
-                  completes{" "}
                   {new Date(o.completesAt).toLocaleString(undefined, {
                     month: "short",
                     day: "numeric",
@@ -162,7 +161,7 @@ export function QueuePanel({
               </div>
               <div className="flex flex-col items-end gap-1">
                 <span className="text-[10px] text-slate-500">
-                  completes{" "}
+
                   {new Date(o.completesAt).toLocaleString(undefined, {
                     month: "short",
                     day: "numeric",

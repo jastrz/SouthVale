@@ -115,7 +115,6 @@ function MovementRow({
       </div>
       <div className="mt-0.5 flex items-center justify-between">
         <span className="text-[10px] text-slate-500">
-          arrives{" "}
           {new Date(movement.arrivesAt).toLocaleString(undefined, {
             month: "short",
             day: "numeric",

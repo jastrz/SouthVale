@@ -81,6 +81,7 @@ export function GamePage() {
     () => window.matchMedia("(min-width: 768px)").matches,
   );
   const isMap = currentView === "map";
+  const isMobile = !window.matchMedia("(min-width: 768px)").matches;
 
   return (
     <div className="relative w-screen overflow-hidden" style={{ height: "100dvh" }}>
@@ -97,7 +98,15 @@ export function GamePage() {
           <Panel side="left" open={showLeft}>
             <OverviewPanel />
           </Panel>
-          <PanelTab side="left" open={showLeft} label="Status" onToggle={() => setShowLeft(!showLeft)} />
+          <PanelTab
+            side="left"
+            open={showLeft}
+            label="Status"
+            onToggle={() => {
+              if (isMobile && !showLeft) setShowRight(false);
+              setShowLeft(!showLeft);
+            }}
+          />
         </>
       )}
 
@@ -106,7 +115,15 @@ export function GamePage() {
           <Panel side="right" open={showRight}>
             <VillagePanel />
           </Panel>
-          <PanelTab side="right" open={showRight} label="Actions" onToggle={() => setShowRight(!showRight)} />
+          <PanelTab
+            side="right"
+            open={showRight}
+            label="Village"
+            onToggle={() => {
+              if (isMobile && !showRight) setShowLeft(false);
+              setShowRight(!showRight);
+            }}
+          />
         </>
       )}
 
