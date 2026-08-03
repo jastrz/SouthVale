@@ -142,4 +142,17 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
     public void Remove(Village village) => db.Villages.Remove(village);
     public void Add(Village village) => db.Villages.Add(village);
     public Task SaveChangesAsync(CancellationToken ct = default) => db.SaveChangesAsync(ct);
+
+    public async Task SaveChangesReloadOnConflictAsync(Village village, CancellationToken ct = default)
+    {
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Another writer saved this village. Reload and let the next tick catch up.
+            await db.Entry(village).ReloadAsync(ct);
+        }
+    }
 }

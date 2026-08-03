@@ -47,6 +47,8 @@ api.interceptors.response.use(
         } else if (typeof errs === "string") {
           error.message = errs;
         }
+      } else if (error.response?.data?.error) {
+        error.message = error.response.data.error;
       } else if (error.response?.data?.title) {
         error.message = error.response.data.title;
       }

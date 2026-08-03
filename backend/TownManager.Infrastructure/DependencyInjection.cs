@@ -13,6 +13,7 @@ using TownManager.Application.Interfaces;
 using TownManager.Application.Barbarians;
 using TownManager.Application.Llm;
 using TownManager.Application.Map.Services;
+using TownManager.Application.Villages.Services;
 using TownManager.Domain.Config;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Jobs;
@@ -105,6 +106,8 @@ public static class DependencyInjection
             options.SchedulePollingInterval = TimeSpan.FromSeconds(1);
             options.WorkerCount = 5;
         });
+
+        services.AddScoped<IVillageTickService, VillageTickService>();
 
         var features = configuration.GetSection(FeatureFlags.SectionName).Get<FeatureFlags>() ?? new();
         services.AddSingleton(features);

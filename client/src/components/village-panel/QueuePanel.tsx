@@ -89,13 +89,20 @@ export function QueuePanel({
                     minute: "2-digit",
                   })}
                 </span>
-                <button
-                  onClick={() => cancelBuild.mutate(o.id)}
-                  disabled={cancelBuild.isPending}
-                  className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
-                >
-                  cancel
-                </button>
+                {!buildOrders.some(
+                  (b) =>
+                    b.buildingType === o.buildingType &&
+                    b.targetLevel > o.targetLevel,
+                ) && (
+                  <button
+                    onClick={() => cancelBuild.mutate(o.id)}
+                    disabled={cancelBuild.isPending}
+                    className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
+                  >
+                    cancel
+                  </button>
+                )}
+
               </div>
             </div>
           ))}

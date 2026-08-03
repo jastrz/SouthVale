@@ -39,4 +39,5 @@ public interface IVillageRepository
     void Remove(Village village);
     void Add(Village village);
     Task SaveChangesAsync(CancellationToken ct = default);
+    Task SaveChangesReloadOnConflictAsync(Village village, CancellationToken ct = default);
 }

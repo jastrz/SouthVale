@@ -315,7 +315,7 @@ function BuildingCard({
   globalBuildSpeed?: number;
 }) {
   const { data: config } = useGameConfig();
-  const isNew = building.level === 0;
+  const isNew = building.level === 0 && orders.length === 0;
   const nextOrder =
     orders.length > 0
       ? orders.reduce((a, b) => (a.completesAt < b.completesAt ? a : b))
@@ -327,7 +327,7 @@ function BuildingCard({
     (max, o) => Math.max(max, o.targetLevel),
     building.level,
   );
-  const nextCfg = levels?.find((l) => l.level === (isNew ? 1 : highestQueued + 1));
+  const nextCfg = levels?.find((l) => l.level === (highestQueued + 1));
 
   const canAfford = !nextCfg || !resources || (
     resources.wood >= nextCfg.upgradeCost.wood &&
@@ -381,7 +381,7 @@ function BuildingCard({
           disabled={disabled || building.level >= maxLevel || !canAfford}
           className="cursor-pointer rounded bg-blue-600 px-2.5 p-2 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
         >
-          {disabled ? "..." : isNew ? "Build" : building.level >= maxLevel ? "Max" : "Upgrade"}
+          {disabled ? "..." : building.level >= maxLevel ? "Max" : "Build"}
         </button>
       </div>
     </Tooltip>

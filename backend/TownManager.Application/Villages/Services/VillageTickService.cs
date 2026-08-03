@@ -5,7 +5,9 @@ using TownManager.Domain.Config;
 namespace TownManager.Application.Villages.Services;
 
 /// Materializes production and upkeep for every village.
-public class VillageTickService(IVillageRepository villageRepo, ILogger<VillageTickService> logger) : IVillageTickService
+public class VillageTickService(
+    IVillageRepository villageRepo,
+    ILogger<VillageTickService> logger) : IVillageTickService
 {
     public async Task ExecuteAsync(CancellationToken ct)
     {
@@ -14,8 +16,8 @@ public class VillageTickService(IVillageRepository villageRepo, ILogger<VillageT
         {
             var effects = BuildingConfig.AggregateEffects(v.Buildings);
             v.Tick(effects);
+            await villageRepo.SaveChangesReloadOnConflictAsync(v, ct);
         }
-        await villageRepo.SaveChangesAsync(ct);
 
         logger.LogInformation("VillageTickService: Tick!");
     }

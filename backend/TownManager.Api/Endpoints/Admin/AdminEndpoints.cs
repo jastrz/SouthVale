@@ -19,6 +19,8 @@ namespace TownManager.Api.Endpoints.Admin;
 
 public class AdminEndpoints : IEndpoint
 {
+    private static int _llmTickRunning;
+
     private static async Task<IResult?> AdminGuard(HttpContext httpContext, UserManager<ApplicationUser> userManager)
     {
         var userId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -100,19 +102,22 @@ public class AdminEndpoints : IEndpoint
                 .Include(v => v.Buildings)
                 .ToListAsync(ct);
 
+            // ExecuteUpdate bypasses the change tracker and concurrency token:
+            // a background tick can write a village mid-loop without aborting this.
             foreach (var village in villages)
             {
-                var effects = BuildingConfig.AggregateEffects(village.Buildings);
-                village.Resources = new Resources(
-                    effects.WarehouseCapacity,
-                    effects.WarehouseCapacity,
-                    effects.WarehouseCapacity,
-                    effects.WarehouseCapacity
-                );
-                village.LastTickAt = DateTime.UtcNow;
+                var cap = BuildingConfig.AggregateEffects(village.Buildings).WarehouseCapacity;
+                await db.Villages
+                    .Where(v => v.Id == village.Id)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(v => v.Resources.Wood, cap)
+                        .SetProperty(v => v.Resources.Clay, cap)
+                        .SetProperty(v => v.Resources.Iron, cap)
+                        .SetProperty(v => v.Resources.Beer, cap)
+                        .SetProperty(v => v.LastTickAt, DateTime.UtcNow)
+                        .SetProperty(v => v.UpdatedAt, DateTime.UtcNow), ct);
             }
 
-            await db.SaveChangesAsync(ct);
             return Results.Ok(new { filled = villages.Count });
         })
         .WithName("AdminFullResources")
@@ -157,11 +162,33 @@ public class AdminEndpoints : IEndpoint
             if (!features.UseLlmPlayers)
                 return Results.BadRequest(new { error = "LLM players feature is disabled" });
 
+            // Don't fire llm tick job twice
+            if (Interlocked.CompareExchange(ref _llmTickRunning, 1, 0) != 0)
+                return Results.Conflict(new { error = "LLM tick already in progress" });
+
+            // Check if hangfire job is executing
+            var monitor = JobStorage.Current.GetMonitoringApi();
+            var hangfireRunning =
+                monitor.ProcessingJobs(0, 5000).Any(kv => kv.Value.Job.Type == typeof(LlmPlayerJob))
+                || monitor.EnqueuedJobs("default", 0, 5000).Any(kv => kv.Value.Job.Type == typeof(LlmPlayerJob));
+            if (hangfireRunning)
+            {
+                Interlocked.Exchange(ref _llmTickRunning, 0);
+                return Results.Conflict(new { error = "LLM tick already in progress (cron)" });
+            }
+
             _ = Task.Run(async () =>
             {
-                using var scope = scopeFactory.CreateScope();
-                var tick = scope.ServiceProvider.GetRequiredService<ILlmPlayerService>();
-                await tick.ExecuteAsync(CancellationToken.None);
+                try
+                {
+                    using var scope = scopeFactory.CreateScope();
+                    var tick = scope.ServiceProvider.GetRequiredService<ILlmPlayerService>();
+                    await tick.ExecuteAsync(CancellationToken.None);
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _llmTickRunning, 0);
+                }
             });
             return Results.Ok(new { ticked = "llm" });
         })

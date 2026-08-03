@@ -5,7 +5,8 @@ using TownManager.Domain.Config;
 
 namespace TownManager.Infrastructure.Jobs;
 
-[DisableConcurrentExecution(timeoutInSeconds: 300)]
+[DisableConcurrentExecution(timeoutInSeconds: 900)]
+[AutomaticRetry(Attempts = 1)]
 public class LlmPlayerJob(ILlmPlayerService service, FeatureFlags features, ILogger<LlmPlayerJob> logger)
 {
     public Task ExecuteAsync(CancellationToken ct)

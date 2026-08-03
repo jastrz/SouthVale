@@ -46,11 +46,14 @@ public class AppDbContext(DbContextOptions options, IMediator mediator) : Identi
             .ToList();
 
         var events = entitiesWithEvents.SelectMany(e => e.Events).ToList();
-        entitiesWithEvents.ForEach(e => e.ClearDomainEvents());
 
+        var saved = await base.SaveChangesAsync(ct);
+
+        // Publish events after commit
+        entitiesWithEvents.ForEach(e => e.ClearDomainEvents());
         foreach (var _event in events)
             await mediator.Publish(_event, ct);
 
-        return await base.SaveChangesAsync(ct);
+        return saved;
     }
 }

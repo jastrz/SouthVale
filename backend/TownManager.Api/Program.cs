@@ -62,11 +62,6 @@ try
 
     LoadGameSettings(builder);
 
-    Log.Information("GameSettings: TravelSpeed={TravelSpeed} ResourcesProduction={ResProd} BuildSpeed={BuildSpeed} TrainSpeed={TrainSpeed}",
-        GameSettings.TravelSpeedMultiplier, GameSettings.ResourcesProductionMultiplier,
-        GameSettings.BuildSpeedMultiplier, GameSettings.TrainSpeedMultiplier);
-    Log.Information("BarbarianConfig: TargetPopulation={Pop}", BarbarianConfig.TargetPopulation);
-
     builder.Services.Configure<ServiceProviderOptions>(o => o.ValidateOnBuild = false);
 
     var app = builder.Build()
@@ -123,4 +118,5 @@ static void LoadGameSettings(WebApplicationBuilder builder)
     GameSettings.BuildSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:BuildSpeedMultiplier", 1f);
     GameSettings.TrainSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TrainSpeedMultiplier", 1f);
     BarbarianConfig.TargetPopulation = builder.Configuration.GetValue<int>("Barbarian:TargetPopulation", 15);
+    BarbarianConfig.MaxTroopRatio = builder.Configuration.GetValue<double>("Barbarian:MaxTroopRatio", 0.35);
 }
