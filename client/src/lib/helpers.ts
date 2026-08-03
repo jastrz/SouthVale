@@ -38,6 +38,7 @@ export const UI_ICONS: Record<string, string> = {
   troops: "/icons/ui/troops.png",
   orders: "/icons/ui/orders.png",
   movements: "/icons/ui/movements.png",
+  actions: "/icons/ui/actions.png"
 };
 
 export function parseTimeSpanMs(ts: string): number {

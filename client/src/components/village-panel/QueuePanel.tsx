@@ -1,7 +1,9 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import { BUILDING_LABELS, TROOP_LABELS } from "../../config/game";
-import { formatTime, timeRemaining } from "../../lib/helpers";
+import { formatTime, timeRemaining, BUILDING_ICONS, TROOP_ICONS } from "../../lib/helpers";
 import { useTick } from "../../hooks/useTick";
+import { Tooltip } from "../Tooltip";
+import { Icon } from "../Icon";
 
 function ProgressBar({ startMs, endMs, color = "bg-yellow-500" }: { startMs: number; endMs: number; color?: string }) {
   const total = endMs - startMs;
@@ -52,6 +54,17 @@ export function QueuePanel({
     (a, b) => new Date(a.completesAt).getTime() - new Date(b.completesAt).getTime(),
   );
 
+  const blockedCancelIds = new Set<string>();
+  for (const o of buildOrders) {
+    if (
+      buildOrders.some(
+        (b) => b.buildingType === o.buildingType && b.targetLevel > o.targetLevel,
+      )
+    ) {
+      blockedCancelIds.add(o.id);
+    }
+  }
+
   return (
     <section className="px-4 py-3">
       {sortedBuilds.length > 0 && (
@@ -65,10 +78,13 @@ export function QueuePanel({
               className="mb-1 flex items-center justify-between rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
             >
               <div className="flex-1">
-                <span className="font-medium text-white">
+                <span className="flex items-center gap-1 font-medium text-white">
+                  {BUILDING_ICONS[o.buildingType] && (
+                    <Icon src={BUILDING_ICONS[o.buildingType]} size={16} />
+                  )}
                   {BUILDING_LABELS[o.buildingType] ?? o.buildingType}
-                </span>{" "}
-                  → Lv.{o.targetLevel}
+                  <span className="text-slate-400">→ Lv.{o.targetLevel}</span>
+                </span>
                 <div className="mt-0.5 text-yellow-400">
                   {formatTime(timeRemaining(o.completesAt))}
                 </div>
@@ -89,19 +105,25 @@ export function QueuePanel({
                     minute: "2-digit",
                   })}
                 </span>
-                {!buildOrders.some(
-                  (b) =>
-                    b.buildingType === o.buildingType &&
-                    b.targetLevel > o.targetLevel,
-                ) && (
-                  <button
-                    onClick={() => cancelBuild.mutate(o.id)}
-                    disabled={cancelBuild.isPending}
-                    className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
-                  >
-                    cancel
-                  </button>
-                )}
+                {(() => {
+                  const cancellable = !blockedCancelIds.has(o.id);
+                  const btn = (
+                    <button
+                      onClick={() => cancelBuild.mutate(o.id)}
+                      disabled={!cancellable || cancelBuild.isPending}
+                      className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-red-400"
+                    >
+                      cancel
+                    </button>
+                  );
+                  return cancellable ? (
+                    btn
+                  ) : (
+                    <Tooltip content="cancel the newest order for this building first">
+                      {btn}
+                    </Tooltip>
+                  );
+                })()}
 
               </div>
             </div>
@@ -119,10 +141,15 @@ export function QueuePanel({
               className="mb-1 flex items-center justify-between rounded bg-slate-800/50 px-2 py-1.5 text-xs text-slate-300"
             >
               <div className="flex-1">
-                <span className="font-medium text-white">
-                  {o.completed}/{o.amount}
-                </span>{" "}
-                {TROOP_LABELS[o.troopType] ?? o.troopType}
+                <span className="flex items-center gap-1 font-medium text-white">
+                  {TROOP_ICONS[o.troopType] && (
+                    <Icon src={TROOP_ICONS[o.troopType]} size={16} />
+                  )}
+                  <span>{o.completed}/{o.amount}</span>
+                  <span className="font-normal text-slate-300">
+                    {TROOP_LABELS[o.troopType] ?? o.troopType}
+                  </span>
+                </span>
                 <div className="mt-0.5 text-yellow-400">
                   {formatTime(timeRemaining(o.completesAt))}
                 </div>

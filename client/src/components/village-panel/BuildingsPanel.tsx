@@ -351,30 +351,32 @@ function BuildingCard({
       }
     >
       <div className="flex items-center justify-between rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
-        <div>
-          <span className="flex items-center gap-1.5 font-medium text-white">
-            {BUILDING_ICONS[building.type] && (
-              <Icon src={BUILDING_ICONS[building.type]} size={32} />
-            )}
-            {BUILDING_LABELS[building.type] ?? building.type}
-          </span>
-          <span className="flex items-center gap-4 text-slate-300">
-            <span>{isNew ? "Not built" : `Lv. ${building.level}`}</span>
-            <span className="text-[12px] italic text-slate-500">
-              {BUILDING_TIPS[building.type] ?? ""}
+        <div className="flex flex-1 items-center gap-1.5">
+          {BUILDING_ICONS[building.type] && (
+            <Icon src={BUILDING_ICONS[building.type]} size={28} />
+          )}
+          <span>
+            <span className="block font-medium text-white">
+              {BUILDING_LABELS[building.type] ?? building.type}
             </span>
-          </span>
-          {nextOrder && (
-              <div className="mt-0.5 flex items-center gap-2 text-slate-400">
-                <span>→ {nextOrder.targetLevel}</span>
+            <span className="block text-[10px] text-slate-300">
+            {isNew ? "Not built" : `Level ${building.level}`}
+            {nextOrder && (
+              <>
+                <span className="text-slate-400"> → {nextOrder.targetLevel}</span>
                 {orders.length > 1 && (
-                  <span className="text-[10px] text-slate-500">
+                  <span className="ml-1 text-[10px] text-slate-500">
                     +{orders.length - 1} more
                   </span>
                 )}
-              </div>
+              </>
             )}
+            </span>
+          </span>
         </div>
+        <span className="text-[10px] italic text-slate-500 mr-2">
+          {BUILDING_TIPS[building.type] ?? ""}
+        </span>
         <button
           type="button"
           onClick={onUpgrade}

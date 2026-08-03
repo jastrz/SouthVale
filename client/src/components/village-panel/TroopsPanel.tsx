@@ -19,7 +19,8 @@ import { formatTime, parseTimeSpanMs } from "../../lib/helpers";
 import { ResourceCost } from "./ResourceCost";
 import { NumberInput } from "../NumberInput";
 
-function TroopTooltip({ config, cost, trainSpeedMultiplier }: { config: TroopConfigDto; cost: ResourcesDto; trainSpeedMultiplier: number }) {
+function TroopTooltip({ config, cost, trainSpeedMultiplier, trainingSpeed }: { config: TroopConfigDto; cost: ResourcesDto; trainSpeedMultiplier: number; trainingSpeed: number }) {
+  const speed = (trainSpeedMultiplier || 1) * (trainingSpeed || 1);
   return (
     <div className="space-y-1">
       <div className="font-semibold text-white">
@@ -48,7 +49,10 @@ function TroopTooltip({ config, cost, trainSpeedMultiplier }: { config: TroopCon
 
         <div className="text-slate-300">Time:</div>
         <div className="text-white">
-          {formatTime(parseTimeSpanMs(config.trainingTime) / (trainSpeedMultiplier || 1))}
+          {formatTime(parseTimeSpanMs(config.trainingTime) / speed)}
+          {speed > 1 && (
+            <span className="text-green-400"> ({speed}x train speed)</span>
+          )}
         </div>
       </div>
       <div className="border-t border-slate-700" />
@@ -128,6 +132,18 @@ export function TroopsPanel({
     return total;
   };
 
+  const trainingSpeedFor = (trainedAt: string): number => {
+    const level = buildings.find((b) => b.type === trainedAt)?.level ?? 0;
+    const levels = gameConfig?.buildings[trainedAt] ?? [];
+    return levels
+      .filter((l) => l.level <= level)
+      .reduce(
+        (acc, l) =>
+          acc * (trainedAt === "Stable" ? l.stableTrainingSpeed : l.barracksTrainingSpeed),
+        1,
+      );
+  };
+
   const maxFor = (type: string): number => {
     const baseCost = gameConfig?.troops[type]?.trainingCost;
     if (!baseCost) return 0;
@@ -168,7 +184,7 @@ export function TroopsPanel({
       <div className="grid grid-cols-3 gap-2 text-xs">
         {availableTypes.map(([type, cfg]) => (
           <div key={type} className="flex flex-col items-center gap-1 rounded bg-slate-800/40 px-2 py-1.5 text-center">
-            <Tooltip content={<TroopTooltip config={cfg} cost={effectiveCost(type)} trainSpeedMultiplier={gameConfig?.trainSpeedMultiplier ?? 1} />}>
+            <Tooltip content={<TroopTooltip config={cfg} cost={effectiveCost(type)} trainSpeedMultiplier={gameConfig?.trainSpeedMultiplier ?? 1} trainingSpeed={trainingSpeedFor(cfg.trainedAt)} />}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="flex items-center gap-3">
                 <Icon src={TROOP_ICONS[type] ?? ""} size={32} />

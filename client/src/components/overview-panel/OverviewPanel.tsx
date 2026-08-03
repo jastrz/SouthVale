@@ -22,6 +22,7 @@ export function OverviewPanel() {
   const [openVillages, setOpenVillages] = useState(true);
   const [openOrders, setOpenOrders] = useState(true);
   const [openMovements, setOpenMovements] = useState(true);
+  const [openActions, setOpenActions] = useState(true);
   const { data: villages, isLoading, isError, error } = useMyVillages();
   const setVillages = useGameStateStore((s) => s.setVillages);
   const setActiveVillage = useGameStateStore((s) => s.setActiveVillage);
@@ -140,8 +141,17 @@ export function OverviewPanel() {
               />
             </CollapsibleSection>
           )}
-          {activeVillageId && <TransportController villageId={activeVillageId} />}
-          {activeVillageId && <TradeController villageId={activeVillageId} />}
+          {activeVillageId && (
+            <CollapsibleSection
+              label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.actions} size={ICON_SIZE} /> Actions</span>}
+              open={openActions}
+              onToggle={() => setOpenActions(!openActions)}
+              className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
+            >
+              <TransportController villageId={activeVillageId} />
+              <TradeController villageId={activeVillageId} />
+            </CollapsibleSection>
+          )}
         </div>
       </div>
     </PanelContainer>
