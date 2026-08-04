@@ -2,4 +2,3 @@
 /backups/
 /docker-compose.override.yml
 .vscode/
-/docs.md
