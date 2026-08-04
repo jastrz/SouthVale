@@ -1,1 +1,0 @@
-export { VillagePanel } from "./VillagePanel";

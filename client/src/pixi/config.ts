@@ -1,9 +1,45 @@
 export const TILE_SIZE = 40;
 export const VILLAGE_SCALE = 0.1;
 export const PROPS_JITTER = 10;
-export const TREE_SWAY_ENABLED = true;
-export const USE_BIG_TREES = true;
+export let TREE_SWAY_ENABLED = load("tm-sway", true);
+export let USE_BIG_TREES = load("tm-bigtrees", false);
 export const BIG_TREE_CHANCE = 0.35;
+
+function load(key: string, fallback: boolean): boolean {
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : v === "1";
+  } catch {
+    return fallback;
+  }
+}
+
+const PROPS_FLAGS_EVENT = "tm-props-flags";
+
+function persist(key: string, v: boolean): void {
+  try {
+    localStorage.setItem(key, v ? "1" : "0");
+  } catch {
+    /* storage unavailable — session-only */
+  }
+}
+
+export function setTreeSwayEnabled(v: boolean): void {
+  TREE_SWAY_ENABLED = v;
+  persist("tm-sway", v);
+  window.dispatchEvent(new Event(PROPS_FLAGS_EVENT));
+}
+
+export function setUseBigTrees(v: boolean): void {
+  USE_BIG_TREES = v;
+  persist("tm-bigtrees", v);
+  window.dispatchEvent(new Event(PROPS_FLAGS_EVENT));
+}
+
+export function onPropsFlagsChange(cb: () => void): () => void {
+  window.addEventListener(PROPS_FLAGS_EVENT, cb);
+  return () => window.removeEventListener(PROPS_FLAGS_EVENT, cb);
+}
 
 export const ZOOM = {
   min: 0.5,

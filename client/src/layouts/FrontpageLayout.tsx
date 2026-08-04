@@ -8,7 +8,7 @@ export function FrontpageLayout() {
   return (
     <div
       className="flex h-screen w-screen flex-col overflow-y-auto bg-slate-950 bg-cover bg-top"
-      style={{ backgroundImage: "url(/bg.png)", height: "100dvh" }}
+      style={{ backgroundImage: "url(/bg.jpg)", height: "100dvh" }}
     >
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-2">
         <img

@@ -7,6 +7,7 @@ import { attachPan, attachZoom } from "../pixi/input";
 import { useGameStateStore } from "../store/gameStateStore";
 import { useMap, useMovements, useLeaderboard } from "../api/hooks/useQueries";
 import { useAuthStore } from "../store/authStore";
+import { USE_BIG_TREES, TREE_SWAY_ENABLED, onPropsFlagsChange } from "../pixi/config";
 import type { MapVillage, Coordinates } from "../api/types";
 
 // Generous fetch radius for dev
@@ -202,6 +203,23 @@ export function useMapRenderer(
     if (!pixiReady) return;
     sceneRef.current?.setMovements(movements ?? [], villageCoords, ownIds);
   }, [movements, villageCoords, ownIds, pixiReady]);
+
+  const appliedPropsRef = useRef<string | null>(null);
+  useEffect(() => {
+    const apply = () => {
+      if (!sceneRef.current) return;
+      const flags = {
+        bigTrees: USE_BIG_TREES,
+        sway: TREE_SWAY_ENABLED,
+      };
+      const key = `${flags.bigTrees}:${flags.sway}`;
+      if (appliedPropsRef.current === key) return;
+      appliedPropsRef.current = key;
+      sceneRef.current.setPropsFlags(flags);
+    };
+    apply();
+    return onPropsFlagsChange(apply);
+  }, [pixiReady]);
 
   // Pan to the active village whenever it changes.
   useEffect(() => {

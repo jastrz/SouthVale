@@ -13,7 +13,7 @@ public static class ReportFactory
             var count = t.Get(type);
             if (count > 0) parts.Add($"{count} {type}");
         }
-        return parts.Count > 0 ? string.Join(", y", parts) : "None";
+        return parts.Count > 0 ? string.Join(", ", parts) : "None";
     }
 
     private static string LootLine(Resources loot) =>

@@ -4,10 +4,12 @@ import { formatTime, timeRemaining, BUILDING_ICONS, TROOP_ICONS } from "../../li
 import { useTick } from "../../hooks/useTick";
 import { Tooltip } from "../Tooltip";
 import { Icon } from "../Icon";
+import { useNow } from "../../hooks/useNow";
 
 function ProgressBar({ startMs, endMs, color = "bg-yellow-500" }: { startMs: number; endMs: number; color?: string }) {
+  const now = useNow();
   const total = endMs - startMs;
-  const pct = total <= 0 ? 100 : Math.round(Math.min(1, Math.max(0, (Date.now() - startMs) / total)) * 100);
+  const pct = total <= 0 ? 100 : Math.round(Math.min(1, Math.max(0, (now - startMs) / total)) * 100);
   return (
     <div className="mt-1 h-1 w-full overflow-hidden rounded bg-slate-700">
       <div

@@ -9,7 +9,7 @@ import type {
 } from "../../api/types";
 import { TROOP_LABELS } from "../../config/game";
 import { TravelEta } from "../travel-time/TravelEta";
-import { useTravelTime } from "../travel-time/useTravelTime";
+import { useTravelTime } from "../../hooks/useTravelTime";
 import { useMyVillages, useGameConfig } from "../../api/hooks/useQueries";
 import { NumberInput } from "../NumberInput";
 import { Icon } from "../Icon";

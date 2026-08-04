@@ -1,7 +1,7 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { SettleRequest } from "../../api/types";
 import { TravelEta } from "../travel-time/TravelEta";
-import { useTravelTime } from "../travel-time/useTravelTime";
+import { useTravelTime } from "../../hooks/useTravelTime";
 
 export function SettlePanel({
   targetX,

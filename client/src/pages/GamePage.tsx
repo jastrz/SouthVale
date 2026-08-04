@@ -4,13 +4,12 @@ import { MapCanvas } from "../components/MapCanvas";
 import { NotificationsPanel } from "../components/NotificationsPanel";
 import { LeaderboardPanel } from "../components/LeaderboardPanel";
 import { OverviewPanel } from "../components/overview-panel/OverviewPanel";
-import { VillagePanel } from "../components/village-panel";
-// import { VillageTooltip } from "../components/VillageTooltip";
+import { VillagePanel } from "../components/village-panel/VillagePanel";
 import { VillagePopup } from "../components/VillagePopup";
 import { TilePopup } from "../components/TilePopup";
 import { GameInfoPanel } from "../components/GameInfoPanel";
 import { TopBar } from "../components/TopBar";
-import { PANEL_CLAMP } from "../pixi/config";
+import { PANEL_CLAMP, TREE_SWAY_ENABLED, USE_BIG_TREES, setTreeSwayEnabled, setUseBigTrees } from "../pixi/config";
 
 function Panel({
   side,
@@ -80,8 +79,21 @@ export function GamePage() {
   const [showRight, setShowRight] = useState(
     () => window.matchMedia("(min-width: 768px)").matches,
   );
+  const [bigTrees, setBigTrees] = useState(USE_BIG_TREES);
+  const [sway, setSway] = useState(TREE_SWAY_ENABLED);
   const isMap = currentView === "map";
   const isMobile = !window.matchMedia("(min-width: 768px)").matches;
+
+  const toggleBigTrees = () => {
+    const next = !USE_BIG_TREES;
+    setUseBigTrees(next);
+    setBigTrees(next);
+  };
+  const toggleSway = () => {
+    const next = !TREE_SWAY_ENABLED;
+    setTreeSwayEnabled(next);
+    setSway(next);
+  };
 
   return (
     <div className="relative w-screen overflow-hidden" style={{ height: "100dvh" }}>
@@ -127,10 +139,33 @@ export function GamePage() {
         </>
       )}
 
+      {isMap && (
+        <div className="absolute bottom-2 left-2 z-30 flex gap-1">
+          <button
+            onClick={toggleBigTrees}
+            className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+              bigTrees ? "bg-black/60 text-slate-200" : "bg-slate-700 text-slate-400"
+            }`}
+            title="Big trees"
+          >
+            Big trees
+          </button>
+          <button
+            onClick={toggleSway}
+            className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+              sway ? "bg-black/60 text-slate-200" : "bg-slate-700 text-slate-400"
+            }`}
+            title="Tree sway shader"
+          >
+            Sway
+          </button>
+        </div>
+      )}
+
       {currentView !== "map" && (
         <div
           className="flex h-full bg-slate-950 bg-cover bg-top"
-          style={{ backgroundImage: "url(/bg.png)" }}
+          style={{ backgroundImage: "url(/bg.jpg)" }}
         >
           <div className="flex flex-1 min-w-0 items-start overflow-y-auto pointer-events-auto">
             <div className="mx-auto flex w-full max-w-5xl h-full flex-col gap-2 p-4 pt-32">
@@ -146,7 +181,6 @@ export function GamePage() {
         </div>
       )}
 
-      {/* <VillageTooltip /> */}
       <VillagePopup />
       <TilePopup />
     </div>

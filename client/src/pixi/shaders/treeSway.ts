@@ -74,6 +74,11 @@ export function treeSwayFilter({
   return filter;
 }
 
+export function disposeTreeSwayFilter(filter: Filter): void {
+  const i = liveFilters.indexOf(filter);
+  if (i >= 0) liveFilters.splice(i, 1);
+}
+
 export function updateTreeSway(dtSeconds: number): void {
   for (const f of liveFilters) {
     const uniforms = (f.resources.uniforms as UniformGroup).uniforms;

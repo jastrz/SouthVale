@@ -3,7 +3,7 @@ import type { Application, FederatedPointerEvent } from "pixi.js";
 import type { Coordinates, MapVillage } from "../../api/types";
 import { tween } from "../animation/";
 import type { TweenHandle } from "../animation/";
-import { CAMERA, TILE_SIZE, COLORS, GRID, ZOOM, panelWidth } from "../config";
+import { CAMERA, TILE_SIZE, COLORS, GRID, ZOOM, panelWidth, USE_BIG_TREES, TREE_SWAY_ENABLED } from "../config";
 import type { MovementDto } from "../../api/types";
 import { TileLayer, PropsLayer, MovementLayer, VillageLayer } from "./layers";
 import { type TileData, gridSize } from "../tileData";
@@ -23,12 +23,13 @@ const clamp = (v: number, min: number, max: number): number =>
 export class MapScene {
   readonly root = new Container();
   readonly tiles: TileLayer;
-  readonly props: PropsLayer;
+  props: PropsLayer;
   readonly movements: MovementLayer;
   readonly villages: VillageLayer;
   readonly grid: TileData[][];
   private readonly app: Application;
   private cancelTween: TweenHandle | null = null;
+  private bigTrees = USE_BIG_TREES;
 
   private readonly hoverHighlight = new Graphics();
   private readonly selectionFill = new Graphics();
@@ -177,6 +178,26 @@ export class MapScene {
     ownIds: Set<string>,
   ): void {
     this.movements.setMovements(movements, villageCoords, ownIds);
+  }
+
+  private rebuildProps(): void {
+    const idx = this.root.getChildIndex(this.props);
+    this.props.destroy({ children: true });
+    this.props = new PropsLayer(this.grid);
+    this.root.addChildAt(this.props, idx);
+    this.props.setSwayEnabled(TREE_SWAY_ENABLED);
+  }
+
+  /**
+   * Applies display toggles to the props layer. Big trees require a rebuild
+   * (sprites are generated at construction); sway is toggled in place.
+   */
+  setPropsFlags(flags: { bigTrees: boolean; sway: boolean }): void {
+    this.props.setSwayEnabled(flags.sway);
+    if (flags.bigTrees !== this.bigTrees) {
+      this.bigTrees = flags.bigTrees;
+      this.rebuildProps();
+    }
   }
 
   clearSelectedTile(): void {

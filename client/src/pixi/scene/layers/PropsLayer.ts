@@ -1,4 +1,4 @@
-import { Container, Sprite, type Texture } from "pixi.js";
+import { Container, Sprite, type Filter, type Texture } from "pixi.js";
 import { createTerrainTile } from "../../entities/TerrainTile";
 import { type TileData, gridSize } from "../../tileData";
 import {
@@ -15,22 +15,20 @@ import {
   USE_BIG_TREES,
   BIG_TREE_CHANCE,
 } from "../../config";
-import { treeSwayFilter } from "../../shaders/treeSway";
+import { treeSwayFilter, disposeTreeSwayFilter } from "../../shaders/treeSway";
 
 export class PropsLayer extends Container {
+  private readonly swayed = new Map<Sprite, Filter>();
+
   constructor(grid: TileData[][]) {
     super();
     this.label = "PropsLayer";
     this.sortableChildren = true;
     const { cols, rows } = gridSize(grid);
     const sway = (kind: "tree" | "bush") =>
-      TREE_SWAY_ENABLED
-        ? [
-            treeSwayFilter(
-              kind === "tree" ? { amp: 4, freq: 2 } : { amp: 2, freq: 2 },
-            ),
-          ]
-        : undefined;
+      treeSwayFilter(
+        kind === "tree" ? { amp: 4, freq: 2 } : { amp: 2, freq: 2 },
+      );
     const place = (
       x: number,
       y: number,
@@ -41,7 +39,9 @@ export class PropsLayer extends Container {
     ) => {
       const sprite = createTerrainTile(x, y, tex, jx, jy);
       sprite.zIndex = y;
-      sprite.filters = sway(kind);
+      const filter = sway(kind);
+      this.swayed.set(sprite, filter);
+      if (TREE_SWAY_ENABLED) sprite.filters = [filter];
       this.addChild(sprite);
     };
     for (let y = 0; y < rows; y++) {
@@ -56,23 +56,44 @@ export class PropsLayer extends Container {
           continue;
         }
 
+        // Big tree sprite is 2 tiles tall, anchored at the base (row y)
+        const above = grid[y - 1]?.[x];
         const big =
-          USE_BIG_TREES && Math.random() < BIG_TREE_CHANCE
+          USE_BIG_TREES &&
+          above !== undefined &&
+          above.terrain === "grass" &&
+          !above.decoration &&
+          !above.occupied &&
+          Math.random() < BIG_TREE_CHANCE
             ? pickBigTree()
             : null;
         if (big) {
           const sprite = new Sprite(bigTreeTile(...big));
           sprite.x = x * TILE_SIZE + jitterX;
-          sprite.y = y * TILE_SIZE + jitterY;
+          sprite.y = (y - 1) * TILE_SIZE + jitterY;
           sprite.width = TILE_SIZE;
           sprite.height = TILE_SIZE * 2;
           sprite.zIndex = y;
-          sprite.filters = sway("tree");
+          const filter = sway("tree");
+          this.swayed.set(sprite, filter);
+          if (TREE_SWAY_ENABLED) sprite.filters = [filter];
           this.addChild(sprite);
         } else {
           place(x, y, treeTile(...pickTreeTile()), jitterX, jitterY, "tree");
         }
       }
     }
+  }
+
+  setSwayEnabled(enabled: boolean): void {
+    for (const [sprite, filter] of this.swayed) {
+      sprite.filters = enabled ? [filter] : [];
+    }
+  }
+
+  override destroy(options?: Parameters<Container["destroy"]>[0]): void {
+    for (const filter of this.swayed.values()) disposeTreeSwayFilter(filter);
+    this.swayed.clear();
+    super.destroy(options);
   }
 }
