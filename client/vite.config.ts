@@ -2,8 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig(({ mode }) => ({
-  base: mode === "production" ? "/southvale/" : "/",
+export default defineConfig({
+  base: process.env.VITE_BASE_URL || "/",
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
@@ -26,4 +26,4 @@ export default defineConfig(({ mode }) => ({
   build: {
     target: "esnext",
   },
-}));
+});

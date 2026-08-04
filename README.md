@@ -15,10 +15,12 @@ Real-time multiplayer browser strategy game. Players build and extend their vill
 ## Quick Start
 
 ```bash
-# Full stack
-docker compose up -d
+# Full stack (first time: copy .env.example -> .env and adjust secrets)
+cp .env.example .env
+docker compose up -d --build
 
 # Or dev mode
+docker compose up -d postgres   # backend needs the DB
 cd backend/TownManager.Api && dotnet run
 cd client && npm install && npm run dev
 ```
