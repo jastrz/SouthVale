@@ -1,5 +1,3 @@
-## TownManager (SouthVale)
-
 <p align="center"><img src="client/public/logo.png" width="240" alt="TownManager logo"></p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
