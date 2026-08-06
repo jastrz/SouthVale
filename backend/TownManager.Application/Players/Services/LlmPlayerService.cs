@@ -155,7 +155,7 @@ public class LlmPlayerService(
 
         foreach (var v in villages)
         {
-            var nearby = await villageRepo.GetForMapWithinRadius(v.Coordinates, 25, ct);
+            var nearby = await villageRepo.GetForMapWithinRadius(v.Coordinates, config.VisibilityRadius, ct);
             foreach (var n in nearby)
             {
                 if (seen.Add(n.Id))

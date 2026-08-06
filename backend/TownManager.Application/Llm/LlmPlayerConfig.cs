@@ -15,6 +15,7 @@ public class LlmPlayerConfig
     public int ThinkingTokens { get; set; } = 1024 * 16;
     public int NonThinkingTokens { get; set; } = 1024 * 4;
     public string ReasoningEffort { get; set; } = "medium";
+    public int VisibilityRadius { get; set; } = 40;
     public bool LogActionsConsole { get; set; } = true;
     public bool LogActionsFile { get; set; } = true;
 }
