@@ -16,7 +16,7 @@ export function RegisterPage() {
     null;
 
   return (
-    <div className="flex w-[90vw] max-w-96 flex-col gap-4 rounded-xl bg-slate-800 p-8 shadow-2xl">
+    <div className="flex w-[90vw] max-w-96 flex-col gap-4 rounded-xl bg-slate-800/90 p-8 shadow-2xl">
       <h1 className="mb-2 text-center text-2xl font-semibold text-white">Register</h1>
 
       <AuthForm

@@ -111,8 +111,6 @@ export function OverviewPanel() {
             )}
           </CollapsibleSection>
 
-          <div className="h-4" />
-
           {village && (village.buildOrders.length > 0 || village.trainOrders.length > 0) && (
             <CollapsibleSection
               label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.orders} size={ICON_SIZE} /> Orders</span>}

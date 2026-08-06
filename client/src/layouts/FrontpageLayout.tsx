@@ -10,10 +10,10 @@ export function FrontpageLayout() {
       className="flex h-screen w-screen flex-col overflow-y-auto bg-slate-950 bg-cover bg-top"
       style={{ backgroundImage: "url(/bg.jpg)", height: "100dvh" }}
     >
-      <div className="flex justify-center mt-18">
+      <div className="flex justify-center mt-10 lg:mt-18">
         <img src="/logo.png" alt="Logo" className="h-32 w-auto"/>
       </div>
-      <div className="flex flex-1 flex-col items-center py-16">
+      <div className="flex flex-1 flex-col items-center py-6 lg:py-16">
 
         <div className="grid w-full grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="hidden lg:block" />

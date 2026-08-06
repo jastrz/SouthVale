@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { useGameStateStore } from "../store/gameStateStore";
 import type { MapVillage } from "../api/types";
 import { useAttack, useVillage, useGameConfig } from "../api/hooks/useQueries";
@@ -97,7 +97,6 @@ function EnemyAttackDialog({
 export function VillagePopup() {
   const targetVillage = useGameStateStore((s) => s.targetVillage);
   const setTargetVillage = useGameStateStore((s) => s.setTargetVillage);
-  const targetVillagePos = useGameStateStore((s) => s.targetVillagePos);
   const activeVillageId = useGameStateStore((s) => s.activeVillageId);
   const { data: activeVillage } = useVillage(activeVillageId ?? "");
   const [showAttack, setShowAttack] = useState(false);
@@ -109,16 +108,10 @@ export function VillagePopup() {
 
   if (!targetVillage || targetVillage.kind !== "enemy") return null;
 
-  const isMobile = window.innerWidth < 768;
-  const pos = targetVillagePos;
-  const above = pos ? pos.y > window.innerHeight / 2 : true;
   const canAttack = activeVillage && (activeVillage.troops.swordsmen + activeVillage.troops.archers + activeVillage.troops.dogs + activeVillage.troops.horsemen + activeVillage.troops.llamaRiders) > 0;
-  const dialogStyle: CSSProperties = isMobile || !pos
-    ? { margin: "auto" }
-    : { margin: 0, position: "fixed", left: Math.min(pos.x + 14, window.innerWidth - 360), top: above ? pos.y - 14 : pos.y + 14 };
 
   return (
-    <Modal open={!!targetVillage} onClose={handleClose} style={dialogStyle}>
+    <Modal open={!!targetVillage} onClose={handleClose}>
       {!showAttack ? (
         <div className="flex flex-col gap-3 p-4">
           <div className="flex items-center justify-between">
