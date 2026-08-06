@@ -8,10 +8,10 @@ import { useAuthStore } from "../../store/authStore";
 
 const ARROW_AMPLITUDE = 5;
 const ARROW_BOB_MS = 700;
-const ARROW_OFFSET_Y = -45;
+const ARROW_OFFSET_Y = -40;
 const ARROW_SCALE_PULSE = 0.15;
 const ARROW_SCALE = { x: 0.06, y: 0.1 };
-const VILLAGE_LABEL_CONTAINER_OFFSET_Y = -40;
+const VILLAGE_LABEL_CONTAINER_OFFSET_Y = -35;
 
 /** Arrow marker hovering above the village */
 function createArrow(color: number): Sprite {
@@ -72,27 +72,26 @@ function createLabel(
 ): Container {
   const { playerName, name, pop } = villageLabelText(village);
   const base: Partial<TextStyleOptions> = {
-    stroke: { color: 0x111111, width: 2 },
     align: "left",
     fontFamily: "georgia",
   };
   const playerText = new Text({
     text: playerName,
-    style: { ...base, fontSize: 18, fontWeight: "bold", fill: playerNameColor(village, playerScore, myScore) },
+    style: { ...base, fontSize: 16, fontWeight: "bold", fill: playerNameColor(village, playerScore, myScore) },
     anchor: { x: 0.5, y: 0 },
     eventMode: "none",
     resolution: 4,
   });
   const nameText = new Text({
     text: name,
-    style: { ...base, fontSize: 16, fill: 0xffffff },
+    style: { ...base, fontSize: 14, fill: 0xffffff },
     anchor: { x: 0.5, y: 0 },
     eventMode: "none",
     resolution: 4,
   });
   const popText = new Text({
     text: pop,
-    style: { ...base, fontSize: 14, fill: 0xffffff },
+    style: { ...base, fontSize: 12, fill: 0xffffff },
     anchor: { x: 0.5, y: 0 },
     eventMode: "none",
     resolution: 4,
