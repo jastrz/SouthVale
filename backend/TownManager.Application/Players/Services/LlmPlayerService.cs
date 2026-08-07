@@ -172,9 +172,9 @@ public class LlmPlayerService(
 
         var personalityDesc = bot.BotPersonality switch
         {
-            BotPersonality.Aggressive => "You prioritize military strength. Train troops and attack weaker neighbors only. Expand through conquest, settling near enemies to pressure them, and develop some economy.",
-            BotPersonality.Defensive => "You prioritize defense. Maintain a strong garrison, and only attack when you have overwhelming advantage. Protect your villages and settle new.",
-            BotPersonality.Economic => "You prioritize resource production and expansion. Upgrade resource buildings, train settlers, and found new villages. Avoid unnecessary wars, but keep some defense.",
+            BotPersonality.Aggressive => "You prioritize military strength. Train troops and attack weaker neighbors. Expand through conquest, settling near enemies to pressure them, and develop some economy. (50% economy, 50% troops. Attack all population targets strategically - combine attacks on higher population villages to match or overwhelm enemy troops)",
+            BotPersonality.Defensive => "You prioritize defense. Maintain a strong garrison, and attack when you have advantage. Protect your villages, settle new and send attacks. (60% economy, 40% troops. Attack targets with lower population than yours)",
+            BotPersonality.Economic => "You prioritize resource production and expansion. Upgrade resource buildings, train settlers and troops, found new villages and send attacks. Expand through safe conquest. (70% economy, 30% troops. Attack targets with lower and similar population to yours)",
             _ => "Play strategically.",
         };
 
@@ -213,7 +213,7 @@ Village {i + 1}: "{v.Name}" (ID: {v.Id})
 
         foreach (var n in nearby.Take(20))
         {
-            prompt += $"  ID:{n.Id} \"{n.Name}\" ({n.Coordinates.X},{n.Coordinates.Y}) — troops: {n.Troops.TotalCount} — {(n.Player?.Username ?? "unknown")}\n";
+            prompt += $"  ID:{n.Id} \"{n.Name}\" ({n.Coordinates.X},{n.Coordinates.Y}) — population: {n.Troops.TotalCount} — {(n.Player?.Username ?? "unknown")}\n";
         }
 
         prompt += $$"""
@@ -242,18 +242,20 @@ RESOURCE RULES:
 - Build Warehouse to increase storage. Full warehouse = wasted production between ticks.
 
 TICK TIMING:
-- You act on a schedule (cron: {config.TickIntervalCron}). Plan spending across multiple ticks — save up for expensive builds.
+- You act on a schedule (cron: {config.TickIntervalCron}). Plan spending across multiple ticks — save up for builds you can't afford in current state, spend all resources otherwise.
 
 TROOP TRAINING:
 - Keep your garrison strong — low troops invite raids. Queue train orders every tick so training never stalls.
-- Barracks trains Swordsman/Archer/Dogs, Stable trains Horsemen/LlamaRiders. Replenish troops right after sending them to attack.
+- Barracks trains Swordsman/Archer/Settler, Stable trains Horsemen/LlamaRiders/Dogs. Replenish troops right after sending them to attack.
 
 IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.
-- Max {{config.MaxActionsPerTick}} actions per tick.
+- Max {{config.MaxActionsPerTick}} actions.
 - Always use existing settlers with settle command.
 - Pick different places for settling your villages according to your playstyle and settle at least 2 tiles away.
-- Attack wisely - if target village has big population, you should adjust sent troops accordingly.
+- Attack wisely - if target village has big population, you should adjust sent troops accordingly or combine attacks from multiple villages.
+- Always send attacks if there's an opportunity according to your personality.
+- Always perform actions in all villages. 
 - Respond with ONLY the JSON array, no other text. Never add any new fields outside of provided game config.
 
 """;
