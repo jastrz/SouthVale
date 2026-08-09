@@ -21,3 +21,9 @@ body {
 canvas {
     display: block;
 }
+
+[data-sonner-toast] [data-close-button] {
+    left: unset !important;
+    right: 0 !important;
+    transform: translate(35%, -35%) !important;
+}

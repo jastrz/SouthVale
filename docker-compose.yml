@@ -41,6 +41,7 @@ services:
       LlmPlayer__NonThinkingTokens: ${LlmPlayer__NonThinkingTokens:-4096}
       Barbarian__TargetPopulation: ${Barbarian__TargetPopulation:-25}
       Barbarian__MaxTroopRatio: ${Barbarian__MaxTroopRatio:-0.5}
+      Barbarian__AttackCooldownHours: ${Barbarian__AttackCooldownHours:-4}
       Barbarian__TickIntervalCron: ${Barbarian__TickIntervalCron:-*/45 * * * *}
       LlmPlayer__TickIntervalCron: ${LlmPlayer__TickIntervalCron:-*/45 * * * *}
       GameSettings__TravelSpeedMultiplier: ${GameSettings__TravelSpeedMultiplier:-1}

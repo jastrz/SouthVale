@@ -59,7 +59,7 @@ public class CreateTrainOrderCommandHandler(IVillageRepository repo, IJobSchedul
         village.Resources = village.Resources.Subtract(totalCost);
         
         var queueStartTime = village.TrainOrders.Any()
-            ? village.TrainOrders.Max(o => o.CompletesAt)  // append after last order
+            ? village.TrainOrders.Max(o => o.CompletesAt)           // append after last order
             : DateTime.UtcNow;                                      // queue is empty, start now
 
         var newOrders = new List<TrainOrder>();

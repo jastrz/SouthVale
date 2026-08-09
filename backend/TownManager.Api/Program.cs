@@ -119,4 +119,5 @@ static void LoadGameSettings(WebApplicationBuilder builder)
     GameSettings.TrainSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TrainSpeedMultiplier", 1f);
     BarbarianConfig.TargetPopulation = builder.Configuration.GetValue<int>("Barbarian:TargetPopulation", 15);
     BarbarianConfig.MaxTroopRatio = builder.Configuration.GetValue<double>("Barbarian:MaxTroopRatio", 0.35);
+    BarbarianConfig.AttackCooldown = TimeSpan.FromHours(builder.Configuration.GetValue<double>("Barbarian:AttackCooldownHours", 4));
 }

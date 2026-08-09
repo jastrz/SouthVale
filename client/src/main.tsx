@@ -10,6 +10,7 @@ import { Toaster } from "sonner";
 import { AuthCacheInvalidator } from "./components/AuthCacheInvalidator";
 import { useAuthStore } from "./store/authStore";
 import { useSignalR } from "./hooks/useSignalR";
+import { GlobalSpinner } from "./components/GlobalSpinner";
 
 export function App() {
   useSignalR();
@@ -38,8 +39,9 @@ export function App() {
   return (
     <>
       <AuthCacheInvalidator />
+      <GlobalSpinner />
       <RouterProvider router={router} />
-      <Toaster richColors theme="dark" position="bottom-center" />
+      <Toaster richColors theme="dark" position="bottom-center" closeButton />
     </>
   );
 }

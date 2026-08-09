@@ -1,6 +1,5 @@
 using MediatR;
 using TownManager.Application.Common;
-using TownManager.Domain.Entities;
 
 namespace TownManager.Application.Villages.Commands;
 

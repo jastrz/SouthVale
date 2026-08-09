@@ -97,6 +97,8 @@ public class AttackMovementResolver(
         targetVillage.Troops = combatResult.DefenderTroops;
         targetVillage.Resources = targetVillage.Resources.Subtract(combatResult.AttackerLoot);
 
+        targetVillage.LastAttackAt = DateTime.UtcNow;
+
         var isBarbarianTarget = targetVillage.VillageType == VillageType.Barbarian;
         var destroyBarbarian = isBarbarianTarget && combatResult.DefenderTroops.IsEmpty();
 

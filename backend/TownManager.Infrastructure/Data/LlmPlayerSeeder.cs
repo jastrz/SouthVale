@@ -21,6 +21,9 @@ public class LlmPlayerSeeder(UserManager<ApplicationUser> userManager, AppDbCont
         ("kargul666",  "kargul@somemail.com",  BotPersonality.Aggressive),
         ("siórmistrz",  "siormistrz@somemail.com",  BotPersonality.Defensive),
         ("krasnal",   "krasnal@somemail.com",   BotPersonality.Economic),
+        ("muszkietermajster",  "muszkietermajster@somemail.com",  BotPersonality.Aggressive),
+        ("pizza",  "pizza@somemail.com",  BotPersonality.Defensive),
+        ("sowiarnia",   "sowiarnia@somemail.com",   BotPersonality.Economic),
     ];
 
     public async Task SeedAsync()

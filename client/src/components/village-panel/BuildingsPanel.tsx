@@ -16,6 +16,7 @@ import { ResourceCost } from "./ResourceCost";
 import { useGameConfig } from "../../api/hooks/useQueries";
 import { Icon } from "../Icon";
 import { Tooltip } from "../Tooltip";
+import { Spinner } from "../Spinner";
 import { BUILDING_ORDER } from "../../config/game";
 
 function BuildingTooltip({
@@ -383,7 +384,13 @@ function BuildingCard({
           disabled={disabled || building.level >= maxLevel || !canAfford}
           className="cursor-pointer rounded bg-blue-600 px-2.5 p-2 text-[11px] font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-blue-600"
         >
-          {disabled ? "..." : building.level >= maxLevel ? "Max" : "Build"}
+          {disabled ? (
+            <Spinner size={12} />
+          ) : building.level >= maxLevel ? (
+            "Max"
+          ) : (
+            "Build"
+          )}
         </button>
       </div>
     </Tooltip>

@@ -172,7 +172,7 @@ public class LlmPlayerService(
 
         var personalityDesc = bot.BotPersonality switch
         {
-            BotPersonality.Aggressive => "You prioritize military strength. Train troops and attack weaker neighbors. Expand through conquest, settling near enemies to pressure them, and develop some economy. (50% economy, 50% troops. Attack all population targets strategically - combine attacks on higher population villages to match or overwhelm enemy troops)",
+            BotPersonality.Aggressive => "You prioritize military strength and economy. Train troops and attack weaker neighbors. Expand through conquest and by settling new villages near enemies to pressure them. (50% economy, 50% troops. Attack all population targets strategically - combine attacks on higher population villages to match or overwhelm enemy troops)",
             BotPersonality.Defensive => "You prioritize defense. Maintain a strong garrison, and attack when you have advantage. Protect your villages, settle new and send attacks. (60% economy, 40% troops. Attack targets with lower population than yours)",
             BotPersonality.Economic => "You prioritize resource production and expansion. Upgrade resource buildings, train settlers and troops, found new villages and send attacks. Expand through safe conquest. (70% economy, 30% troops. Attack targets with lower and similar population to yours)",
             _ => "Play strategically.",
@@ -246,7 +246,7 @@ TICK TIMING:
 
 TROOP TRAINING:
 - Keep your garrison strong — low troops invite raids. Queue train orders every tick so training never stalls.
-- Barracks trains Swordsman/Archer/Settler, Stable trains Horsemen/LlamaRiders/Dogs. Replenish troops right after sending them to attack.
+- Barracks trains Swordsman/Archer/Settler/Dogs, Stable trains Horsemen/LlamaRiders. Replenish troops right after sending them to attack.
 
 IMPORTANT:
 - Use village_id (GUID) from YOUR VILLAGES section. Use target_village_id (GUID) from NEARBY VILLAGES section. Never use village names as IDs.

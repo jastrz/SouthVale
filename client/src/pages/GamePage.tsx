@@ -140,7 +140,7 @@ export function GamePage() {
       )}
 
       {isMap && (
-        <div className="absolute bottom-2 left-2 z-30 flex gap-1">
+        <div className="absolute bottom-2 left-2 z-20 flex gap-1">
           <button
             onClick={toggleBigTrees}
             className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${

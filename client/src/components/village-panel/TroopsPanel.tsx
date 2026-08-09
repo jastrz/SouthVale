@@ -107,7 +107,7 @@ export function TroopsPanel({
     return base;
   };
 
-  const totalBatchCost = (): ResourcesDto => {
+  const batchCost = (orders: Record<string, number>): ResourcesDto => {
     const total = { wood: 0, clay: 0, iron: 0, beer: 0 };
     let settlerCount = 0;
     for (const [type, count] of Object.entries(orders)) {
@@ -132,6 +132,8 @@ export function TroopsPanel({
     return total;
   };
 
+  const totalBatchCost = (): ResourcesDto => batchCost(orders);
+
   const trainingSpeedFor = (trainedAt: string): number => {
     const level = buildings.find((b) => b.type === trainedAt)?.level ?? 0;
     const key = trainedAt === "Stable" ? "stableTrainingSpeed" : "barracksTrainingSpeed";
@@ -143,16 +145,13 @@ export function TroopsPanel({
   const maxFor = (type: string): number => {
     const baseCost = gameConfig?.troops[type]?.trainingCost;
     if (!baseCost) return 0;
-    const otherOrders = Object.entries(orders).filter(([t, c]) => t !== type && c > 0);
-    const committed = otherOrders.reduce(
-      (a, [t, c]) => {
-        const cost = effectiveCost(t);
-        return { wood: a.wood + cost.wood * c, clay: a.clay + cost.clay * c, iron: a.iron + cost.iron * c, beer: a.beer + cost.beer * c };
-      },
-      { wood: 0, clay: 0, iron: 0, beer: 0 },
-    );
+    const otherOrders = Object.entries(orders)
+      .filter(([t, c]) => t !== type && c > 0)
+      .reduce((acc, [t, c]) => ({ ...acc, [t]: c }), {} as Record<string, number>);
+    const committed = batchCost(otherOrders);
     const remaining = { wood: resources.wood - committed.wood, clay: resources.clay - committed.clay, iron: resources.iron - committed.iron, beer: resources.beer - committed.beer };
 
+    // todo: move settler cost to stored values later...
     if (type === "Settler") {
       let count = 0;
       let wood = remaining.wood, clay = remaining.clay, iron = remaining.iron, beer = remaining.beer;

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "sonner";
 import { useAuthStore } from "../store/authStore";
+import { requestBusy } from "./requestBusy";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -8,6 +9,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  requestBusy.inc();
   const token = useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -27,8 +29,12 @@ function processQueue(token: string | null, err: unknown) {
 }
 
 api.interceptors.response.use(
-  (r) => r,
+  (r) => {
+    requestBusy.dec();
+    return r;
+  },
   async (error) => {
+    requestBusy.dec();
     if (!error.config) return Promise.reject(error);
 
     if (

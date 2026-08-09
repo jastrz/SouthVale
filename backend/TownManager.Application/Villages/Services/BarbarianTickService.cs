@@ -166,7 +166,6 @@ public class BarbarianTickService(
         }
 
         await mediator.Send(new CreateAttackOrderCommand(b.Id, troops, target.Id), ct);
-        b.LastAttackAt = DateTime.UtcNow;
     }
 
     private async Task Replenish(int currentCount, Random rng, CancellationToken ct)
