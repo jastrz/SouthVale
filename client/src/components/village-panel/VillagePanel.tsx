@@ -104,6 +104,7 @@ function VillagePanelInner({
           className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
         >
           <TroopsPanel
+            key={villageId}
             resources={village.resources}
             troops={village.troops}
             buildings={village.buildings}
