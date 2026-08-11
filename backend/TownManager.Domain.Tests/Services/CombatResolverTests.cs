@@ -157,6 +157,19 @@ public class CombatResolverTests
     }
 
     [Fact]
+    public void WeakSingleAttacker_DoesNotGuaranteeDefenderKillsPerTroopType()
+    {
+        var result = CombatResolver.Resolve(
+            new Troops(swordsmen: 1),
+            new Troops(swordsmen: 3, archers: 2, dogs: 1),
+            Resources.Zero
+        );
+
+        result.AttackerTroops.Should().BeEquivalentTo(Troops.Zero);
+        result.DefenderTroops.Should().BeEquivalentTo(new Troops(swordsmen: 3, archers: 2, dogs: 1));
+    }
+
+    [Fact]
     public void TroopCounts_NeverNegative()
     {
         var result = CombatResolver.Resolve(

@@ -60,7 +60,7 @@ public class CombatResolver
         {
             var cnt = troops.Get(t);
             if (cnt <= 0) continue;
-            var remaining = (int)(cnt * (1 - ratio));
+            var remaining = (int)Math.Round(cnt * (1 - ratio), MidpointRounding.AwayFromZero);
             if (remaining > 0) result = result.Add(t, remaining);
         }
         return result;

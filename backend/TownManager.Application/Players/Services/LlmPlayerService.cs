@@ -166,21 +166,33 @@ public class LlmPlayerService(
         return result;
     }
 
-    private async Task<string> BuildPrompt(Player bot, IReadOnlyList<Village> villages,
-        int incomingAttacks, List<Village> nearby, CancellationToken ct)
+    private (BotPersonality personality, string description) GetPersonalityData(Player bot, IReadOnlyList<Village> villages)
     {
-
-        var personalityDesc = bot.BotPersonality switch
+        BotPersonality currentBotPersonality = bot.BotPersonality;
+        if(villages.Count < 3)
         {
-            BotPersonality.Aggressive => "You prioritize military strength and economy. Train troops and attack weaker neighbors. Expand through conquest and by settling new villages near enemies to pressure them. (50% economy, 50% troops. Attack all population targets strategically - combine attacks on higher population villages to match or overwhelm enemy troops)",
+            currentBotPersonality = BotPersonality.Economic;
+        }
+
+        var personalityDesc = currentBotPersonality switch
+        {
+            BotPersonality.Aggressive => "You prioritize military strength and economy. Expand through conquest and by settling new villages near enemies to pressure them. (50% economy, 50% troops. Attack all population targets strategically - combine attacks on higher population villages to match or overwhelm enemy troops)",
             BotPersonality.Defensive => "You prioritize defense. Maintain a strong garrison, and attack when you have advantage. Protect your villages, settle new and send attacks. (60% economy, 40% troops. Attack targets with lower population than yours)",
             BotPersonality.Economic => "You prioritize resource production and expansion. Upgrade resource buildings, train settlers and troops, found new villages and send attacks. Expand through safe conquest. (70% economy, 30% troops. Attack targets with lower and similar population to yours)",
             _ => "Play strategically.",
         };
 
+        return (personality: currentBotPersonality, description: personalityDesc);
+    }
+
+    private async Task<string> BuildPrompt(Player bot, IReadOnlyList<Village> villages,
+        int incomingAttacks, List<Village> nearby, CancellationToken ct)
+    {
+        var personalityData = GetPersonalityData(bot, villages);
+
         var prompt = $"""
-You are a player in browser strategy game. Your personality: {bot.BotPersonality}.
-{personalityDesc}
+You are a player in browser strategy game. Your personality: {personalityData.personality}.
+{personalityData.description}
 
 === GAME CONFIG ===
 {await GetGameConfigInfo(ct)}
