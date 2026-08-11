@@ -29,6 +29,12 @@ public class BarbarianTickService(
         var barbarians = await villageRepo.GetBarbarianVillagesAsync(BarbarianConfig.BarbarianPlayerId, ct);
         var rng = Random.Shared;
 
+        var attackedTargets = barbarians
+            .SelectMany(v => v.TroopMovements)
+            .Where(m => m.Type == MovementType.Attack && m.Status == MovementStatus.InFlight && m.TargetVillageId.HasValue)
+            .Select(m => m.TargetVillageId!.Value)
+            .ToHashSet();
+
         // per-village troop cap - each barb village stays below best player's total troops
         foreach (var b in barbarians)
         {
@@ -42,7 +48,7 @@ public class BarbarianTickService(
                 await AutoTrain(b, cap, ct);
                 await AutoBuild(b, ct);
             }
-            await TryAttack(b, rng, ct);
+            await TryAttack(b, rng, attackedTargets, ct);
         }
 
         await Replenish(barbarians.Count, rng, ct);
@@ -141,19 +147,17 @@ public class BarbarianTickService(
             await mediator.Send(new CreateTrainOrderCommand(b.Id, orders), ct);
     }
 
-    private async Task TryAttack(Village b, Random rng, CancellationToken ct)
+    private async Task TryAttack(Village b, Random rng, ISet<Guid> attackedTargets, CancellationToken ct)
     {
         if (b.Troops.IsEmpty()) return;
-        if (b.LastAttackAt.HasValue &&
-            DateTime.UtcNow - b.LastAttackAt.Value < BarbarianConfig.AttackCooldown)
-            return;
-
-        var hasOutgoingAttack = b.TroopMovements.Any(m =>
-            m.Type == MovementType.Attack && m.Status == MovementStatus.InFlight);
-        if (hasOutgoingAttack) return;
 
         var nearby = await villageRepo.GetForMapWithinRadius(b.Coordinates, BarbarianConfig.AttackRange, ct);
-        var targets = nearby.Where(v => v.PlayerId != BarbarianConfig.BarbarianPlayerId && v.Id != b.Id && v.Troops.TotalCount > b.Troops.TotalCount).ToList();
+        var targets = nearby.Where(v =>
+            v.PlayerId != BarbarianConfig.BarbarianPlayerId &&
+            v.Id != b.Id &&
+            v.Troops.TotalCount > b.Troops.TotalCount &&
+            !attackedTargets.Contains(v.Id) &&
+            (!v.LastAttackAt.HasValue || DateTime.UtcNow - v.LastAttackAt.Value >= BarbarianConfig.AttackCooldown)).ToList();
         if (targets.Count == 0) return;
 
         var target = targets[rng.Next(targets.Count)];
@@ -166,6 +170,7 @@ public class BarbarianTickService(
         }
 
         await mediator.Send(new CreateAttackOrderCommand(b.Id, troops, target.Id), ct);
+        attackedTargets.Add(target.Id);
     }
 
     private async Task Replenish(int currentCount, Random rng, CancellationToken ct)

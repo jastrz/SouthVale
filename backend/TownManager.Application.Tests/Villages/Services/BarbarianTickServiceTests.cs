@@ -77,27 +77,13 @@ public class BarbarianTickServiceTests
     }
 
     [Fact]
-    public async Task TryAttack_SkipsWhenOnCooldown()
+    public async Task TryAttack_SkipsRecentlyAttackedTarget()
     {
         var village = MakeBarbarian(new Troops(5, 5));
-        village.LastAttackAt = DateTime.UtcNow;
+        var target = MakeTarget(new Troops(50, 50));
+        target.LastAttackAt = DateTime.UtcNow;
         _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
-
-        await _service.ExecuteAsync(Ct);
-
-        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>(), Ct);
-    }
-
-    [Fact]
-    public async Task TryAttack_SkipsWhenHasOutgoingAttack()
-    {
-        var village = MakeBarbarian(new Troops(5, 5));
-        village.TroopMovements.Add(new TroopMovement
-        {
-            Type = MovementType.Attack,
-            Status = MovementStatus.InFlight,
-        });
-        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
+        _repo.GetForMapWithinRadius(default, default, Ct).ReturnsForAnyArgs([target]);
 
         await _service.ExecuteAsync(Ct);
 
@@ -114,6 +100,25 @@ public class BarbarianTickServiceTests
         await _service.ExecuteAsync(Ct);
 
         await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>(),Ct);
+    }
+
+    [Fact]
+    public async Task TryAttack_SkipsTargetWithInFlightBarbarianAttack()
+    {
+        var village = MakeBarbarian(new Troops(5, 5));
+        var target = MakeTarget(new Troops(50, 50));
+        village.TroopMovements.Add(new TroopMovement
+        {
+            Type = MovementType.Attack,
+            Status = MovementStatus.InFlight,
+            TargetVillageId = target.Id,
+        });
+        _repo.GetBarbarianVillagesAsync(Guid.Empty, Ct).ReturnsForAnyArgs([village]);
+        _repo.GetForMapWithinRadius(default, default, Ct).ReturnsForAnyArgs([target]);
+
+        await _service.ExecuteAsync(Ct);
+
+        await _mediator.DidNotReceiveWithAnyArgs().Send(Arg.Any<CreateAttackOrderCommand>(), Ct);
     }
 
     [Fact]

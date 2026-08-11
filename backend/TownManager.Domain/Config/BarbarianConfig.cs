@@ -16,7 +16,7 @@ public static class BarbarianConfig
     public static readonly Troops StartingTroops = new(5, 5, 0, 10, 0, 5);
     public static readonly Troops MaxTroops = new(200, 200, 0, 300, 50, 20);
     public static readonly Resources StartingResources = new(500, 500, 500, 500);
-    public static TimeSpan AttackCooldown { get; set; } = TimeSpan.FromHours(4);
+    public static TimeSpan AttackCooldown { get; set; } = TimeSpan.FromHours(2);
 
     public static readonly Dictionary<BuildingType, int> StartingBuildings = new()
     {
