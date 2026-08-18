@@ -27,7 +27,9 @@ public class EnqueueSettleEndpoint : IEndpoint
         .WithDescription("Enqueues a settle order that will found a new village at the given map coordinates once processed.")
         .RequireRateLimiting("Gameplay")
         .RequireAuthorization()
-        .AddEndpointFilter<VillageOwnershipFilter>();
+        .AddEndpointFilter<VillageOwnershipFilter>()
+        .ProducesStandard(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound])
+        .ProducesProblem(StatusCodes.Status409Conflict);
     }
 
     public record EnqueueSettleRequest(Coordinates Target);

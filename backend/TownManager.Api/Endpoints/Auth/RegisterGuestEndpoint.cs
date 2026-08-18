@@ -26,18 +26,17 @@ public class RegisterGuestEndpoint : IEndpoint
                 Path = "/",
             });
 
-            return Results.Ok(new
-            {
-                accessToken = result.Value.AccessToken,
-                username = result.Value.Username,
-                password = result.Value.Password
-            });
+            return Results.Ok(new RegisterGuestAuthResponse(
+                result.Value.AccessToken, result.Value.Username, result.Value.Password));
         })
         .WithName("RegisterGuest")
         .WithTags("Auth")
         .WithSummary("Register a guest user")
         .WithDescription("Creates a guest account with random credentials. Can be claimed later with email and password.")
         .RequireRateLimiting("Auth")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .ProducesStandard<RegisterGuestAuthResponse>(statusCodes: [StatusCodes.Status400BadRequest]);
     }
+
+    public record RegisterGuestAuthResponse(string AccessToken, string Username, string Password);
 }

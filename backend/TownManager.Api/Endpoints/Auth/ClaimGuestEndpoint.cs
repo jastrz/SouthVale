@@ -24,15 +24,17 @@ public class ClaimGuestEndpoint : IEndpoint
             if (!result.Succeeded)
                 return result.ToHttpResponse();
 
-            return Results.Ok(new { message = "Account claimed successfully" });
+            return Results.Ok(new MessageResponse("Account claimed successfully"));
         })
         .WithName("ClaimGuest")
         .WithTags("Auth")
         .WithSummary("Claim a guest account")
         .WithDescription("Associates an email and sets a new password on a guest account. Requires authentication.")
         .RequireRateLimiting("Auth")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard<MessageResponse>(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized]);
     }
 }
 
 public record ClaimGuestRequest(string Email, string NewPassword, string Username);
+public record MessageResponse(string Message);

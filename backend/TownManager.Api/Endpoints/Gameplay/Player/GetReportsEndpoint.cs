@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using MediatR;
 using TownManager.Application.Reports.Queries;
-
 namespace TownManager.Api.Endpoints.Gameplay.Player;
 
 public class GetReportsEndpoint : IEndpoint
@@ -28,6 +27,7 @@ public class GetReportsEndpoint : IEndpoint
         .WithSummary("Get reports for current player")
         .WithDescription("Returns movement and combat reports for the authenticated player, newest first.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard<ReportsResult>(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status404NotFound]);
     }
 }

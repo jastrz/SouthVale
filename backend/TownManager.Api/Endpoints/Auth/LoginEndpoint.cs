@@ -28,15 +28,17 @@ public class LoginEndpoint : IEndpoint
                 Path = "/",
             });
 
-            return Results.Ok(new { accessToken = result.Value.AccessToken, username = result.Value.Username });
+            return Results.Ok(new AuthResponse(result.Value.AccessToken, result.Value.Username));
         })
         .WithName("Login")
         .WithTags("Auth")
         .WithSummary("Log in a user")
         .WithDescription("Authenticates a user with email and password and returns a JWT access token.")
         .RequireRateLimiting("Auth")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .ProducesStandard<AuthResponse>(statusCodes: [StatusCodes.Status400BadRequest]);
     }
 }
 
 public record LoginRequest(string Email, string Password);
+public record AuthResponse(string AccessToken, string Username);

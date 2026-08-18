@@ -43,7 +43,7 @@ Dev mode note: expose Postgres on host port 5432 — uncomment `ports` under
 
 ## Tech Stack
 
-**Backend:** .NET 10, Clean Architecture (Domain/Application/Infrastructure/Api), CQRS with MediatR, PostgreSQL + EF Core, Hangfire (background jobs), SignalR (real-time), JWT + ASP.NET Identity, FluentValidation, Serilog, Scalar (OpenAPI)
+**Backend:** .NET 10, Clean Architecture, CQRS with MediatR, PostgreSQL + EF Core, Hangfire (background jobs), SignalR (real-time), JWT + ASP.NET Identity, FluentValidation, Serilog, Scalar (OpenAPI)
 
 **Frontend:** React 19, TypeScript, PixiJS 8 (map rendering), TanStack Router + Query, Zustand (client state), Axios, SignalR, Tailwind CSS, Vite
 

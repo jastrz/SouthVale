@@ -23,7 +23,8 @@ public class RenameVillageEndpoint : IEndpoint
         .WithDescription("Renames a village owned by the authenticated player.")
         .RequireRateLimiting("Gameplay")
         .RequireAuthorization()
-        .AddEndpointFilter<VillageOwnershipFilter>();
+        .AddEndpointFilter<VillageOwnershipFilter>()
+        .ProducesStandard(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
     }
 
     public record RenameVillageRequest(string Name);

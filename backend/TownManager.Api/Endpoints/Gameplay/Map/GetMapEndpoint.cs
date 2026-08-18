@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Application.Dtos;
 using TownManager.Application.Map.Queries;
 using TownManager.Domain.Entities;
 
@@ -20,7 +21,8 @@ public class GetMapEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Get current map")
         .WithDescription("Returns all villages within requested radius from requested coordinates.")
-        .RequireRateLimiting("Gameplay");
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<IReadOnlyList<PlayerVillageDto>>(statusCodes: [StatusCodes.Status400BadRequest]);
     }
 }
 

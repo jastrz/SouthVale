@@ -31,7 +31,8 @@ public class SendAttackEndpoint : IEndpoint
         .WithDescription("Creates an attack order that dispatches the specified troops from the source village to the target village.")
         .RequireRateLimiting("Gameplay")
         .RequireAuthorization()
-        .AddEndpointFilter<VillageOwnershipFilter>();
+        .AddEndpointFilter<VillageOwnershipFilter>()
+        .ProducesStandard(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
     }
 
     public record SendAttackRequest(IReadOnlyList<TroopEntry> Troops, Guid TargetVillageId);

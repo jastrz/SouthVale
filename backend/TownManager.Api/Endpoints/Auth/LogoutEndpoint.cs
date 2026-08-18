@@ -23,6 +23,7 @@ public class LogoutEndpoint : IEndpoint
         .WithSummary("Log out")
         .WithDescription("Clears the refresh token cookie.")
         .RequireRateLimiting("Auth")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard(statusCodes: [StatusCodes.Status401Unauthorized]);
     }
 }

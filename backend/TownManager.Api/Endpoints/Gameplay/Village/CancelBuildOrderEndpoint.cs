@@ -26,6 +26,7 @@ public class CancelBuildOrderEndpoint : IEndpoint
         .WithSummary("Cancel a build order")
         .WithDescription("Cancels a queued build order and refunds the resources.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Application.Dtos;
 using TownManager.Application.Leaderboard.Queries;
 
 namespace TownManager.Api.Endpoints.Gameplay;
@@ -21,6 +22,7 @@ public class GetLeaderboardEndpoint : IEndpoint
         .WithTags("Gameplay")
         .WithSummary("Get player leaderboard")
         .WithDescription("Returns players ranked by total troop count.")
-        .RequireRateLimiting("Gameplay");
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<LeaderboardResultDto>();
     }
 }

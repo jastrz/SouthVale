@@ -25,7 +25,8 @@ public class EnqueueBuildingEndpoint : IEndpoint
         .WithDescription("Enqueues a construction order for the specified building type in the village's build queue.")
         .RequireRateLimiting("Gameplay")
         .RequireAuthorization()
-        .AddEndpointFilter<VillageOwnershipFilter>();
+        .AddEndpointFilter<VillageOwnershipFilter>()
+        .ProducesStandard(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
     }
 
     public record EnqueueBuildingRequest(BuildingType BuildingType);

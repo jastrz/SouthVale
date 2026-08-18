@@ -26,6 +26,7 @@ public class CancelTrainOrderEndpoint : IEndpoint
         .WithSummary("Cancel a training order")
         .WithDescription("Cancels a queued training order and refunds the uncompleted portion.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
     }
 }

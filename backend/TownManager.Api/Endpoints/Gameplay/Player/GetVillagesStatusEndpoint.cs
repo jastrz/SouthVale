@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MediatR;
+using TownManager.Application.Dtos;
 using TownManager.Application.Villages.Queries;
 
 namespace TownManager.Api.Endpoints.Gameplay.Player;
@@ -25,6 +26,7 @@ public class GetVillagesStatusEndpoint : IEndpoint
         .WithSummary("Get active order counts per village")
         .WithDescription("Returns build and train order counts for all villages owned by the authenticated player.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard<IReadOnlyList<VillageStatusDto>>(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status404NotFound]);
     }
 }

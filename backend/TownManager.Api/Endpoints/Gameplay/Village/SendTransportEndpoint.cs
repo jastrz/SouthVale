@@ -32,7 +32,8 @@ public class SendTransportEndpoint : IEndpoint
         .WithDescription("Sends troops and resources from one of your villages to another.")
         .RequireRateLimiting("Gameplay")
         .RequireAuthorization()
-        .AddEndpointFilter<VillageOwnershipFilter>();
+        .AddEndpointFilter<VillageOwnershipFilter>()
+        .ProducesStandard(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
     }
 
     public record SendTransportRequest(

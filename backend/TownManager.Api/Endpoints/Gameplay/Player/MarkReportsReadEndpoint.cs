@@ -25,6 +25,7 @@ public class MarkReportsReadEndpoint : IEndpoint
         .WithSummary("Mark all reports as read")
         .WithDescription("Marks all unread reports for the current player as read.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status404NotFound]);
     }
 }

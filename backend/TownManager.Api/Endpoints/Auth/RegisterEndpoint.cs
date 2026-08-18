@@ -28,14 +28,15 @@ public class RegisterEndpoint : IEndpoint
                 Path = "/",
             });
 
-            return Results.Ok(new { accessToken = result.Value.AccessToken, username = result.Value.Username });
+            return Results.Ok(new AuthResponse(result.Value.AccessToken, result.Value.Username));
         })
         .WithName("Register")
         .WithTags("Auth")
         .WithSummary("Register a new user")
         .WithDescription("Creates a new user account with the provided email, password, and username, and returns a JWT access token.")
         .RequireRateLimiting("Auth")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .ProducesStandard<AuthResponse>(statusCodes: [StatusCodes.Status400BadRequest]);
     }
 }
 

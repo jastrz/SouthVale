@@ -26,6 +26,8 @@ public class GameConfigEndpoint : IEndpoint
         .WithSummary("Get game configuration")
         .WithDescription("Returns all building and troop configuration data, including upgrade costs, effects, and stats.")
         .RequireRateLimiting("Gameplay")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .ProducesStandard<GameConfigDto>()
+        .Produces(StatusCodes.Status304NotModified);
     }
 }

@@ -11,7 +11,7 @@ Api → Application ← Infrastructure
 - **Domain** — entities, enums, game config, domain events. Zero dependencies.
 - **Application** — CQRS commands/queries, handlers, DTOs, service interfaces.
 - **Infrastructure** — EF Core, Hangfire jobs, LLM HTTP client, Identity. 
-- **Api** — ASP.NET host, minimal API endpoints, SignalR hubs, middleware. Wires DI.
+- **Api** — ASP.NET host, minimal API endpoints, SignalR hubs, middleware.
 
 ## Client
 

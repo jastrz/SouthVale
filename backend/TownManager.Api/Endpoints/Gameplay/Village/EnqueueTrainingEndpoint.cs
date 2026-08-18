@@ -24,7 +24,8 @@ public class EnqueueTrainingEndpoint : IEndpoint
         .WithDescription("Enqueues one or more troop training orders in the village's training queue.")
         .RequireRateLimiting("Gameplay")
         .RequireAuthorization()
-        .AddEndpointFilter<VillageOwnershipFilter>();
+        .AddEndpointFilter<VillageOwnershipFilter>()
+        .ProducesStandard(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
     }
 
     public record EnqueueTrainingRequest(IReadOnlyList<TroopEntry> Orders);

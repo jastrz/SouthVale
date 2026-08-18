@@ -13,6 +13,7 @@ public class TerrainEndpoint : IEndpoint
             .WithSummary("Get map terrain tiles")
             .WithDescription("Returns terrain grid and decorations for the full map.")
             .RequireRateLimiting("Gameplay")
-            .AllowAnonymous();
+            .AllowAnonymous()
+            .ProducesStandard();
     }
 }

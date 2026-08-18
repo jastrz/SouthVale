@@ -83,7 +83,7 @@ as players (see Scalar for `/gameplay/map`).
 Levels, costs, times, and effects come from `data/buildings.csv`
 (`BuildingConfig`).
 - Effects aggregate across all buildings in the village.
-- Attack and training multipliers use the best applicable level across the
+- Attack multipliers use the best applicable level across the
   player's villages.
 
 | Building    | Description |
@@ -129,7 +129,7 @@ Stats (attack, defense, carry capacity, speed) and costs loaded from
 | Archer       | Barracks   | Infantry, high defense. |
 | Dogs         | Barracks   | Low cost, high speed, attack. |
 | Horsemen     | Stable     | Cavalry, high attack, fast. |
-| LlamaRiders  | Stable     | Balanced, high carry capacity (resources). |
+| LlamaRiders  | Stable     | Balanced, high carry capacity. |
 | Settler      | Barracks   | Found new villages; no combat stats. |
 
 ## Training

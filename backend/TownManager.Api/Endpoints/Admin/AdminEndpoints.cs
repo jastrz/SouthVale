@@ -24,10 +24,10 @@ public class AdminEndpoints : IEndpoint
     private static async Task<IResult?> AdminGuard(HttpContext httpContext, UserManager<ApplicationUser> userManager)
     {
         var userId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId is null) return Results.Unauthorized();
+        if (userId is null) return Results.Problem(statusCode: StatusCodes.Status401Unauthorized, title: "Unauthorized");
         var user = await userManager.FindByIdAsync(userId);
         if (user is null || !await userManager.IsInRoleAsync(user, "Admin"))
-            return Results.Forbid();
+            return Results.Problem(statusCode: StatusCodes.Status403Forbidden, title: "Forbidden");
         return null;
     }
 
@@ -46,7 +46,7 @@ public class AdminEndpoints : IEndpoint
             if (guard is not null) return guard;
 
             var villages = await db.Villages
-                .Select(v => new { v.Id, v.Name, v.Coordinates })
+                .Select(v => new AdminVillageResponse(v.Id, v.Name, v.Coordinates))
                 .ToListAsync(ct);
 
             return Results.Ok(villages);
@@ -55,7 +55,9 @@ public class AdminEndpoints : IEndpoint
         .WithTags("Admin")
         .WithSummary("List all villages")
         .WithDescription("Returns id, name, and coordinates for every village in the database.")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<IReadOnlyList<AdminVillageResponse>>(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden]);
 
         app.MapPost("/admin/village/{id:guid}/resources", async (
             Guid id,
@@ -72,7 +74,7 @@ public class AdminEndpoints : IEndpoint
             var village = await db.Villages
                 .Include(v => v.Buildings)
                 .FirstOrDefaultAsync(v => v.Id == id, ct);
-            if (village is null) return Results.NotFound();
+            if (village is null) return Results.Problem(statusCode: StatusCodes.Status404NotFound, title: "Village not found");
 
             var added = new Resources(request.Wood, request.Clay, request.Iron, request.Beer);
             var effects = BuildingConfig.AggregateEffects(village.Buildings);
@@ -86,7 +88,9 @@ public class AdminEndpoints : IEndpoint
         .WithTags("Admin")
         .WithSummary("Add resources to a village")
         .WithDescription("Adds the specified amounts of wood, clay, iron, and crop to a village.")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
 
         app.MapPost("/admin/villages/resources/full", async (
             HttpContext httpContext,
@@ -118,13 +122,15 @@ public class AdminEndpoints : IEndpoint
                         .SetProperty(v => v.UpdatedAt, DateTime.UtcNow), ct);
             }
 
-            return Results.Ok(new { filled = villages.Count });
+            return Results.Ok(new AdminFillResponse(villages.Count));
         })
         .WithName("AdminFullResources")
         .WithTags("Admin")
         .WithSummary("Set all villages to max resources")
         .WithDescription("Fills every village's warehouse and granary to full capacity. Returns count of villages filled.")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<AdminFillResponse>(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden]);
 
         app.MapPost("/admin/tick/barbarian", async (
             HttpContext httpContext,
@@ -138,17 +144,18 @@ public class AdminEndpoints : IEndpoint
             if (guard is not null) return guard;
 
             if (!features.UseBarbarians)
-                return Results.BadRequest(new { error = "Barbarians feature is disabled" });
+                return Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "Barbarians feature is disabled");
 
             await barbarianTick.ExecuteAsync(ct);
-            return Results.Ok(new { ticked = "barbarian" });
+            return Results.Ok(new AdminTickResponse("barbarian"));
         })
         .WithName("AdminTickBarbarian")
         .WithTags("Admin")
         .WithSummary("Run barbarian tick immediately")
         .WithDescription("Triggers the barbarian AI tick immediately instead of waiting for the cron schedule. Requires UseBarbarians feature flag.")
-        .RequireAuthorization();
-
+        .RequireAuthorization()
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<AdminTickResponse>(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden]);
         app.MapPost("/admin/tick/llm", async (
             HttpContext httpContext,
             UserManager<ApplicationUser> userManager,
@@ -160,11 +167,11 @@ public class AdminEndpoints : IEndpoint
             if (guard is not null) return guard;
 
             if (!features.UseLlmPlayers)
-                return Results.BadRequest(new { error = "LLM players feature is disabled" });
+                return Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "LLM players feature is disabled");
 
             // Don't fire llm tick job twice
             if (Interlocked.CompareExchange(ref _llmTickRunning, 1, 0) != 0)
-                return Results.Conflict(new { error = "LLM tick already in progress" });
+                return Results.Problem(statusCode: StatusCodes.Status409Conflict, title: "LLM tick already in progress");
 
             // Check if hangfire job is executing
             var monitor = JobStorage.Current.GetMonitoringApi();
@@ -174,7 +181,7 @@ public class AdminEndpoints : IEndpoint
             if (hangfireRunning)
             {
                 Interlocked.Exchange(ref _llmTickRunning, 0);
-                return Results.Conflict(new { error = "LLM tick already in progress (cron)" });
+                return Results.Problem(statusCode: StatusCodes.Status409Conflict, title: "LLM tick already in progress (cron)");
             }
 
             _ = Task.Run(async () =>
@@ -190,13 +197,16 @@ public class AdminEndpoints : IEndpoint
                     Interlocked.Exchange(ref _llmTickRunning, 0);
                 }
             });
-            return Results.Ok(new { ticked = "llm" });
+            return Results.Ok(new AdminTickResponse("llm"));
         })
         .WithName("AdminTickLlm")
         .WithTags("Admin")
         .WithSummary("Run LLM player tick immediately")
         .WithDescription("Triggers the LLM player AI tick immediately instead of waiting for the cron schedule. Requires UseLlmPlayers feature flag.")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<AdminTickResponse>(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden])
+        .ProducesProblem(StatusCodes.Status409Conflict);
 
 
         app.MapPost("/admin/reset", async (
@@ -216,7 +226,7 @@ public class AdminEndpoints : IEndpoint
             var userId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var user = await userManager.FindByIdAsync(userId!);
             if (user is null || !await userManager.CheckPasswordAsync(user, request.Password))
-                return Results.Problem("Wrong password", statusCode: 403);
+                return Results.Problem(statusCode: 403, title: "Wrong password");
 
             var keptUsers = await userManager.Users
                 .Where(u => u.Email != null)
@@ -275,16 +285,26 @@ public class AdminEndpoints : IEndpoint
 
             logger.LogWarning("Soft database reset by admin — restarting");
             hostLifetime.StopApplication();
-            return Results.Ok(new { reset = "soft", persistedUsers = keptUsers.Count, recreatedPlayers = nonAdminKept.Count });
+            return Results.Ok(new AdminResetResponse("soft", keptUsers.Count, nonAdminKept.Count));
         })
         .WithName("AdminResetSoft")
         .WithTags("Admin")
         .WithSummary("Soft reset game database")
         .WithDescription("Keeps registered (non-guest) Identity users, deletes all game data and guest accounts, creates a fresh starter village for each persisted user, then restarts the application for re-seeding. Requires admin password confirmation.")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<AdminResetResponse>(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden]);
 
-        app.MapGet("/admin/config", ([FromServices] LlmPlayerConfig llmCfg, [FromServices] BarbarianOptions barbOptions) =>
-            Results.Ok(new GameConfigResponse(
+        app.MapGet("/admin/config", async (
+            HttpContext httpContext,
+            UserManager<ApplicationUser> userManager,
+            [FromServices] LlmPlayerConfig llmCfg,
+            [FromServices] BarbarianOptions barbOptions) =>
+        {
+            var guard = await AdminGuard(httpContext, userManager);
+            if (guard is not null) return guard;
+
+            return Results.Ok(new GameConfigResponse(
                 GameSettings.TravelSpeedMultiplier,
                 GameSettings.ResourcesProductionMultiplier,
                 GameSettings.BuildSpeedMultiplier,
@@ -292,18 +312,25 @@ public class AdminEndpoints : IEndpoint
                 GameSettings.UpkeepMultiplier,
                 BarbarianConfig.TargetPopulation,
                 llmCfg.TickIntervalCron,
-                barbOptions.TickIntervalCron))
-        )
+                barbOptions.TickIntervalCron));
+        })
         .WithName("AdminGetConfig")
         .WithTags("Admin")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<GameConfigResponse>(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden]);
 
-        app.MapPut("/admin/config", (
+        app.MapPut("/admin/config", async (
             UpdateGameConfigRequest request,
+            HttpContext httpContext,
+            UserManager<ApplicationUser> userManager,
             [FromServices] LlmPlayerConfig llmCfg,
             [FromServices] BarbarianOptions barbOptions,
             [FromServices] IRecurringJobManager jobs) =>
         {
+            var guard = await AdminGuard(httpContext, userManager);
+            if (guard is not null) return guard;
+
             if (request.TravelSpeedMultiplier.HasValue)
             {
                 GameSettings.TravelSpeedMultiplier = request.TravelSpeedMultiplier.Value;
@@ -334,14 +361,14 @@ public class AdminEndpoints : IEndpoint
             if (request.LlmTickInterval is { Length: > 0 })
             {
                 if (!TryParseCron(request.LlmTickInterval, out var error))
-                    return Results.BadRequest(new { error });
+                    return Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: error);
                 llmCfg.TickIntervalCron = request.LlmTickInterval;
                 LlmPlayerJobScheduler.Register(jobs, llmCfg);
             }
             if (request.BarbarianTickInterval is { Length: > 0 })
             {
                 if (!TryParseCron(request.BarbarianTickInterval, out var error))
-                    return Results.BadRequest(new { error });
+                    return Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: error);
                 barbOptions.TickIntervalCron = request.BarbarianTickInterval;
                 BarbarianJobScheduler.Register(jobs, barbOptions);
             }
@@ -357,12 +384,18 @@ public class AdminEndpoints : IEndpoint
         })
         .WithName("AdminUpdateConfig")
         .WithTags("Admin")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("Gameplay")
+        .ProducesStandard<GameConfigResponse>(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden]);
     }
 
     public record AddResourcesRequest(double Wood, double Clay, double Iron, double Beer);
     public record GameConfigResponse(float TravelSpeedMultiplier, float ResourcesProductionMultiplier, float BuildSpeedMultiplier, float TrainSpeedMultiplier, float UpkeepMultiplier, int MaxBarbarianVillages, string LlmTickInterval, string BarbarianTickInterval);
     public record UpdateGameConfigRequest(float? TravelSpeedMultiplier, float? ResourcesProductionMultiplier, float? BuildSpeedMultiplier, float? TrainSpeedMultiplier, float? UpkeepMultiplier, int? MaxBarbarianVillages, string? LlmTickInterval, string? BarbarianTickInterval);
+    public record AdminVillageResponse(Guid Id, string Name, Coordinates Coordinates);
+    public record AdminFillResponse(int Filled);
+    public record AdminTickResponse(string Ticked);
+    public record AdminResetResponse(string Reset, int PersistedUsers, int RecreatedPlayers);
 
     private static bool TryParseCron(string input, out string error)
     {

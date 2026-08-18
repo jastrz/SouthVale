@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MediatR;
+using TownManager.Application.Dtos;
 using TownManager.Application.Villages.Queries;
 
 namespace TownManager.Api.Endpoints.Gameplay.Player;
@@ -25,6 +26,7 @@ public class GetCurrentUserMovementsEndpoint : IEndpoint
         .WithSummary("Get current user movements")
         .WithDescription("Returns all active unit movements for the authenticated player.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard<IReadOnlyList<MovementDto>>(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status404NotFound]);
     }
 }

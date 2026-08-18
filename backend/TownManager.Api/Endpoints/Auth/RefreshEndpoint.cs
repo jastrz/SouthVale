@@ -56,13 +56,16 @@ public class RefreshEndpoint : IEndpoint
 
             logger.LogInformation("Token refreshed: {Email}", email);
 
-            return Results.Ok(new { accessToken = newAccessToken });
+            return Results.Ok(new RefreshResponse(newAccessToken));
         })
         .WithName("RefreshToken")
         .WithTags("Auth")
         .WithSummary("Refresh access token")
         .WithDescription("Validates the refresh_token cookie and issues a new access token + rotates the refresh token.")
         .RequireRateLimiting("Auth")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .ProducesStandard<RefreshResponse>(statusCodes: [StatusCodes.Status401Unauthorized]);
     }
+
+    public record RefreshResponse(string AccessToken);
 }

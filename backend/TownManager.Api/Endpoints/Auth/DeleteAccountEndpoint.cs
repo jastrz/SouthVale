@@ -26,7 +26,9 @@ public class DeleteAccountEndpoint : IEndpoint
             .WithTags("Auth")
             .WithSummary("Delete account")
             .WithDescription("Deletes account and associated player.")
-            .RequireAuthorization();
+            .RequireAuthorization()
+            .RequireRateLimiting("Auth")
+            .ProducesStandard<bool>(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized]);
     }
 }
 

@@ -32,7 +32,8 @@ public class TradeResourcesEndpoint : IEndpoint
         .WithDescription("Exchange one resource for another at the village's trading post. Rate depends on TradePost level.")
         .RequireRateLimiting("Gameplay")
         .RequireAuthorization()
-        .AddEndpointFilter<VillageOwnershipFilter>();
+        .AddEndpointFilter<VillageOwnershipFilter>()
+        .ProducesStandard(statusCodes: [StatusCodes.Status400BadRequest, StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden, StatusCodes.Status404NotFound]);
     }
 
     public record TradeRequest(

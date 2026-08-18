@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MediatR;
+using TownManager.Application.Dtos;
 using TownManager.Application.Villages.Queries;
 
 namespace TownManager.Api.Endpoints.Gameplay.Player;
@@ -25,6 +26,7 @@ public class GetCurrentUserVillagesEndpoint : IEndpoint
         .WithSummary("Get current user villages")
         .WithDescription("Returns all villages owned by the authenticated player.")
         .RequireRateLimiting("Gameplay")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .ProducesStandard<IReadOnlyList<VillageListItemDto>>(statusCodes: [StatusCodes.Status401Unauthorized, StatusCodes.Status404NotFound]);
     }
 }

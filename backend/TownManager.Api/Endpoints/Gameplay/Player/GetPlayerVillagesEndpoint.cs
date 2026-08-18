@@ -1,4 +1,5 @@
 using MediatR;
+using TownManager.Application.Dtos;
 using TownManager.Application.Villages.Queries;
 
 namespace TownManager.Api.Endpoints.Gameplay.Player;
@@ -20,6 +21,7 @@ public class GetPlayerVillagesEndpoint : IEndpoint
         .WithSummary("Get villages owned by a player")
         .WithDescription("Returns all villages owned by the player with the given username.")
         .RequireRateLimiting("Gameplay")
-        .AllowAnonymous();
+        .AllowAnonymous()
+        .ProducesStandard<IReadOnlyList<PlayerVillageDto>>(statusCodes: [StatusCodes.Status404NotFound]);
     }
 }
