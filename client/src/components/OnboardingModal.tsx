@@ -1,31 +1,11 @@
 import { useState } from "react";
 import { Modal } from "./Modal";
 import { Icon } from "./Icon";
-import { useOnboardingOpen } from "../store/onboardingStore";
 import { useGameConfig } from "../api/hooks/useQueries";
 import { BUILDING_ICONS, TROOP_ICONS, RESOURCE_ICONS, UI_ICONS } from "../lib/helpers";
 import type { GameConfigDto } from "../api/types";
 
 const ONBOARDING_KEY = "onboardingSeen";
-
-function useOnboardingSeen() {
-  const [seen, setSeen] = useState(() => {
-    try {
-      return localStorage.getItem(ONBOARDING_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-  const markSeen = () => {
-    try {
-      localStorage.setItem(ONBOARDING_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-    setSeen(true);
-  };
-  return { seen, markSeen };
-}
 
 const STEPS: {
   title: string;
@@ -142,29 +122,53 @@ const STEPS: {
   },
 ];
 
-export function OnboardingModal() {
+function useOnboardingSeen() {
+  const [seen, setSeen] = useState(() => {
+    try {
+      return localStorage.getItem(ONBOARDING_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const markSeen = () => {
+    try {
+      localStorage.setItem(ONBOARDING_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    setSeen(true);
+  };
+  return { seen, markSeen };
+}
+
+export function OnboardingModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const { seen, markSeen } = useOnboardingSeen();
-  const forcedOpen = useOnboardingOpen((s) => s.open);
-  const hideForced = useOnboardingOpen((s) => s.hide);
   const { data: config } = useGameConfig();
   const [step, setStep] = useState(0);
 
-  const [prevOpen, setPrevOpen] = useState(forcedOpen);
-  if (forcedOpen !== prevOpen) {
-    setPrevOpen(forcedOpen);
-    if (forcedOpen) setStep(0);
+  const isOpen = open || !seen;
+  const [prevOpen, setPrevOpen] = useState(isOpen);
+  if (isOpen !== prevOpen) {
+    setPrevOpen(isOpen);
+    if (isOpen) setStep(0);
   }
 
-  if (!forcedOpen && seen) return null;
+  if (!isOpen) return null;
 
   const last = step === STEPS.length - 1;
   const close = () => {
     markSeen();
-    hideForced();
+    onClose();
   };
 
   return (
-    <Modal open onClose={close} closeOnBackdrop={false}>
+    <Modal open={isOpen} onClose={close} closeOnBackdrop={false}>
       <div className="flex flex-col gap-3 p-4">
         <div className="flex items-center justify-between">
           <h2 key={step} className="step-anim text-base font-bold text-white">
