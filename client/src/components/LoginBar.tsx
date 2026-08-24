@@ -7,6 +7,7 @@ import { jwtRole } from "../lib/helpers";
 import { useDelete } from "../api/hooks/useAuth";
 import { BurgerMenu } from "./BurgerMenu";
 import { ClaimAccountModal } from "./ClaimAccountModal";
+import { OnboardingModal } from "./OnboardingModal";
 
 export function LoginBar() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export function LoginBar() {
   const clearGameState = useGameStateStore((s) => s.clear);
   const deleteMutation = useDelete();
   const [showClaim, setShowClaim] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const isAdmin = token ? jwtRole(token) === "Admin" : false;
   const isGuest = token && !email;
@@ -46,11 +48,14 @@ export function LoginBar() {
     );
   };
 
+  const helpItem = { label: "Help", onClick: () => setShowHelp(true) };
+
   const menuItems = isAdmin
-    ? [{ label: "Logout", onClick: handleLogout }]
+    ? [helpItem, { label: "Logout", onClick: handleLogout }]
     : [
-        ...(isGuest ? [{ label: "Claim Account", onClick: () => setShowClaim(true) }] : []),
-        { label: "Logout", onClick: handleLogout },
+      ...(isGuest ? [{ label: "Claim Account", onClick: () => setShowClaim(true) }] : []),
+      helpItem,
+      { label: "Logout", onClick: handleLogout },
         ...(isGuest ? [] : [{ label: "Delete account", onClick: handleDelete, danger: true }]),
       ];
 
@@ -68,6 +73,7 @@ export function LoginBar() {
           </span>
           <BurgerMenu items={menuItems} />
           {showClaim && <ClaimAccountModal onClose={() => setShowClaim(false)} />}
+          <OnboardingModal open={showHelp} onClose={() => setShowHelp(false)} />
         </>
       ) : (
         <>

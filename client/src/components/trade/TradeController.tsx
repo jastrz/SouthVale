@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "../Button";
 import { useVillage, useTrade, useGameConfig } from "../../api/hooks/useQueries";
 import { Modal } from "../Modal";
 import { TradePanel } from "./TradePanel";
@@ -20,13 +21,13 @@ export function TradeController({ villageId }: { villageId: string }) {
 
   return (
     <>
-      <button
+      <Button
         type="button"
         onClick={() => setOpen(true)}
         className="mx-4 mb-2 mt-2 cursor-pointer rounded border border-amber-700 bg-amber-950/30 px-3 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-900/50"
       >
         Trade
-      </button>
+      </Button>
 
       <Modal open={open} onClose={() => setOpen(false)}>
         <TradePanel

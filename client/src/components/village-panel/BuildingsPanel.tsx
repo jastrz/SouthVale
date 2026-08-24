@@ -16,6 +16,7 @@ import {
 import { ResourceCost } from "./ResourceCost";
 import { useGameConfig } from "../../api/hooks/useQueries";
 import { Icon } from "../Icon";
+import { Button } from "../Button";
 import { Tooltip } from "../Tooltip";
 import { Spinner } from "../Spinner";
 import { BUILDING_ORDER } from "../../config/game";
@@ -396,7 +397,7 @@ function BuildingCard({
         <span className="text-[10px] italic text-slate-500 mr-2">
           {BUILDING_TIPS[building.type] ?? ""}
         </span>
-        <button
+        <Button
           type="button"
           onClick={onUpgrade}
           disabled={disabled || building.level >= maxLevel || !canAfford}
@@ -409,7 +410,7 @@ function BuildingCard({
           ) : (
             "Build"
           )}
-        </button>
+        </Button>
       </div>
     </Tooltip>
   );

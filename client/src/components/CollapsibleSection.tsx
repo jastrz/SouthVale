@@ -22,7 +22,7 @@ export function CollapsibleSection({
       </button>
       <div
         className={`overflow-hidden transition-all duration-150 ease-in-out ${
-          open ? "max-h-none opacity-100" : "max-h-0 opacity-0"
+          open ? "max-h-none opacity-100 pb-3" : "max-h-0 opacity-0"
         }`}
       >
         {children}

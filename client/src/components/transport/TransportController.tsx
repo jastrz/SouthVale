@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "../Button";
 import {
   useVillage,
   useTransport,
@@ -29,13 +30,13 @@ export function TransportController({ villageId }: { villageId: string }) {
       troopSpeeds={troopSpeeds}
       travelSpeedMultiplier={gameConfig?.travelSpeedMultiplier}
     >
-      <button
+      <Button
         type="button"
         onClick={() => setOpen(true)}
         className="mx-4 mb-2 mt-2 cursor-pointer rounded border border-emerald-700 bg-emerald-950/30 px-3 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-900/50"
       >
         Send Transport
-      </button>
+      </Button>
 
       <Modal open={open} onClose={() => setOpen(false)}>
         <TransportPanel

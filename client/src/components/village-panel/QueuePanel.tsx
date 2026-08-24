@@ -4,6 +4,7 @@ import { formatTime, timeRemaining, BUILDING_ICONS, TROOP_ICONS } from "../../li
 import { useTick } from "../../hooks/useTick";
 import { Tooltip } from "../Tooltip";
 import { Icon } from "../Icon";
+import { Button } from "../Button";
 import { useNow } from "../../hooks/useNow";
 
 function ProgressBar({ startMs, endMs, color = "bg-yellow-500" }: { startMs: number; endMs: number; color?: string }) {
@@ -112,13 +113,13 @@ export function QueuePanel({
                 {(() => {
                   const cancellable = !blockedCancelIds.has(o.id);
                   const btn = (
-                    <button
+                    <Button
                       onClick={() => cancelBuild.mutate(o.id)}
                       disabled={!cancellable || cancelBuild.isPending}
                       className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-red-400"
                     >
                       cancel
-                    </button>
+                    </Button>
                   );
                   return cancellable ? (
                     btn
@@ -174,13 +175,13 @@ export function QueuePanel({
                     minute: "2-digit",
                   })}
                 </span>
-                <button
+                <Button
                   onClick={() => cancelTrain.mutate(o.id)}
                   disabled={cancelTrain.isPending}
                   className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 disabled:opacity-40"
                 >
                   cancel
-                </button>
+                </Button>
               </div>
             </div>
           ))}

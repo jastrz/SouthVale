@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "../Button";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type {
   TransportRequest,
@@ -100,13 +101,13 @@ export function TransportPanel({
         <h3 className="text-xs font-bold tracking-widest text-emerald-400 uppercase">
           Transport
         </h3>
-        <button
+        <Button
           type="button"
           onClick={onClose}
           className="cursor-pointer text-[11px] text-slate-500 hover:text-slate-300"
         >
           Close
-        </button>
+        </Button>
       </div>
 
       <div>
@@ -188,7 +189,7 @@ export function TransportPanel({
         </div>
       </div>
 
-      <button
+      <Button
         type="button"
         onClick={handleSend}
         disabled={
@@ -199,7 +200,7 @@ export function TransportPanel({
         className="w-full cursor-pointer rounded bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-emerald-700"
       >
         {mutation.isPending ? "Sending…" : "Send Transport"}
-      </button>
+      </Button>
     </section>
   );
 }
