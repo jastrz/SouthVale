@@ -31,8 +31,8 @@ export function Pagination({
       </button>
       <span className="rounded bg-slate-700 px-2 py-0.5 text-xs text-slate-300">
         <input
-          className="bg-transparent text-xs text-slate-300 text-center"
-          size={String(totalPages).length}
+          className="bg-transparent text-xs text-slate-300 text-center mr-1"
+          style={{ width: `${String(totalPages).length}ch` }}
           value={display}
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={submit}

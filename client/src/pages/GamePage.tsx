@@ -8,6 +8,7 @@ import { VillagePanel } from "../components/village-panel/VillagePanel";
 import { VillagePopup } from "../components/VillagePopup";
 import { TilePopup } from "../components/TilePopup";
 import { GameInfoPanel } from "../components/GameInfoPanel";
+import { OnboardingModal } from "../components/OnboardingModal";
 import { TopBar } from "../components/TopBar";
 import { PANEL_CLAMP, TREE_SWAY_ENABLED, USE_BIG_TREES, setTreeSwayEnabled, setUseBigTrees } from "../pixi/config";
 
@@ -183,6 +184,7 @@ export function GamePage() {
 
       <VillagePopup />
       <TilePopup />
+      <OnboardingModal />
     </div>
   );
 }

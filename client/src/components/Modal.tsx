@@ -1,6 +1,6 @@
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
-export function Modal({ open, onClose, style, children }: { open: boolean; onClose: () => void; style?: CSSProperties; children: ReactNode }) {
+export function Modal({ open, onClose, style, children, closeOnBackdrop = true }: { open: boolean; onClose: () => void; style?: CSSProperties; children: ReactNode; closeOnBackdrop?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   const openedAt = useRef(0);
 
@@ -17,6 +17,7 @@ export function Modal({ open, onClose, style, children }: { open: boolean; onClo
       onClose={onClose}
       onClick={(e) => {
         if (e.target !== e.currentTarget) return;
+        if (!closeOnBackdrop) return;
         if (Date.now() - openedAt.current < 100) return;
         onClose();
       }}

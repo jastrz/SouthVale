@@ -7,6 +7,7 @@ import { jwtRole } from "../lib/helpers";
 import { useDelete } from "../api/hooks/useAuth";
 import { BurgerMenu } from "./BurgerMenu";
 import { ClaimAccountModal } from "./ClaimAccountModal";
+import { useOnboardingOpen } from "../store/onboardingStore";
 
 export function LoginBar() {
   const navigate = useNavigate();
@@ -46,11 +47,15 @@ export function LoginBar() {
     );
   };
 
+  const openHelp = () => useOnboardingOpen.getState().show();
+  const helpItem = { label: "Help", onClick: openHelp };
+
   const menuItems = isAdmin
-    ? [{ label: "Logout", onClick: handleLogout }]
+    ? [helpItem, { label: "Logout", onClick: handleLogout }]
     : [
-        ...(isGuest ? [{ label: "Claim Account", onClick: () => setShowClaim(true) }] : []),
-        { label: "Logout", onClick: handleLogout },
+      ...(isGuest ? [{ label: "Claim Account", onClick: () => setShowClaim(true) }] : []),
+      helpItem,
+      { label: "Logout", onClick: handleLogout },
         ...(isGuest ? [] : [{ label: "Delete account", onClick: handleDelete, danger: true }]),
       ];
 
