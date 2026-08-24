@@ -117,6 +117,8 @@ static void LoadGameSettings(WebApplicationBuilder builder)
     GameSettings.UpkeepMultiplier = builder.Configuration.GetValue<float>("GameSettings:UpkeepMultiplier", 1f);
     GameSettings.BuildSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:BuildSpeedMultiplier", 1f);
     GameSettings.TrainSpeedMultiplier = builder.Configuration.GetValue<float>("GameSettings:TrainSpeedMultiplier", 1f);
+    GameSettings.MaxBuildQueueSize = builder.Configuration.GetValue<int>("GameSettings:MaxBuildQueueSize", 4);
+    GameSettings.BotsIgnoreQueueSize = builder.Configuration.GetValue<bool>("GameSettings:BotsIgnoreQueueSize", false);
     BarbarianConfig.TargetPopulation = builder.Configuration.GetValue<int>("Barbarian:TargetPopulation", 15);
     BarbarianConfig.MaxTroopRatio = builder.Configuration.GetValue<double>("Barbarian:MaxTroopRatio", 0.35);
     BarbarianConfig.AttackCooldown = TimeSpan.FromHours(builder.Configuration.GetValue<double>("Barbarian:AttackCooldownHours", 2));

@@ -49,6 +49,8 @@ services:
       GameSettings__UpkeepMultiplier: ${GameSettings__UpkeepMultiplier:-1}
       GameSettings__BuildSpeedMultiplier: ${GameSettings__BuildSpeedMultiplier:-1}
       GameSettings__TrainSpeedMultiplier: ${GameSettings__TrainSpeedMultiplier:-1}
+      GameSettings__MaxBuildQueueSize: ${GameSettings__MaxBuildQueueSize:-4}
+      GameSettings__BotsIgnoreQueueSize: ${GameSettings__BotsIgnoreQueueSize:-true}
       Features__UseBarbarians: ${Features__UseBarbarians:-true}
       Features__UseLlmPlayers: ${Features__UseLlmPlayers:-false}
       Admin__Password: ${Admin__Password:-}

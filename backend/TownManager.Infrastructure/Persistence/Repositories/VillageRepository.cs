@@ -117,6 +117,17 @@ internal sealed class VillageRepository(AppDbContext db) : IVillageRepository
             .Where(o => o.VillageId == villageId && o.BuildingType == type)
             .MaxAsync(o => (int?)o.TargetLevel, ct);
 
+    public async Task<int> GetMaxTownHallLevelAsync(Guid playerId, CancellationToken ct = default)
+    {
+        var max = await db.Villages
+            .Where(v => v.PlayerId == playerId)
+            .SelectMany(v => v.Buildings)
+            .Where(b => b.Type == BuildingType.TownHall)
+            .Select(b => (int?)b.Level)
+            .MaxAsync(ct);
+        return max ?? 0;
+    }
+
     public async Task<List<Coordinates>> GetAllCoordinatesAsync(CancellationToken ct = default) =>
         await db.Villages.Select(v => v.Coordinates).ToListAsync(ct);
 

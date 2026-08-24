@@ -116,6 +116,7 @@ export interface GameConfigDto {
   buildings: Record<string, BuildingLevelConfigDto[]>;
   troops: Record<string, TroopConfigDto>;
   maxVillagesPerPlayer: number;
+  maxBuildQueueSize: number;
   travelSpeedMultiplier: number;
   buildSpeedMultiplier: number;
   trainSpeedMultiplier: number;
@@ -186,6 +187,12 @@ export interface VillageListItemDto {
   resources: ResourcesDto;
   troops: TroopsDto;
   coordinates: Coordinates;
+}
+
+export interface EmpireDto {
+  maxBuildQueueSize: number;
+  maxBarracksMultiplier: number;
+  maxStableMultiplier: number;
 }
 
 export interface VillageDto {

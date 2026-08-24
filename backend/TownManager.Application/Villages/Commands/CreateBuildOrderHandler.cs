@@ -16,6 +16,13 @@ public class CreateBuildOrderHandler(IVillageRepository repo, IJobScheduler sche
         if (village is null)
             return Result.Failure(["Village not found"], statusCode: 404);
 
+        if (!(GameSettings.BotsIgnoreQueueSize && cmd.IsBot))
+        {
+            var townHallLevel = await repo.GetMaxTownHallLevelAsync(village.PlayerId, ct);
+            if (village.BuildOrders.Count >= GameSettings.MaxBuildQueueSize + townHallLevel)
+                return Result.Failure(["Build queue is full"]);
+        }
+
         var building = village.Buildings.FirstOrDefault(b => b.Type == cmd.BuildingType);
 
         var lastQueuedTarget = await repo.GetMaxBuildOrderTargetAsync(cmd.VillageId, cmd.BuildingType, ct);

@@ -125,6 +125,13 @@ public static class BuildingConfig
 
     public static BuildingEffects GetEffects(BuildingType type, int level) =>
         Get(type, level).Effects;
+
+    public static double MaxEffect(
+        IEnumerable<Building> buildings, BuildingType type, Func<BuildingEffects, double> pick) =>
+        buildings.Where(b => b.Type == type)
+            .Select(b => pick(GetEffects(b.Type, b.Level)))
+            .DefaultIfEmpty(1.0)
+            .Max();
     
     public static BuildingEffects AggregateEffects(IEnumerable<Building> buildings) =>
         buildings.Aggregate(

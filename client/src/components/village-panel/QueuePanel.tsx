@@ -23,6 +23,7 @@ function ProgressBar({ startMs, endMs, color = "bg-yellow-500" }: { startMs: num
 export function QueuePanel({
   buildOrders,
   trainOrders,
+  buildQueueLimit,
   cancelBuild,
   cancelTrain,
 }: {
@@ -42,6 +43,8 @@ export function QueuePanel({
     startedAt: string;
     completesAt: string;
   }[];
+
+  buildQueueLimit?: number;
 
   // doesn't read .data or .error, add exact type if it ever does
   cancelBuild: UseMutationResult<unknown, unknown, string>;
@@ -72,7 +75,7 @@ export function QueuePanel({
       {sortedBuilds.length > 0 && (
         <>
           <h3 className="mb-2 text-xs font-bold tracking-widest text-slate-400">
-            Building
+            Building{buildQueueLimit !== undefined && ` (${sortedBuilds.length}/${buildQueueLimit})`}
           </h3>
           {sortedBuilds.map((o, i) => (
             <div

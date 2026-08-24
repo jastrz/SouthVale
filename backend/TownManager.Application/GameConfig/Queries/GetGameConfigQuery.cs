@@ -39,6 +39,7 @@ public record GameConfigDto(
     Dictionary<string, List<BuildingLevelConfigDto>> Buildings,
     Dictionary<string, TroopConfigDto> Troops,
     int MaxVillagesPerPlayer,
+    int MaxBuildQueueSize,
     float TravelSpeedMultiplier,
     float BuildSpeedMultiplier,
     float TrainSpeedMultiplier

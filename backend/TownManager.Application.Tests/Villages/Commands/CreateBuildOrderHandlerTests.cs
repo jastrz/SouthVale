@@ -3,6 +3,7 @@ using NSubstitute;
 using Xunit;
 using TownManager.Application.Interfaces;
 using TownManager.Application.Villages.Commands;
+using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Domain.Entities.Villages;
 using TownManager.Domain.Enums;
@@ -83,6 +84,68 @@ public class CreateBuildOrderHandlerTests
 
         result.Succeeded.Should().BeFalse();
         village.BuildOrders.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task QueueFull_ReturnsFailure()
+    {
+        var village = CreateVillageWithBuilding(BuildingType.IronMine, level: 1);
+        var limit = GameSettings.MaxBuildQueueSize + 1;
+        for (var i = 0; i < limit; i++)
+            village.BuildOrders.Add(BuildOrder.Create(BuildingType.WoodCutter, 2, TimeSpan.FromMinutes(5)));
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, CancellationToken.None)
+            .Returns((int?)null);
+        _repo.GetMaxTownHallLevelAsync(village.PlayerId, CancellationToken.None).Returns(1);
+
+        var result = await _handler.Handle(new(village.Id, BuildingType.IronMine), CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        village.BuildOrders.Should().HaveCount(limit);
+        _scheduler.DidNotReceive().ScheduleBuildOrderResolution(Arg.Any<Guid>(), Arg.Any<TimeSpan>());
+    }
+
+    [Fact]
+    public async Task Bot_IgnoresQueueLimit_WhenFlagEnabled()
+    {
+        GameSettings.BotsIgnoreQueueSize = true;
+        try
+        {
+            var village = CreateVillageWithBuilding(BuildingType.IronMine, level: 1);
+            var limit = GameSettings.MaxBuildQueueSize + 1;
+            for (var i = 0; i < limit; i++)
+                village.BuildOrders.Add(BuildOrder.Create(BuildingType.WoodCutter, 2, TimeSpan.FromMinutes(5)));
+            _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+            _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, CancellationToken.None)
+                .Returns((int?)null);
+            _repo.GetMaxTownHallLevelAsync(village.PlayerId, CancellationToken.None).Returns(1);
+
+            var result = await _handler.Handle(new(village.Id, BuildingType.IronMine, IsBot: true), CancellationToken.None);
+
+            result.Succeeded.Should().BeTrue();
+            village.BuildOrders.Should().HaveCount(limit + 1);
+        }
+        finally
+        {
+            GameSettings.BotsIgnoreQueueSize = false;
+        }
+    }
+
+    [Fact]
+    public async Task HigherTownHall_ExtendsQueueLimit()
+    {
+        var village = CreateVillageWithBuilding(BuildingType.IronMine, level: 1);
+        for (var i = 0; i < GameSettings.MaxBuildQueueSize + 1; i++)
+            village.BuildOrders.Add(BuildOrder.Create(BuildingType.WoodCutter, 2, TimeSpan.FromMinutes(5)));
+        _repo.GetWithActiveOrdersAsync(village.Id, CancellationToken.None).Returns(village);
+        _repo.GetMaxBuildOrderTargetAsync(village.Id, BuildingType.IronMine, CancellationToken.None)
+            .Returns((int?)null);
+        _repo.GetMaxTownHallLevelAsync(village.PlayerId, CancellationToken.None).Returns(2);
+
+        var result = await _handler.Handle(new(village.Id, BuildingType.IronMine), CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        village.BuildOrders.Should().HaveCount(GameSettings.MaxBuildQueueSize + 2);
     }
 
     [Fact]

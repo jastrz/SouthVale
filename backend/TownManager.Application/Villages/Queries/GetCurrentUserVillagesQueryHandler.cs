@@ -21,11 +21,18 @@ public class GetCurrentUserVillagesQueryHandler(
 
         var villages = await villageRepo.GetFullDetailsByPlayerAsync(player.Id, ct);
 
+        var maxTownHallLevel = villages
+            .SelectMany(v => v.Buildings)
+            .Where(b => b.Type == BuildingType.TownHall)
+            .Select(b => (int?)b.Level)
+            .Max() ?? 0;
+        var maxBuildQueueSize = GameSettings.MaxBuildQueueSize + maxTownHallLevel;
+
         var dtos = villages.Select(v =>
         {
             var effects = BuildingConfig.AggregateEffects(v.Buildings);
             var current = v.GetCurrentResources(effects);
-            return new VillageListItemDto(
+return new VillageListItemDto(
                 v.Id,
                 v.Name,
                 new ResourcesDto((int)current.Wood, (int)current.Clay, (int)current.Iron, (int)current.Beer),

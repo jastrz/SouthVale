@@ -89,7 +89,7 @@ public class BarbarianTickService(
             var lastQueued = await villageRepo.GetMaxBuildOrderTargetAsync(b.Id, buildingType, ct);
             if ((lastQueued ?? 0) >= nextLevel) continue;
 
-            await mediator.Send(new CreateBuildOrderCommand(b.Id, buildingType), ct);
+            await mediator.Send(new CreateBuildOrderCommand(b.Id, buildingType, IsBot: true), ct);
         }
     }
 

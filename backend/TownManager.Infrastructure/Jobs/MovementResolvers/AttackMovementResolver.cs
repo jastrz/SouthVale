@@ -23,12 +23,6 @@ public class AttackMovementResolver(
 {
     public MovementType Handles => MovementType.Attack;
 
-    private static double MaxEffect(IEnumerable<Building> buildings, BuildingType type, Func<BuildingEffects, double> pick) =>
-        buildings.Where(b => b.Type == type)
-            .Select(b => pick(BuildingConfig.GetEffects(b.Type, b.Level)))
-            .DefaultIfEmpty(1.0)
-            .Max();
-
     public async Task ResolveAsync(TroopMovement movement, CancellationToken ct)
     {
         var village = await villageRepo.GetWithMovementOrdersAsync(movement.VillageId, ct);
@@ -75,8 +69,8 @@ public class AttackMovementResolver(
         var playerVillages = await villageRepo.GetFullDetailsByPlayerAsync(village.PlayerId, ct);
         var allBuildings = playerVillages.SelectMany(v => v.Buildings).ToList();
         var attackerEffects = new BuildingEffects(
-            barracksAttackMultiplier: MaxEffect(allBuildings, BuildingType.Barracks, e => e.BarracksAttackMultiplier),
-            stableAttackMultiplier: MaxEffect(allBuildings, BuildingType.Stable, e => e.StableAttackMultiplier));
+            barracksAttackMultiplier: BuildingConfig.MaxEffect(allBuildings, BuildingType.Barracks, e => e.BarracksAttackMultiplier),
+            stableAttackMultiplier: BuildingConfig.MaxEffect(allBuildings, BuildingType.Stable, e => e.StableAttackMultiplier));
 
         var originalDefenders = targetVillage.Troops;
         var crannyCap = defenderEffects.CrannyCapacity;

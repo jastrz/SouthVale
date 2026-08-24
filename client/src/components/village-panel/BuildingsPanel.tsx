@@ -5,6 +5,7 @@ import type {
   BuildRequest,
   BuildingLevelConfigDto,
   ResourcesDto,
+  EmpireDto,
 } from "../../api/types";
 import {
   formatTime,
@@ -25,15 +26,21 @@ function BuildingTooltip({
   nextConfig,
   buildSpeedMultiplier = 1,
   globalBuildSpeed = 1,
+  empireStats,
 }: {
   building: { type: string; level: number };
   config: BuildingLevelConfigDto | undefined;
   nextConfig: BuildingLevelConfigDto | undefined;
   buildSpeedMultiplier?: number;
   globalBuildSpeed?: number;
+  empireStats?: EmpireDto;
 }) {
+  const { data: gameConfig } = useGameConfig();
   const currentPerHour = config?.productionPerHour;
   const nextPerHour = nextConfig?.productionPerHour;
+  const maxTownHallLevel = empireStats && gameConfig
+    ? empireStats.maxBuildQueueSize - gameConfig.maxBuildQueueSize
+    : undefined;
 
   return (
     <div className="space-y-3">
@@ -85,12 +92,12 @@ function BuildingTooltip({
           Training Speed: {config!.stableTrainingSpeed}x
         </div>
       )}
-      {(config?.barracksAttackMultiplier ?? 0) > 1 && building.type === "Barracks" && (
+      {(config?.barracksAttackMultiplier ?? 0) > 1 && building.type === "Barracks" && config!.barracksAttackMultiplier === empireStats?.maxBarracksMultiplier && (
         <div className="text-slate-300">
           Infantry Attack: {config!.barracksAttackMultiplier}x (Empire-wide)
         </div>
       )}
-      {(config?.stableAttackMultiplier ?? 0) > 1 && building.type === "Stable" && (
+      {(config?.stableAttackMultiplier ?? 0) > 1 && building.type === "Stable" && config!.stableAttackMultiplier === empireStats?.maxStableMultiplier && (
         <div className="text-slate-300">
           Cavalry Attack: {config!.stableAttackMultiplier}x (Empire-wide)
         </div>
@@ -218,7 +225,7 @@ function BuildingTooltip({
               )}
             </div>
           )}
-          {nextConfig.barracksAttackMultiplier > 1 && building.type === "Barracks" && (
+          {empireStats !== undefined && nextConfig.barracksAttackMultiplier > 1 && building.type === "Barracks" && nextConfig.barracksAttackMultiplier > empireStats.maxBarracksMultiplier && (
             <div className="text-slate-300">
               Infantry Attack: {nextConfig.barracksAttackMultiplier}x (Empire-wide)
               {config && (
@@ -229,7 +236,7 @@ function BuildingTooltip({
               )}
             </div>
           )}
-          {nextConfig.stableAttackMultiplier > 1 && building.type === "Stable" && (
+          {empireStats !== undefined && nextConfig.stableAttackMultiplier > 1 && building.type === "Stable" && nextConfig.stableAttackMultiplier > empireStats.maxStableMultiplier && (
             <div className="text-slate-300">
               Cavalry Attack: {nextConfig.stableAttackMultiplier}x (Empire-wide)
               {config && (
@@ -290,6 +297,14 @@ function BuildingTooltip({
               )}
             </div>
           )}
+          {building.type === "TownHall" && nextConfig && maxTownHallLevel !== undefined && nextConfig.level > maxTownHallLevel && (
+            <div className="text-slate-300">
+              Build Queue Slots: +1 (Empire-wide)
+              {empireStats !== undefined && (
+                <span className="text-green-400"> (→ {empireStats!.maxBuildQueueSize + 1})</span>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>
@@ -305,6 +320,7 @@ function BuildingCard({
   resources,
   buildSpeedMultiplier = 1,
   globalBuildSpeed = 1,
+  empireStats,
 }: {
   building: { id: string; type: string; level: number };
   orders: readonly { completesAt: string; targetLevel: number }[];
@@ -314,6 +330,7 @@ function BuildingCard({
   resources?: ResourcesDto;
   buildSpeedMultiplier?: number;
   globalBuildSpeed?: number;
+  empireStats?: EmpireDto;
 }) {
   const { data: config } = useGameConfig();
   const isNew = building.level === 0 && orders.length === 0;
@@ -347,6 +364,7 @@ function BuildingCard({
             nextConfig={nextCfg}
             buildSpeedMultiplier={buildSpeedMultiplier}
             globalBuildSpeed={globalBuildSpeed}
+            empireStats={empireStats}
           />
         )
       }
@@ -402,6 +420,7 @@ export function BuildingsPanel({
   buildOrders,
   mutation,
   resources,
+  empireStats,
 }: {
   buildings: readonly { id: string; type: string; level: number }[];
   buildOrders: readonly {
@@ -411,6 +430,7 @@ export function BuildingsPanel({
   }[];
   mutation: UseMutationResult<unknown, unknown, BuildRequest, unknown>;
   resources?: ResourcesDto;
+  empireStats?: EmpireDto;
 }) {
   const { data: gameConfig } = useGameConfig();
 
@@ -442,6 +462,7 @@ export function BuildingsPanel({
             resources={resources}
             buildSpeedMultiplier={buildSpeedMultiplier}
             globalBuildSpeed={gameConfig?.buildSpeedMultiplier ?? 1}
+            empireStats={empireStats}
             onUpgrade={() =>
               mutation.mutate({ buildingType: b.type as BuildingType })
             }

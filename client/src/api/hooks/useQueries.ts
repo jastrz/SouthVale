@@ -17,6 +17,7 @@ import {
   type GameConfigDto,
   type ReportsResult,
   type VillageStatusDto,
+  type EmpireDto,
   type LeaderboardResult,
 } from "../types";
 
@@ -77,6 +78,13 @@ export const useVillageStatus = () =>
       api
         .get<VillageStatusDto[]>("/gameplay/me/villages/status")
         .then((r) => r.data),
+  });
+
+export const useEmpire = () =>
+  useQuery({
+    queryKey: ["empire"],
+    queryFn: () => api.get<EmpireDto>("/gameplay/me/empire").then((r) => r.data),
+    refetchInterval: 10_000,
   });
 
 const onError = (e: unknown) =>

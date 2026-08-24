@@ -30,6 +30,7 @@ public interface IVillageRepository
     Task<IReadOnlyDictionary<Guid, string>> GetNamesByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct = default);
 
     Task<int?> GetMaxBuildOrderTargetAsync(Guid villageId, BuildingType type, CancellationToken ct = default);
+    Task<int> GetMaxTownHallLevelAsync(Guid playerId, CancellationToken ct = default);
 
     Task<int> CountByPlayerAsync(Guid playerId, CancellationToken ct = default);
     Task<IReadOnlyList<Village>> GetBarbarianVillagesAsync(Guid barbarianPlayerId, CancellationToken ct = default);

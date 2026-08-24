@@ -7,6 +7,7 @@ import {
   useVillage,
   useMyVillages,
   useMovements,
+  useEmpire,
   useBuild,
   useTrain,
 } from "../../api/hooks/useQueries";
@@ -45,6 +46,7 @@ function VillagePanelInner({
 }) {
   const { data: village, isLoading, isError, error } = useVillage(villageId);
   const { data: myVillages } = useMyVillages();
+  const { data: empire } = useEmpire();
   const buildMutation = useBuild(villageId);
   const trainMutation = useTrain(villageId);
   const { data: movements } = useMovements();
@@ -94,6 +96,7 @@ function VillagePanelInner({
           buildOrders={village.buildOrders}
           mutation={buildMutation}
           resources={village.resources}
+          empireStats={empire ?? undefined}
         />
       </CollapsibleSection>
       {hasBarracks && (

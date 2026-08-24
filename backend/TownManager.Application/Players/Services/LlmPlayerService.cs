@@ -368,7 +368,7 @@ IMPORTANT:
                         return false;
                     }
                     details["building"] = action.BuildingType;
-                    result = await mediator.Send(new CreateBuildOrderCommand(action.VillageId, bt), ct);
+                    result = await mediator.Send(new CreateBuildOrderCommand(action.VillageId, bt, IsBot: true), ct);
                     break;
                 }
                 case "train" when action.Troops is not null:

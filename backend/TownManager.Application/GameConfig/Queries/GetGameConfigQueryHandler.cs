@@ -64,6 +64,6 @@ public class GetGameConfigQueryHandler : IRequestHandler<GetGameConfigQuery, Res
             )
         );
 
-        return new GameConfigDto(buildings, troops, GameSettings.MaxVillagesPerPlayer, GameSettings.TravelSpeedMultiplier, GameSettings.BuildSpeedMultiplier, GameSettings.TrainSpeedMultiplier);
+        return new GameConfigDto(buildings, troops, GameSettings.MaxVillagesPerPlayer, GameSettings.MaxBuildQueueSize, GameSettings.TravelSpeedMultiplier, GameSettings.BuildSpeedMultiplier, GameSettings.TrainSpeedMultiplier);
     }
 }

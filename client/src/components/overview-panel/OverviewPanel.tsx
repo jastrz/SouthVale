@@ -4,6 +4,8 @@ import {
   useMovements,
   useVillage,
   useVillageStatus,
+  useEmpire,
+  useGameConfig,
   useCancelBuild,
   useCancelTrain,
 } from "../../api/hooks/useQueries";
@@ -13,6 +15,7 @@ import { UI_ICONS } from "../../lib/helpers";
 import { CollapsibleSection } from "../CollapsibleSection";
 import { PanelContainer } from "../PanelContainer";
 import { VillageListItem } from "./VillageListItem";
+import { StatsPanel } from "./StatsPanel";
 import { MovementsPanel } from "../village-panel/MovementsPanel";
 import { QueuePanel } from "../village-panel/QueuePanel";
 import { TransportController } from "../transport/TransportController";
@@ -22,6 +25,7 @@ export function OverviewPanel() {
   const [openVillages, setOpenVillages] = useState(true);
   const [openOrders, setOpenOrders] = useState(true);
   const [openMovements, setOpenMovements] = useState(true);
+  const [openStats, setOpenStats] = useState(true);
   const [openActions, setOpenActions] = useState(true);
   const { data: villages, isLoading, isError, error } = useMyVillages();
   const setVillages = useGameStateStore((s) => s.setVillages);
@@ -30,8 +34,13 @@ export function OverviewPanel() {
   const { data: movements } = useMovements();
   const { data: statuses } = useVillageStatus();
   const { data: village } = useVillage(activeVillageId ?? "");
+  const { data: gameConfig } = useGameConfig();
+  const { data: empire } = useEmpire();
 
   const statusMap = new Map(statuses?.map((s) => [s.villageId, s]));
+  const buildQueueLimit = empire?.maxBuildQueueSize ?? (gameConfig?.maxBuildQueueSize ?? 0);
+  const empireInfantryAttack = empire?.maxBarracksMultiplier ?? 1;
+  const empireCavalryAttack = empire?.maxStableMultiplier ?? 1;
 
   const ICON_SIZE = 24;
 
@@ -121,6 +130,7 @@ export function OverviewPanel() {
               <QueuePanel
                 buildOrders={village.buildOrders}
                 trainOrders={village.trainOrders}
+                buildQueueLimit={buildQueueLimit}
                 cancelBuild={cancelBuild}
                 cancelTrain={cancelTrain}
               />
@@ -136,6 +146,21 @@ export function OverviewPanel() {
               <MovementsPanel
                 villageId={activeVillageId}
                 movements={movements ?? []}
+              />
+            </CollapsibleSection>
+          )}
+          {activeVillageId && village && (
+            <CollapsibleSection
+              label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.info} size={ICON_SIZE} /> Stats</span>}
+              open={openStats}
+              onToggle={() => setOpenStats(!openStats)}
+              className="w-full px-4 pt-1.5 text-slate-400 hover:text-slate-300"
+            >
+              <StatsPanel
+                buildings={village.buildings}
+                config={gameConfig}
+                infantryAttack={empireInfantryAttack}
+                cavalryAttack={empireCavalryAttack}
               />
             </CollapsibleSection>
           )}
