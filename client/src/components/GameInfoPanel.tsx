@@ -28,7 +28,7 @@ const HOW_TO_SECTIONS: {
         <Icon src={BUILDING_ICONS.Warehouse} size={14} /> <b>Warehouse</b>{" "}
         sets your storage cap — production above it is lost. Every troop
         drinks <Icon src={RESOURCE_ICONS.beer} size={14} /> <b>beer</b> per
-        hour; if your beer runs out, troops <b>starve</b>.
+        hour; if your beer runs out, troops <b>run away</b>.
       </p>
     ),
   },
@@ -132,11 +132,11 @@ export function GameInfoPanel() {
             label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.info} size={16} /> How to play</span>}
             open={openHowTo}
             onToggle={() => setOpenHowTo(!openHowTo)}
-            className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
+            className="rounded-lg bg-slate-800/85 px-3 py-1 text-slate-200 hover:text-white"
           >
-            <div className="flex flex-col gap-2.5 rounded-lg bg-slate-800/80 px-3 py-2 text-xs text-slate-300">
+            <div className="flex flex-col gap-2.5 text-xs text-slate-300">
               {HOW_TO_SECTIONS.map((s) => (
-                <div key={s.title}>
+                <div key={s.title} className="rounded-lg bg-slate-800/85 px-3 py-2">
                   <p className="mb-0.5 flex items-center gap-1.5 font-bold text-slate-200">
                     <Icon src={s.icon} size={14} /> {s.title}
                   </p>
@@ -150,7 +150,7 @@ export function GameInfoPanel() {
             label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.buildings} size={16} /> Buildings</span>}
             open={openBuildings}
             onToggle={() => setOpenBuildings(!openBuildings)}
-            className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
+            className="rounded-lg bg-slate-800/85 px-3 py-1 text-slate-200 hover:text-white"
           >
             <div className="flex flex-col gap-3">
               {BUILDING_ORDER.map((type) => {
@@ -162,10 +162,10 @@ export function GameInfoPanel() {
                       label={<span className="flex items-center gap-1.5">{BUILDING_ICONS[type] && <Icon src={BUILDING_ICONS[type]} size={16} />}{BUILDING_LABELS[type] ?? type}</span>}
                       open={openBuildingTypes[type] ?? false}
                       onToggle={() => toggleBuildingType(type)}
-                      className="ml-4 rounded-lg bg-slate-700/80 px-3 py-1 text-slate-300 hover:text-white"
+                      className="ml-4 rounded-lg bg-slate-700/85 px-3 py-1 text-slate-300 hover:text-white"
                     >
                       <div className="px-3 pb-2">
-                        <p className="mb-2 rounded-lg bg-slate-800/80 px-2 py-1 text-[11px] text-slate-300">
+                        <p className="mb-2 rounded-lg bg-slate-800/85 px-2 py-1 text-[11px] text-slate-300">
                           {BUILDING_DESCRIPTIONS[type]}
                         </p>
                         <BuildingTable type={type} levels={levels} buildSpeedMultiplier={config.buildSpeedMultiplier} />
@@ -181,12 +181,12 @@ export function GameInfoPanel() {
             label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.troops} size={16} /> Troops</span>}
             open={openTroops}
             onToggle={() => setOpenTroops(!openTroops)}
-            className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
+            className="rounded-lg bg-slate-800/85 px-3 py-1 text-slate-200 hover:text-white"
           >
             <div className="rounded-xl overflow-hidden overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="text-slate-400 tracking-wider bg-slate-800/80">
+                  <tr className="text-slate-400 tracking-wider bg-slate-800/85">
                     <th className="px-2 py-2">Troop</th>
                     <th className="px-2 py-2">Training Cost</th>
                     <th className="px-2 py-2">Time</th>
@@ -201,7 +201,7 @@ export function GameInfoPanel() {
                   {Object.entries(config.troops).map(([type, troop]) => (
                     <tr
                       key={type}
-                      className="border-t border-slate-700 bg-slate-800/80 text-white"
+                      className="border-t border-slate-700 bg-slate-800/85 text-white"
                     >
                       <td className="px-2 py-1.5">
                         <span className="flex items-center gap-1.5">
@@ -231,9 +231,9 @@ export function GameInfoPanel() {
             label={<span className="flex items-center gap-1.5"><Icon src={UI_ICONS.village} size={16} /> Players</span>}
             open={openPlayers}
             onToggle={() => setOpenPlayers(!openPlayers)}
-            className="rounded-lg bg-slate-800/80 px-3 py-1 text-slate-200 hover:text-white"
+            className="rounded-lg bg-slate-800/85 px-3 py-1 text-slate-200 hover:text-white"
           >
-            <div className="flex flex-col gap-1.5 rounded-lg bg-slate-800/80 px-3 py-2 text-xs text-slate-300">
+            <div className="flex flex-col gap-1.5 rounded-lg bg-slate-800/85 px-3 py-2 text-xs text-slate-300">
               <p>Village labels show the player name, village name and population.</p>
               <p>Player name color compares the player's leaderboard score to yours:</p>
               <div className="flex flex-col gap-0.5">
@@ -264,7 +264,7 @@ function BuildingTable({
     <div className="rounded-xl overflow-hidden">
       <table className="w-full text-left text-xs">
         <thead>
-          <tr className="text-slate-500 bg-slate-800/80">
+          <tr className="text-slate-500 bg-slate-800/85">
             <th className="px-2 py-1">Lv</th>
             <th className="px-2 py-1">Upgrade Cost</th>
             <th className="px-2 py-1">Time</th>
@@ -275,7 +275,7 @@ function BuildingTable({
           {levels.map((l) => (
             <tr
               key={l.level}
-              className="border-t border-slate-700 bg-slate-800/80 text-white"
+              className="border-t border-slate-700 bg-slate-800/85 text-white"
             >
               <td className="px-2 py-1.5 align-top">{l.level}</td>
               <td className="px-2 py-1.5 align-top">

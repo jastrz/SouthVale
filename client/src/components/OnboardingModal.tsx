@@ -66,7 +66,7 @@ const STEPS: {
           <b>TownHall</b> to build faster and the{" "}
           <Icon src={BUILDING_ICONS.Warehouse} size={16} /> <b>Warehouse</b>{" "}
           to store more — production above the storage cap is lost.{" "}
-          <Icon src={BUILDING_ICONS.Barracks} size={16} /> <b>Barracks</b> and{" "}<br/>
+          <Icon src={BUILDING_ICONS.Barracks} size={16} /> <b>Barracks</b> and{" "}
           <Icon src={BUILDING_ICONS.Stable} size={16} /> <b>Stable</b> unlock
           troops.
         </p>
@@ -93,7 +93,7 @@ const STEPS: {
           Training costs resources. Every troop drinks{" "}
           <Icon src={RESOURCE_ICONS.beer} size={16} /> <b>Beer</b> per hour —
           if the <Icon src={BUILDING_ICONS.Brewery} size={16} />{" "}
-          <b>brewery</b> can't keep up, troops <b>starve</b>.
+          <b>brewery</b> can't keep up, troops <b>run away</b>.
         </p>
       </>
     ),
@@ -176,7 +176,7 @@ export function OnboardingModal() {
         </div>
         <div
           key={step}
-          className="step-anim flex h-32 flex-col gap-2 overflow-y-auto text-xs leading-relaxed text-slate-300"
+          className="step-anim flex h-40 flex-col gap-2 overflow-y-auto text-xs leading-relaxed text-slate-300"
         >
           {typeof STEPS[step].body === "function"
             ? STEPS[step].body(config)

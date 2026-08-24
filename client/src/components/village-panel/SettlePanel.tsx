@@ -1,6 +1,7 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { SettleRequest } from "../../api/types";
 import { TravelEta } from "../travel-time/TravelEta";
+import { Button } from "../Button";
 import { useTravelTime } from "../../hooks/useTravelTime";
 
 export function SettlePanel({
@@ -28,13 +29,13 @@ export function SettlePanel({
         <h3 className="text-xs font-bold tracking-widest text-emerald-400 uppercase">
           Settle
         </h3>
-        <button
+        <Button
           type="button"
           onClick={onClearTarget}
           className="cursor-pointer text-[11px] text-slate-500 hover:text-slate-300"
         >
           Clear
-        </button>
+        </Button>
       </div>
 
       <div className="mb-2 rounded bg-slate-800/40 px-2.5 py-1.5 text-xs">
@@ -50,14 +51,14 @@ export function SettlePanel({
         <TravelEta toX={targetX} toY={targetY} speed={getSpeed("Settler")} />
       </div>
 
-      <button
+      <Button
         type="button"
         onClick={() => mutation.mutate({ target: { x: targetX, y: targetY } })}
         disabled={settlers < 1 || mutation.isPending}
         className="w-full cursor-pointer rounded bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-emerald-700"
       >
         {mutation.isPending ? "Sending…" : settlers < 1 ? "No settlers" : "Send Settler"}
-      </button>
+      </Button>
     </section>
   );
 }

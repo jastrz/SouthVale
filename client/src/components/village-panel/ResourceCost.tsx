@@ -13,16 +13,28 @@ const RESOURCE_ROWS: {
   { key: "beer", label: "Beer", icon: RESOURCE_ICONS.beer },
 ];
 
-export function ResourceCost({ value }: { value: ResourcesDto }) {
+export function ResourceCost({
+  value,
+  inline,
+}: {
+  value: ResourcesDto;
+  inline?: boolean;
+}) {
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+    <div
+      className={
+        inline
+          ? "flex flex-wrap items-center justify-center gap-x-2.5 gap-y-0.5"
+          : "grid grid-cols-2 gap-x-3 gap-y-0.5"
+      }
+    >
       {RESOURCE_ROWS.map(
         ({ key, label, icon }) =>
           value[key] > 0 && (
             <span key={key} className="flex items-center gap-1 text-slate-400">
               <Icon src={icon} size={12} />
-              <span className="w-12">{label}</span>
-              <span className="text-white">{value[key]}</span>
+              {!inline && <span className="w-12">{label}</span>}
+              <span className="text-white">{Math.floor(value[key])}</span>
             </span>
           ),
       )}

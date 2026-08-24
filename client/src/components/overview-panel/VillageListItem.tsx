@@ -1,6 +1,7 @@
 import type { VillageListItemDto, VillageStatusDto } from "../../api/types";
 import { Icon } from "../Icon";
 import { RESOURCE_ICONS, TROOP_ICONS } from "../../lib/helpers";
+import { Button } from "../Button";
 
 export function VillageListItem({
   village,
@@ -24,15 +25,17 @@ export function VillageListItem({
 
   return (
     <li>
-      <button
+      <Button
         type="button"
         onClick={onClick}
         aria-current={isActive ? "true" : undefined}
+        hoverClassName=""
+        activeClassName=""
         className={[
           "w-full cursor-pointer border-none px-4 py-1 text-left text-sm transition-colors rounded-sm",
           isActive
-            ? "bg-blue-600/40 text-white"
-            : "bg-transparent text-white hover:bg-slate-800",
+            ? "bg-blue-600/40 text-white active:bg-blue-500/40"
+            : "bg-transparent text-white hover:bg-slate-800 active:bg-slate-700",
         ].join(" ")}
       >
         <div className="flex items-center gap-2">
@@ -119,7 +122,7 @@ export function VillageListItem({
             )}
           </div>
         ) : null}
-      </button>
+      </Button>
     </li>
   );
 }

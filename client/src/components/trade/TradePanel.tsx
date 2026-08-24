@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { Button } from "../Button";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { TradeRequest, ResourceType, ResourcesDto } from "../../api/types";
 import { Icon } from "../Icon";
 import { NumberInput } from "../NumberInput";
 import { RESOURCE_ICONS } from "../../lib/helpers";
+import { ResourceCost } from "../village-panel/ResourceCost";
 
 const RESOURCES: { type: ResourceType; label: string }[] = [
   { type: "Wood", label: "Wood" },
@@ -52,14 +54,24 @@ export function TradePanel({
         <span className="text-[10px] text-amber-500">
           Rate: {(tradeRate * 100).toFixed(0)}%
         </span>
-        <button
+        <Button
           type="button"
           onClick={onClose}
           className="cursor-pointer text-[11px] text-slate-500 hover:text-slate-300"
         >
           Close
-        </button>
+        </Button>
       </div>
+
+      <ResourceCost
+        inline
+        value={{
+          wood: Math.floor(resources.wood),
+          clay: Math.floor(resources.clay),
+          iron: Math.floor(resources.iron),
+          beer: Math.floor(resources.beer),
+        }}
+      />
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
         <div>
@@ -119,14 +131,14 @@ export function TradePanel({
         </p>
       )}
 
-      <button
+      <Button
         type="button"
         onClick={handleTrade}
         disabled={!canTrade || mutation.isPending}
         className="w-full cursor-pointer rounded bg-amber-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-amber-700"
       >
         {mutation.isPending ? "Trading..." : "Trade"}
-      </button>
+      </Button>
     </section>
   );
 }

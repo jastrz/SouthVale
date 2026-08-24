@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TROOP_LABELS } from "../../config/game";
 import { TROOP_ICONS, RESOURCE_ICONS } from "../../lib/helpers";
 import { Icon } from "../Icon";
+import { Button } from "../Button";
 
 import type { UseMutationResult } from "@tanstack/react-query";
 
@@ -202,7 +203,7 @@ export function TroopsPanel({
             <div className="mb-1 text-sm text-slate-300">Total cost:</div>
             <ResourceCost value={totalBatchCost()} />
           </div>
-        <button
+        <Button
           type="button"
           onClick={() => {
             const entries = Object.entries(orders).filter(([, c]) => c > 0);
@@ -214,7 +215,7 @@ export function TroopsPanel({
           className="mt-3 w-full cursor-pointer rounded bg-green-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {mutation.isPending ? "Training…" : "Train"}
-        </button>
+        </Button>
         </>
       )}
     </section>
