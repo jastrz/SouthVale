@@ -95,6 +95,7 @@ const HOW_TO_SECTIONS: {
       </p>
     ),
   },
+
   {
     icon: UI_ICONS.notifications,
     title: "Reports",
@@ -104,6 +105,18 @@ const HOW_TO_SECTIONS: {
         with troops sent, lost and survived, plus loot — check the{" "}
         <Icon src={UI_ICONS.notifications} size={14} /> <b>Notifications</b>{" "}
         tab.
+      </p>
+    ),
+  },
+  {
+    icon: UI_ICONS.actions,
+    title: "Barbarians",
+    body: (
+      <p>
+        Barbarian villages are NPC settlements that build, train troops and
+        raid players within range. They grow stronger over time and defend
+        their loot — but a well-prepared attack pays off. Yellow-colored village
+        names on the map mark barbarians.
       </p>
     ),
   },
