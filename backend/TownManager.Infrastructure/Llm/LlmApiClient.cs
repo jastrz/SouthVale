@@ -7,6 +7,8 @@ namespace TownManager.Infrastructure.Llm;
 
 public class LlmApiClient(HttpClient http, LlmPlayerConfig config) : ILlmApiClient
 {
+    private static readonly string SessionId = Guid.NewGuid().ToString("N");
+
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -42,6 +44,12 @@ public class LlmApiClient(HttpClient http, LlmPlayerConfig config) : ILlmApiClie
             Content = JsonContent.Create(body, options: JsonOpts),
         };
         request.Headers.Authorization = new("Bearer", config.ApiKey);
+
+        if (config.ApiUrl.Contains("opencode", StringComparison.OrdinalIgnoreCase))
+        {
+            request.Headers.TryAddWithoutValidation("x-opencode-session", SessionId);
+            request.Headers.TryAddWithoutValidation("User-Agent", "townmanager-llm-bot");
+        }
 
         using var response = await http.SendAsync(request, ct);
         var rawBody = await response.Content.ReadAsStringAsync(ct);
