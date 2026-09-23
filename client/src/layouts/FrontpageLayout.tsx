@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "@tanstack/react-router";
 import { LeaderboardPanel } from "../components/leaderboard/LeaderboardPanel";
+import { WorldInfoPanel } from "../components/info/WorldInfoPanel";
 import { ScrollArea } from "../components/ui/ScrollArea";
 
 export function FrontpageLayout() {
@@ -18,7 +19,11 @@ export function FrontpageLayout() {
         <div className="flex flex-1 flex-col items-center py-6 lg:py-16">
 
           <div className="grid w-full grid-cols-1 gap-8 lg:grid-cols-3">
-            <div className="hidden lg:block" />
+            <div className="flex justify-center">
+              <div className="w-full max-w-sm px-4">
+                <WorldInfoPanel />
+              </div>
+            </div>
 
             <div className="flex justify-center">
               <Outlet />

@@ -255,6 +255,31 @@ export interface LeaderboardResult {
   totalCount: number;
 }
 
+export interface WorldWinnerDto {
+  username: string;
+  score: number;
+}
+
+export interface PreviousWorldIterationDto {
+  iteration: number;
+  endedAt: string;
+  winners: WorldWinnerDto[];
+}
+
+export interface BestEverWorldWinnerDto {
+  iteration: number;
+  username: string;
+  score: number;
+}
+
+export interface WorldStatusDto {
+  iteration: number;
+  startedAt: string | null;
+  endsAt: string | null;
+  previous: PreviousWorldIterationDto | null;
+  bestEver: BestEverWorldWinnerDto | null;
+}
+
 export interface TradeRequest {
   giveType: ResourceType;
   giveAmount: number;

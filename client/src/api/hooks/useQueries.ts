@@ -19,6 +19,7 @@ import {
   type VillageStatusDto,
   type EmpireDto,
   type LeaderboardResult,
+  type WorldStatusDto,
 } from "../types";
 
 export const useGameConfig = () =>
@@ -219,6 +220,14 @@ export const useMarkReportRead = () =>
     mutationFn: (reportId: string) =>
       api.post(`/gameplay/me/reports/${reportId}/read`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reports"] }),
+  });
+
+export const useWorldStatus = () =>
+  useQuery({
+    queryKey: ["worldStatus"],
+    queryFn: () =>
+      api.get<WorldStatusDto>("/gameplay/world").then((r) => r.data),
+    refetchInterval: 60_000,
   });
 
 export const useLeaderboard = (page = 1, pageSize = 10) =>
