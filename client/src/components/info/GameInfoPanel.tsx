@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useGameConfig } from "../../api/hooks/useQueries";
+import { useGameConfig, useWorldStatus } from "../../api/hooks/useQueries";
 import { BUILDING_ORDER, BUILDING_LABELS, BUILDING_DESCRIPTIONS, TROOP_LABELS } from "../../config/game";
-import { BUILDING_ICONS, TROOP_ICONS, RESOURCE_ICONS, UI_ICONS, parseTimeSpanMs, formatTime } from "../../lib/helpers";
+import { BUILDING_ICONS, TROOP_ICONS, RESOURCE_ICONS, UI_ICONS, parseTimeSpanMs, formatTime, formatDateTime, timeRemaining } from "../../lib/helpers";
 import { Icon } from "../ui/Icon";
 import { CollapsibleSection } from "../ui/CollapsibleSection";
 import type { BuildingLevelConfigDto, GameConfigDto } from "../../api/types";
@@ -124,6 +124,7 @@ const HOW_TO_SECTIONS: {
 
 export function GameInfoPanel() {
   const { data: config, isLoading } = useGameConfig();
+  const { data: world } = useWorldStatus();
   const [openHowTo, setOpenHowTo] = useState(false);
   const [openBuildings, setOpenBuildings] = useState(false);
   const [openTroops, setOpenTroops] = useState(false);
@@ -133,8 +134,31 @@ export function GameInfoPanel() {
   const toggleBuildingType = (type: string) =>
     setOpenBuildingTypes((p) => ({ ...p, [type]: !p[type] }));
 
+  const worldRemaining = world?.endsAt ? timeRemaining(world.endsAt) : null;
+  const worldResetIn =
+    worldRemaining === null
+      ? null
+      : worldRemaining > 0
+        ? formatTime(worldRemaining)
+        : "any moment now";
+  const worldResetAt = world?.endsAt ? formatDateTime(world.endsAt) : null;
+
   return (
     <div className="flex flex-col gap-6 pb-8">
+      {world && (
+        <p className="text-center text-xs text-slate-800">
+          World <span className="font-bold text-slate-950">{world.iteration}</span>
+          {worldResetIn && (
+            <>
+              {" "}· resets in <span className="text-amber-600">{worldResetIn}</span>
+            </>
+          )}
+          {worldResetAt && (
+            <span className="text-[10px] text-slate-400"> ({worldResetAt})</span>
+          )}
+        </p>
+      )}
+
       {isLoading && (
         <p className="text-center text-xs text-slate-500">Loading...</p>
       )}

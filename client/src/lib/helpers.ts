@@ -61,6 +61,18 @@ export function formatTime(ms: number): string {
   return `${s}s`;
 }
 
+export function formatDateTime(iso: string): string {
+  return new Date(iso)
+    .toLocaleString(undefined, {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+    .toLowerCase();
+}
+
 export function timeRemaining(completesAt: string): number {
   return new Date(completesAt).getTime() - Date.now();
 }

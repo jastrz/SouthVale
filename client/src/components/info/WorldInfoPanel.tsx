@@ -1,5 +1,5 @@
 import { useWorldStatus } from "../../api/hooks/useQueries";
-import { formatTime, timeRemaining } from "../../lib/helpers";
+import { formatDateTime, formatTime, timeRemaining } from "../../lib/helpers";
 
 const MEDAL_STYLES = [
   "bg-amber-400 text-slate-900",
@@ -18,17 +18,7 @@ export function WorldInfoPanel() {
       : remaining > 0
         ? formatTime(remaining)
         : "any moment now";
-  const resetAt = data.endsAt
-    ? new Date(data.endsAt)
-        .toLocaleString(undefined, {
-          day: "numeric",
-          month: "short",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })
-        .toLowerCase()
-    : null;
+  const resetAt = data.endsAt ? formatDateTime(data.endsAt) : null;
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-4 rounded-xl bg-slate-800/80 px-4 py-3 text-xs text-slate-300">
