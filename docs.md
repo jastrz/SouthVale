@@ -466,7 +466,10 @@ LLM tick triggers, soft reset, config view/edit (see
 **Soft reset** (`/admin/reset`, password-confirmed): keeps registered
 (non-guest) users and admins, deletes all game data + guest accounts,
 drops the Hangfire schema, recreates starter villages, restarts the app
-for re-seeding.
+for re-seeding. The same operation runs automatically once the current
+world iteration reaches `WorldReset:IntervalDays` (default 3, checked
+hourly); each reset stores the finished iteration's number and top
+leaderboard players.
 
 **Backups**: a dedicated sidecar container
 (`prodrigestivill/postgres-backup-local`) dumps the PostgreSQL database
@@ -476,9 +479,10 @@ into the `./backups` directory on a schedule.
 - Retention: `BACKUP_KEEP_DAYS` / `BACKUP_KEEP_WEEKS` / `BACKUP_KEEP_MONTHS`
   — how many dumps of each tier to keep
 
-**Startup seeding** (in order): barbarian player/villages (when
-`Features:UseBarbarians`), LLM bot players (when `Features:UseLlmPlayers`),
-admin user (when `Admin:Password` set), test data (dev only).
+**Startup seeding** (in order): world iteration baseline, barbarian
+player/villages (when `Features:UseBarbarians`), LLM bot players (when
+`Features:UseLlmPlayers`), admin user (when `Admin:Password` set), test
+data (dev only).
 
 <a name="player-display"></a>
 # 13. Player Display (map village labels)

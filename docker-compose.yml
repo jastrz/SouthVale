@@ -53,6 +53,7 @@ services:
       GameSettings__BotsIgnoreQueueSize: ${GameSettings__BotsIgnoreQueueSize:-true}
       Features__UseBarbarians: ${Features__UseBarbarians:-true}
       Features__UseLlmPlayers: ${Features__UseLlmPlayers:-false}
+      WorldReset__IntervalDays: ${WorldReset__IntervalDays:-3}
       Admin__Password: ${Admin__Password:-}
     depends_on:
       postgres:

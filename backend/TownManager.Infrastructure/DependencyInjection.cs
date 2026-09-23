@@ -14,6 +14,7 @@ using TownManager.Application.Barbarians;
 using TownManager.Application.Llm;
 using TownManager.Application.Map.Services;
 using TownManager.Application.Villages.Services;
+using TownManager.Application.World;
 using TownManager.Domain.Config;
 using TownManager.Infrastructure.Identity;
 using TownManager.Infrastructure.Jobs;
@@ -72,6 +73,7 @@ public static class DependencyInjection
         services.AddScoped<IVillageRepository, VillageRepository>();
         services.AddScoped<IMovementRepository, MovementRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<IWorldIterationRepository, WorldIterationRepository>();
         services.AddScoped<IJobScheduler, HangfireJobScheduler>();
 
         services.AddHttpClient<ILlmApiClient, LlmApiClient>(c => c.Timeout = TimeSpan.FromMinutes(10));
@@ -139,6 +141,12 @@ public static class DependencyInjection
         }
 
         services.AddHostedService(sp => new VillageTickJobScheduler(sp.GetRequiredService<IRecurringJobManager>()));
+
+        services.AddScoped<IWorldResetService, WorldResetService>();
+        var worldResetOptions = configuration.GetSection(WorldResetOptions.SectionName).Get<WorldResetOptions>() ?? new();
+        services.AddSingleton(worldResetOptions);
+        services.AddHostedService(sp => new WorldResetJobScheduler(
+            sp.GetRequiredService<IRecurringJobManager>()));
 
         return services;
     }

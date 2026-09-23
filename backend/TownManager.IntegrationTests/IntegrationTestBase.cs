@@ -19,6 +19,8 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
     protected HttpClient Client { get; private set; } = null!;
 
+    protected WebApplicationFactory<Program> Factory => _factory!;
+
     protected static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
