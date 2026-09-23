@@ -18,6 +18,17 @@ export function WorldInfoPanel() {
       : remaining > 0
         ? formatTime(remaining)
         : "any moment now";
+  const resetAt = data.endsAt
+    ? new Date(data.endsAt)
+        .toLocaleString(undefined, {
+          day: "numeric",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+        .toLowerCase()
+    : null;
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-4 rounded-xl bg-slate-800/80 px-4 py-3 text-xs text-slate-300">
@@ -29,6 +40,9 @@ export function WorldInfoPanel() {
           <>
             {" "}· resets in <span className="text-amber-500">{resetIn}</span>
           </>
+        )}
+        {resetAt && (
+          <span className="text-[10px] text-slate-400"> ({resetAt})</span>
         )}
       </p>
 
