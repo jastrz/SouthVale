@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Button } from "../Button";
+import { Button } from "../ui/Button";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { TradeRequest, ResourceType, ResourcesDto } from "../../api/types";
-import { Icon } from "../Icon";
-import { NumberInput } from "../NumberInput";
+import { Icon } from "../ui/Icon";
+import { NumberInput } from "../ui/NumberInput";
 import { RESOURCE_ICONS } from "../../lib/helpers";
-import { ResourceCost } from "../village-panel/ResourceCost";
+import { ResourceCost } from "../village/ResourceCost";
 
 const RESOURCES: { type: ResourceType; label: string }[] = [
   { type: "Wood", label: "Wood" },

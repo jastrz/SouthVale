@@ -7,10 +7,10 @@ import "./index.css";
 import { router } from "./routes/router";
 import { queryClient } from "./lib/query-client";
 import { Toaster } from "sonner";
-import { AuthCacheInvalidator } from "./components/AuthCacheInvalidator";
+import { AuthCacheInvalidator } from "./components/auth/AuthCacheInvalidator";
 import { useAuthStore } from "./store/authStore";
 import { useSignalR } from "./hooks/useSignalR";
-import { GlobalSpinner } from "./components/GlobalSpinner";
+import { GlobalSpinner } from "./components/ui/GlobalSpinner";
 
 export function App() {
   useSignalR();

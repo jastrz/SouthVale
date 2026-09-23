@@ -1,0 +1,52 @@
+import { useState } from "react";
+import { useReports, useMarkReportsRead } from "../../api/hooks/useQueries";
+import { Pagination } from "../ui/Pagination";
+import { ScrollArea } from "../ui/ScrollArea";
+import { Report } from "./Report";
+
+export function NotificationsPanel() {
+  const [page, setPage] = useState(1);
+  const { data } = useReports(page);
+  const markRead = useMarkReportsRead();
+
+  const reports = data?.reports ?? [];
+  const unreadCount = data?.unreadCount ?? 0;
+  const totalPages = Math.ceil((data?.totalCount ?? 0) / 10);
+
+  return (
+    <>
+      <div className="flex items-center">
+        <div className="flex-1" />
+        {/*<h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
+          Reports
+        </h2>*/}
+        <div className="flex-1 flex justify-end">
+          {unreadCount > 0 && (
+            <button
+              className="rounded bg-slate-700 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-600"
+              onClick={() => markRead.mutate()}
+            >
+              Mark all as read
+            </button>
+          )}
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="space-y-1">
+          {reports.length === 0 && (
+            <p className="mt-8 text-center text-xs text-slate-500">
+              No reports yet.
+            </p>
+          )}
+          {reports.map((r) => (
+            <Report key={r.id} report={r} />
+          ))}
+        </div>
+      </ScrollArea>
+      {totalPages > 1 && (
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+      )}
+    </>
+  );
+}

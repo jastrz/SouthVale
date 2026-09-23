@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "../Button";
+import { Button } from "../ui/Button";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type {
   TransportRequest,
@@ -9,11 +9,11 @@ import type {
   ResourcesDto,
 } from "../../api/types";
 import { TROOP_LABELS } from "../../config/game";
-import { TravelEta } from "../travel-time/TravelEta";
+import { TravelEta } from "../map/travel-time/TravelEta";
 import { useTravelTime } from "../../hooks/useTravelTime";
 import { useMyVillages, useGameConfig } from "../../api/hooks/useQueries";
-import { NumberInput } from "../NumberInput";
-import { Icon } from "../Icon";
+import { NumberInput } from "../ui/NumberInput";
+import { Icon } from "../ui/Icon";
 import { RESOURCE_ICONS, TROOP_ICONS } from "../../lib/helpers";
 
 const ICON_SIZE = 18;

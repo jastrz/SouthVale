@@ -4,7 +4,7 @@ import type { AxiosError } from "axios";
 import { useLogin } from "../api/hooks/useAuth";
 import { useAuthStore } from "../store/authStore";
 import { loginSchema, type LoginForm, type FormErrors } from "../schemas/auth";
-import { GuestRegisterButton } from "../components/GuestRegisterButton";
+import { GuestRegisterButton } from "../components/auth/GuestRegisterButton";
 import { inputBase, inputDefault, inputError } from "../styles/styles";
 import { jwtRole } from "../lib/helpers";
 

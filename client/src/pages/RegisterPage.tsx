@@ -2,8 +2,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
 import { useRegister } from "../api/hooks/useAuth";
 import { useAuthStore } from "../store/authStore";
-import { AuthForm } from "../components/AuthForm";
-import { GuestRegisterButton } from "../components/GuestRegisterButton";
+import { AuthForm } from "../components/auth/AuthForm";
+import { GuestRegisterButton } from "../components/auth/GuestRegisterButton";
 
 export function RegisterPage() {
   const navigate = useNavigate();

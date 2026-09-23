@@ -43,11 +43,10 @@ canvas {
     transform: translate(35%, -35%) !important;
 }
 
-.scrollbar-hide {
+.scrollbar-none {
     scrollbar-width: none;
-    -ms-overflow-style: none;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
+.scrollbar-none::-webkit-scrollbar {
     display: none;
 }

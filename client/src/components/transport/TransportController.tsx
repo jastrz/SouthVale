@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Button } from "../Button";
+import { Button } from "../ui/Button";
 import {
   useVillage,
   useTransport,
   useGameConfig,
 } from "../../api/hooks/useQueries";
-import { TravelTimeProvider } from "../travel-time/TravelTime";
-import { Modal } from "../Modal";
+import { TravelTimeProvider } from "../map/travel-time/TravelTime";
+import { Modal } from "../ui/Modal";
 import { TransportPanel } from "./TransportPanel";
 
 export function TransportController({ villageId }: { villageId: string }) {

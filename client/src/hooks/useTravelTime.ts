@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { travelTime } from "../lib/helpers";
-import { TravelTimeContext } from "../components/travel-time/TravelTime";
+import { TravelTimeContext } from "../components/map/travel-time/TravelTime";
 
 export function useTravelTime() {
   const ctx = useContext(TravelTimeContext);

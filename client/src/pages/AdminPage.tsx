@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useAddResources, useFullResources, useTickBarbarian, useTickLlm, useResetDb, useAdminVillages, useGameConfig, useUpdateGameConfig } from "../api/hooks/useAdmin";
-import { LoginBar } from "../components/LoginBar";
+import { LoginBar } from "../components/auth/LoginBar";
+import { ScrollArea } from "../components/ui/ScrollArea";
 
 function Btn({ label, loading, ...props }: {
   label: string;
@@ -81,7 +82,7 @@ export function AdminPage() {
   };
 
   return (
-    <div className="overflow-y-auto bg-slate-900 pb-16 pt-8" style={{ height: "100dvh" }}>
+    <ScrollArea className="bg-slate-900 pb-16 pt-8" style={{ height: "100dvh" }}>
       <div className="mx-auto flex w-full max-w-md flex-col gap-8 px-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">Admin</h1>
@@ -105,7 +106,7 @@ export function AdminPage() {
           />
 
           {open && search && filtered.length > 0 && (
-            <div className="max-h-40 overflow-y-auto rounded border border-slate-600 bg-slate-800">
+            <ScrollArea className="max-h-40 rounded border border-slate-600 bg-slate-800">
               {filtered.map((v) => (
                 <button
                   key={v.id}
@@ -118,7 +119,7 @@ export function AdminPage() {
                   {v.name} ({v.coordinates.x},{v.coordinates.y})
                 </button>
               ))}
-            </div>
+            </ScrollArea>
           )}
 
           {selected && <p className="text-xs text-slate-500">ID: {selected.id}</p>}
@@ -213,6 +214,6 @@ export function AdminPage() {
           )}
         </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 }

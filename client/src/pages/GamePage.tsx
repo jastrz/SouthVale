@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useGameStateStore } from "../store/gameStateStore";
-import { MapCanvas } from "../components/MapCanvas";
-import { NotificationsPanel } from "../components/NotificationsPanel";
-import { LeaderboardPanel } from "../components/LeaderboardPanel";
-import { OverviewPanel } from "../components/overview-panel/OverviewPanel";
-import { VillagePanel } from "../components/village-panel/VillagePanel";
-import { VillagePopup } from "../components/VillagePopup";
-import { TilePopup } from "../components/TilePopup";
-import { GameInfoPanel } from "../components/GameInfoPanel";
-import { TopBar } from "../components/TopBar";
+import { MapCanvas } from "../components/map/MapCanvas";
+import { NotificationsPanel } from "../components/notifications/NotificationsPanel";
+import { LeaderboardPanel } from "../components/leaderboard/LeaderboardPanel";
+import { OverviewPanel } from "../components/village/OverviewPanel";
+import { VillagePanel } from "../components/village/VillagePanel";
+import { VillagePopup } from "../components/map/VillagePopup";
+import { TilePopup } from "../components/map/TilePopup";
+import { GameInfoPanel } from "../components/info/GameInfoPanel";
+import { TopBar } from "../components/info/TopBar";
+import { ScrollArea } from "../components/ui/ScrollArea";
 import { PANEL_CLAMP, TREE_SWAY_ENABLED, USE_BIG_TREES, setTreeSwayEnabled, setUseBigTrees } from "../pixi/config";
 
 function Panel({
@@ -167,8 +168,8 @@ export function GamePage() {
           className="flex h-full bg-slate-950 bg-cover bg-top"
           style={{ backgroundImage: "url(/bg.jpg)" }}
         >
-          <div className="flex flex-1 min-w-0 items-start overflow-y-auto pointer-events-auto">
-            <div className="mx-auto flex w-full max-w-5xl h-full flex-col gap-2 p-4 pt-32">
+          <ScrollArea className="flex-1 min-w-0 self-stretch pointer-events-auto">
+            <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 p-4 pt-32">
               {currentView === "notifications" ? (
                 <NotificationsPanel />
               ) : currentView === "leaderboard" ? (
@@ -177,7 +178,7 @@ export function GamePage() {
                 <GameInfoPanel />
               )}
             </div>
-          </div>
+          </ScrollArea>
         </div>
       )}
 

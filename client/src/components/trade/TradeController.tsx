@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Button } from "../Button";
+import { Button } from "../ui/Button";
 import { useVillage, useTrade, useGameConfig } from "../../api/hooks/useQueries";
-import { Modal } from "../Modal";
+import { Modal } from "../ui/Modal";
 import { TradePanel } from "./TradePanel";
 
 export function TradeController({ villageId }: { villageId: string }) {
