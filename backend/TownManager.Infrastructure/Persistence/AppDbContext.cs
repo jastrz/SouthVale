@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions options, IMediator mediator) : Identi
     public DbSet<TrainOrder> TrainOrders => Set<TrainOrder>();
     public DbSet<TroopMovement> TroopMovements => Set<TroopMovement>();
     public DbSet<Report> Reports => Set<Report>();
+    public DbSet<WorldIteration> WorldIterations => Set<WorldIteration>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

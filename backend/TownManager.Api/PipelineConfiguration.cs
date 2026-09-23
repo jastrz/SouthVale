@@ -23,6 +23,9 @@ public static class PipelineConfiguration
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             db.Database.Migrate();
+
+            var worldIterationSeeder = new WorldIterationSeeder(db);
+            worldIterationSeeder.SeedAsync().GetAwaiter().GetResult();
             
             if (bool.TryParse(app.Configuration["Features:UseBarbarians"], out var useBarb) && useBarb)
             {

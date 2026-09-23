@@ -6,9 +6,8 @@ using NCrontab;
 using TownManager.Application.Barbarians;
 using TownManager.Application.Llm;
 using TownManager.Application.Players.Services;
-using TownManager.Application.Map.Services;
 using TownManager.Application.Villages.Services;
-using TownManager.Domain.Entities.Villages;
+using TownManager.Application.World;
 using TownManager.Domain.Config;
 using TownManager.Domain.Entities;
 using TownManager.Infrastructure.Identity;
@@ -213,10 +212,8 @@ public class AdminEndpoints : IEndpoint
             ResetRequest request,
             HttpContext httpContext,
             UserManager<ApplicationUser> userManager,
-            AppDbContext db,
-            IMapService mapService,
+            IWorldResetService worldReset,
             IHostApplicationLifetime hostLifetime,
-            ILogger<AdminEndpoints> logger,
             CancellationToken ct
         ) =>
         {
@@ -228,64 +225,9 @@ public class AdminEndpoints : IEndpoint
             if (user is null || !await userManager.CheckPasswordAsync(user, request.Password))
                 return Results.Problem(statusCode: 403, title: "Wrong password");
 
-            var keptUsers = await userManager.Users
-                .Where(u => u.Email != null)
-                .Select(u => new { u.Id, u.UserName, u.Email })
-                .ToListAsync(ct);
-
-            var keptIds = keptUsers.Select(u => u.Id).ToHashSet();
-            var keptPlayers = await db.Players
-                .Where(p => keptIds.Contains(p.UserId!))
-                .Select(p => new { p.UserId, p.Username, p.IsBot })
-                .ToListAsync(ct);
-
-            var keptUserNames = keptPlayers.Where(p => !p.IsBot).ToDictionary(p => p.UserId!, p => p.Username);
-            var botUserIds = keptPlayers.Where(p => p.IsBot).Select(p => p.UserId!).ToHashSet();
-
-            await db.Database.ExecuteSqlRawAsync("""
-                DELETE FROM "AspNetUserTokens" WHERE "UserId" IN (SELECT "Id" FROM "AspNetUsers" WHERE "Email" IS NULL);
-                DELETE FROM "AspNetUserLogins" WHERE "UserId" IN (SELECT "Id" FROM "AspNetUsers" WHERE "Email" IS NULL);
-                DELETE FROM "AspNetUserClaims" WHERE "UserId" IN (SELECT "Id" FROM "AspNetUsers" WHERE "Email" IS NULL);
-                DELETE FROM "AspNetUserRoles" WHERE "UserId" IN (SELECT "Id" FROM "AspNetUsers" WHERE "Email" IS NULL);
-                DELETE FROM "AspNetUsers" WHERE "Email" IS NULL;
-                DELETE FROM "Reports";
-                DELETE FROM "Villages";
-                DELETE FROM "Players";
-                DROP SCHEMA IF EXISTS hangfire CASCADE;
-                """, ct);
-
-            foreach (var botId in botUserIds)
-            {
-                var bot = await userManager.FindByIdAsync(botId);
-                if (bot is not null) await userManager.DeleteAsync(bot);
-            }
-
-            var adminIds = (await userManager.GetUsersInRoleAsync("Admin"))
-                .Select(u => u.Id)
-                .ToHashSet();
-
-            var nonAdminKept = keptUsers.Where(u => !adminIds.Contains(u.Id) && !botUserIds.Contains(u.Id)).ToList();
-
-            if (nonAdminKept.Count > 0)
-            {
-                var freeTiles = await mapService.GetFreeTilesAsync(nonAdminKept.Count, ct);
-                for (var i = 0; i < nonAdminKept.Count; i++)
-                {
-                    var kept = nonAdminKept[i];
-                    var username = keptUserNames.GetValueOrDefault(kept.Id) ?? kept.UserName ?? kept.Email ?? $"Player_{i}";
-                    var coords = i < freeTiles.Count ? freeTiles[i] : new Coordinates(0, 0);
-                    var village = Village.CreateStarter($"{username}'s village", coords);
-                    var player = Player.Create(username, kept.Id, village);
-                    db.Players.Add(player);
-                    db.Villages.Add(village);
-                }
-
-                await db.SaveChangesAsync(ct);
-            }
-
-            logger.LogWarning("Soft database reset by admin — restarting");
+            var result = await worldReset.ResetAsync(ct);
             hostLifetime.StopApplication();
-            return Results.Ok(new AdminResetResponse("soft", keptUsers.Count, nonAdminKept.Count));
+            return Results.Ok(new AdminResetResponse("soft", result.PersistedUsers, result.RecreatedPlayers));
         })
         .WithName("AdminResetSoft")
         .WithTags("Admin")
