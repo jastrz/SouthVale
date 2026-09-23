@@ -19,21 +19,18 @@ export function FrontpageLayout() {
         <div className="flex flex-1 flex-col items-center py-6 lg:py-16">
 
           <div className="grid w-full grid-cols-1 gap-8 lg:grid-cols-3">
-            <div className="flex justify-center">
+            <div className="order-2 flex justify-center lg:order-1">
               <div className="w-full max-w-sm px-4">
                 <WorldInfoPanel />
               </div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="order-1 flex justify-center lg:order-2">
               <Outlet />
             </div>
 
-            <div className="flex justify-center">
+            <div className="order-3 flex justify-center">
               <div className="w-full max-w-sm px-4">
-                <h2 className="mb-4 text-center text-xl tracking-widest text-white">
-                  Leaderboard
-                </h2>
                 <LeaderboardPanel pageSize={10} />
               </div>
             </div>
